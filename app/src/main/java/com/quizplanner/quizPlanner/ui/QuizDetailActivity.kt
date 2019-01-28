@@ -9,10 +9,6 @@ import com.quizplanner.quizPlanner.R
 import com.quizplanner.quizPlanner.model.Quiz
 import kotlinx.android.synthetic.main.activity_quiz_detail.*
 import kotlinx.android.synthetic.main.quiz_detail.*
-import android.graphics.drawable.ColorDrawable
-import com.quizplanner.quizPlanner.R.id.toolbar
-import android.support.v4.view.ViewCompat.setAlpha
-import com.squareup.picasso.Picasso
 
 
 class QuizDetailActivity : AppCompatActivity() {
@@ -39,11 +35,11 @@ class QuizDetailActivity : AppCompatActivity() {
                     ?: throw AssertionError()
 
             this.item = item as Quiz
-            toolbar_layout.title = item.name
-            detail_place.text = item.place
-            detail_count.text = item.count()
+            toolbar_layout.title = item.organization
+            detail_place.text = item.location
+            detail_count.text = item.countOfPlayers
             detail_price.text = item.price
-            detail_description.text = item.detail
+            detail_description.text = item.description
 /*
             Picasso.get()
                     .load(item.imgUrl)

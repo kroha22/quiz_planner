@@ -18,16 +18,18 @@ import android.widget.Toast
 import com.arellomobile.mvp.MvpAppCompatActivity
 import com.arellomobile.mvp.MvpView
 import com.arellomobile.mvp.presenter.InjectPresenter
+import com.arellomobile.mvp.viewstate.strategy.AddToEndSingleStrategy
 import com.arellomobile.mvp.viewstate.strategy.SkipStrategy
 import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
+import com.quizplanner.quizPlanner.QuizPlanner.formatterDate
+import com.quizplanner.quizPlanner.QuizPlanner.formatterDay
+import com.quizplanner.quizPlanner.QuizPlanner.formatterMonth
 import com.quizplanner.quizPlanner.R
-import com.quizplanner.quizPlanner.dummy.DummyContent
 import com.quizplanner.quizPlanner.model.Quiz
 import com.quizplanner.quizPlanner.ui.QuizDetailActivity.Companion.QUIZ_ITEM_CODE
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.quiz_list_item.view.*
-import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.LinkedHashMap
@@ -42,6 +44,10 @@ import kotlin.collections.LinkedHashMap
 @StateStrategyType(SkipStrategy::class)
 interface MainView : MvpView {
 
+    companion object {
+        const val PROGRESS_TAG = "ERROR_TAG"
+    }
+
     fun showMessage(msg: String)
 
     fun showDialog(dialogBuilder: DialogBuilder)
@@ -49,6 +55,9 @@ interface MainView : MvpView {
     fun setContent(mTabItems: LinkedHashMap<Date, List<Quiz>>)
 
     fun showQuizView(quiz: Quiz)
+
+    @StateStrategyType(value = AddToEndSingleStrategy::class, tag = PROGRESS_TAG)
+    fun showLoadProgress()
 
 }
 
@@ -84,6 +93,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, DateFragment.ItemClickLis
         super.onResume()
 
         if (!presenter.isStarted()) {
+            presenter.init(this)
             presenter.setEscapeHandler { finish() }
             presenter.start()
         }
@@ -102,6 +112,10 @@ class MainActivity : MvpAppCompatActivity(), MainView, DateFragment.ItemClickLis
 
     override fun showDialog(dialogBuilder: DialogBuilder) {
         dialogBuilder.show(this)
+    }
+
+    override fun showLoadProgress() {
+        //todo showView(ViewFactory.getProgressView(this))
     }
 
     override fun setContent(mTabItems: LinkedHashMap<Date, List<Quiz>>) {
@@ -153,11 +167,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, DateFragment.ItemClickLis
     //------------------------------------------------------------------------------------------------
 
     inner class SectionsPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
-        //------------------------------------------------------------------------------------------------
-        private val myLocale = Locale("ru", "RU")
-        private val formatterDay = SimpleDateFormat("EEE", myLocale)
-        private val formatterDate = SimpleDateFormat("dd.MM", myLocale)
-        //------------------------------------------------------------------------------------------------
 
         private val tabItems: MutableList<Date> = ArrayList()
         private val pages: MutableMap<Date, List<Quiz>> = LinkedHashMap()
@@ -198,6 +207,8 @@ class MainActivity : MvpAppCompatActivity(), MainView, DateFragment.ItemClickLis
             title.text = formatterDay.format(item)
             subtitle.text = formatterDate.format(item)
 
+            toolbar_month.text = formatterMonth.format(item)
+
             return view
         }
     }
@@ -217,13 +228,10 @@ class DateFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val recyclerView: RecyclerView = inflater.inflate(R.layout.quiz_list, container, false) as RecyclerView
-
-        adapter.setValues(DummyContent.ITEMS)
         adapter.setOnClickListener { clickListener?.onItemClick(it) }
         recyclerView.adapter = adapter
         return recyclerView
     }
-
 
     fun setValues(values: List<Quiz>) {
         adapter.setValues(values)
@@ -250,6 +258,7 @@ class DateFragment : Fragment() {
         fun setValues(values: List<Quiz>) {
             this.values.clear()
             this.values.addAll(0, values)
+            notifyDataSetChanged()
         }
 
         fun setOnClickListener(onClickListener: (Quiz) -> Unit) {
@@ -264,16 +273,19 @@ class DateFragment : Fragment() {
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val item = values[position]
-            holder.name.text = item.name
-            holder.place.text = item.place
+            holder.name.text = item.organization
+            holder.place.text = item.location
             holder.price.text = item.price
-            holder.count.text = item.count()
+            holder.count.text = item.countOfPlayers
             holder.time.text = item.time
 
-            Picasso.get()
-                    .load(item.imgUrl)
-                    .placeholder(R.drawable.ic_image_placeholder)
-                    .into(holder.img)
+            if (!item.imgUrl.isEmpty()) {
+                Picasso.get()
+                        .load(item.imgUrl)
+                        .placeholder(R.drawable.ic_image_placeholder)
+                        .error(R.drawable.ic_image_placeholder)
+                        .into(holder.img)
+            }
 
 
             with(holder.itemView) {

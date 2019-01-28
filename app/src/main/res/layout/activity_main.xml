@@ -39,7 +39,7 @@
                         android:layout_width="@dimen/toolbar_icon_size"
                         android:layout_height="@dimen/toolbar_icon_size"
                         android:layout_alignParentLeft="true"
-                        android:src="@drawable/ic_menu_24dp" />
+                        android:src="@mipmap/ic_launcher" />
 
                     <ImageView
                         android:id="@+id/toolbar_search"
