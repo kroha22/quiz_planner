@@ -10,7 +10,6 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
@@ -24,17 +23,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.QuizListActivity"
-            android:label="@string/title_quiz_list"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
-        <activity
             android:name=".ui.QuizDetailActivity"
             android:label="@string/title_quiz_detail"
-            android:parentActivityName=".ui.QuizListActivity"
             android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.quizplanner.quizPlanner.ui.QuizListActivity" />
         </activity>
     </application>
 
