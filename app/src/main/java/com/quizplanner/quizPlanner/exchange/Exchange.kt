@@ -2,6 +2,7 @@ package com.quizplanner.quizPlanner.exchange
 
 import android.content.Context
 import com.quizplanner.quizPlanner.R
+import com.quizplanner.quizPlanner.model.QuizData
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.POST

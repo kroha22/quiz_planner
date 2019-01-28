@@ -59,6 +59,9 @@ interface MainView : MvpView {
     @StateStrategyType(value = AddToEndSingleStrategy::class, tag = PROGRESS_TAG)
     fun showLoadProgress()
 
+    @StateStrategyType(value = AddToEndSingleStrategy::class, tag = PROGRESS_TAG)
+    fun hideLoadProgress()
+
 }
 
 //---------------------------------------------------------------------------------------------
@@ -92,11 +95,11 @@ class MainActivity : MvpAppCompatActivity(), MainView, DateFragment.ItemClickLis
     override fun onResume() {
         super.onResume()
 
-        if (!presenter.isStarted()) {
+        if (!presenter.isInitialized()) {
             presenter.init(this)
             presenter.setEscapeHandler { finish() }
-            presenter.start()
         }
+        presenter.start()
     }
 
     override fun showQuizView(quiz: Quiz) {
@@ -115,7 +118,11 @@ class MainActivity : MvpAppCompatActivity(), MainView, DateFragment.ItemClickLis
     }
 
     override fun showLoadProgress() {
-        //todo showView(ViewFactory.getProgressView(this))
+        wait_view.visibility = View.VISIBLE
+    }
+
+    override fun hideLoadProgress() {
+        wait_view.visibility = View.GONE
     }
 
     override fun setContent(mTabItems: LinkedHashMap<Date, List<Quiz>>) {
