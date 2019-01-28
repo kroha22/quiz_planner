@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tab_main"
+    android:layout_width="50dp"
+    android:layout_height="wrap_content"
+    android:background="@color/colorPrimary"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tab_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:textSize="@dimen/default_text_size_big"
+        android:text="Пн"
+        android:textColor="@color/white"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tab_sub_title"
+        android:layout_width="wrap_content"
+        android:textSize="@dimen/default_text_size"
+        android:layout_height="wrap_content"
+        android:text="01.01"
+        android:maxLines="1"
+        android:textColor="@color/white" />
+
+</LinearLayout>

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/default_padding"
+    android:orientation="horizontal">
+
+    <ImageView
+        android:id="@+id/item_check"
+        android:layout_width="@dimen/item_icon_size"
+        android:layout_height="@dimen/item_icon_size"
+        android:layout_gravity="top"
+        android:src="@drawable/ic_check_circle_24dp"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/item_img"
+            android:layout_width="@dimen/item_img_size"
+            android:layout_height="@dimen/item_img_size"
+            android:layout_gravity="top"
+            android:src="@drawable/ic_image_placeholder"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="bottom"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="@dimen/item_icon_size"
+                android:layout_height="@dimen/item_icon_size"
+                android:layout_gravity="top"
+                android:src="@drawable/ic_time"/>
+
+            <TextView
+                android:id="@+id/item_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="right"
+                android:textStyle="bold"
+                android:text="@string/time"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:orientation="vertical"
+        android:layout_weight="1"
+        android:paddingLeft="@dimen/default_padding"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/item_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:text="@string/name"
+            android:textSize="@dimen/item_title_text_size"
+            android:textAppearance="?attr/textAppearanceListItem" />
+
+        <TextView
+            android:id="@+id/item_place"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="italic"
+            android:textColor="@color/dark_grey"
+            android:text="@string/place"
+            android:textSize="@dimen/default_text_size"
+            android:textAppearance="?attr/textAppearanceListItem" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/item_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="italic"
+                android:text="_-_ "
+                android:textColor="@color/dark_grey"
+                android:textSize="@dimen/default_text_size"
+                android:textAppearance="?attr/textAppearanceListItem" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="italic"
+                android:textColor="@color/dark_grey"
+                android:text="человек. Стоимость "
+                android:textSize="@dimen/default_text_size"
+                android:textAppearance="?attr/textAppearanceListItem" />
+
+            <TextView
+                android:id="@+id/item_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="italic"
+                android:textColor="@color/dark_grey"
+                android:text="____"
+                android:textSize="@dimen/default_text_size"
+                android:textAppearance="?attr/textAppearanceListItem" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="italic"
+                android:textColor="@color/dark_grey"
+                android:text="@string/price"
+                android:textSize="@dimen/default_text_size"
+                android:textAppearance="?attr/textAppearanceListItem" />
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+</LinearLayout>

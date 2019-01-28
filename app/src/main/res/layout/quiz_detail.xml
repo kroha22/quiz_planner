@@ -1,0 +1,77 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/detail_place"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/place"
+            android:textAppearance="?attr/textAppearanceListItem"
+            android:textColor="@color/dark_grey"
+            android:textSize="@dimen/default_text_size_big"
+            android:textStyle="italic" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/detail_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="_-_ "
+                android:textAppearance="?attr/textAppearanceListItem"
+                android:textColor="@color/dark_grey"
+                android:textSize="@dimen/default_text_size_big"
+                android:textStyle="italic" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="человек. Стоимость "
+                android:textAppearance="?attr/textAppearanceListItem"
+                android:textColor="@color/dark_grey"
+                android:textSize="@dimen/default_text_size_big"
+                android:textStyle="italic" />
+
+            <TextView
+                android:id="@+id/detail_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="____"
+                android:textAppearance="?attr/textAppearanceListItem"
+                android:textColor="@color/dark_grey"
+                android:textSize="@dimen/default_text_size_big"
+                android:textStyle="italic" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/price"
+                android:textAppearance="?attr/textAppearanceListItem"
+                android:textColor="@color/dark_grey"
+                android:textSize="@dimen/default_text_size_big"
+                android:textStyle="italic" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/detail_description"
+            style="?android:attr/textAppearanceLarge"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textColor="@color/dark_grey"
+            android:text="@string/description"
+            android:textSize="@dimen/default_text_size"
+            android:textIsSelectable="true" />
+
+    </LinearLayout>
+</LinearLayout>

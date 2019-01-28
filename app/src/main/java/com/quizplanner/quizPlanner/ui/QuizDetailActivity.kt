@@ -1,0 +1,62 @@
+package com.quizplanner.quizPlanner.ui
+
+import android.content.Intent
+import android.os.Bundle
+import android.support.v4.app.NavUtils
+import android.support.v7.app.AppCompatActivity
+import android.view.MenuItem
+import com.quizplanner.quizPlanner.R
+import com.quizplanner.quizPlanner.model.Quiz
+import kotlinx.android.synthetic.main.activity_quiz_detail.*
+import kotlinx.android.synthetic.main.quiz_detail.*
+import android.graphics.drawable.ColorDrawable
+import com.quizplanner.quizPlanner.R.id.toolbar
+import android.support.v4.view.ViewCompat.setAlpha
+import com.squareup.picasso.Picasso
+
+
+class QuizDetailActivity : AppCompatActivity() {
+
+    companion object {
+        const val QUIZ_ITEM_CODE = "quiz_item"
+    }
+
+    private lateinit var item: Quiz
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_quiz_detail)
+        setSupportActionBar(detail_toolbar)
+
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        if (savedInstanceState == null) {
+            // Create the detail fragment and add it to the activity
+            // using a fragment transaction.
+
+
+            val item = intent.getSerializableExtra(QUIZ_ITEM_CODE)//todo
+                    ?: throw AssertionError()
+
+            this.item = item as Quiz
+            toolbar_layout.title = item.name
+            detail_place.text = item.place
+            detail_count.text = item.count()
+            detail_price.text = item.price
+            detail_description.text = item.detail
+/*
+            Picasso.get()
+                    .load(item.imgUrl)
+                    .into(image)*/
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem) =
+            when (item.itemId) {
+                android.R.id.home -> {
+                    NavUtils.navigateUpTo(this, Intent(this, MainActivity::class.java))
+                    true
+                }
+                else -> super.onOptionsItemSelected(item)
+            }
+}
