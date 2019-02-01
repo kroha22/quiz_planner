@@ -67,6 +67,8 @@ class MainPresenter : MvpPresenter<MainView>() {
         this.currentState = State.EMPTY
 
         updateDates()
+
+        isInitialized = true
     }
 
     override fun onDestroy() {
@@ -75,7 +77,6 @@ class MainPresenter : MvpPresenter<MainView>() {
     }
 
     fun start() {
-        isInitialized = true
         if (currentState == State.EMPTY) {
 
             getForecasts {
@@ -85,6 +86,8 @@ class MainPresenter : MvpPresenter<MainView>() {
                     showGames()
                 }
             }
+        } else if (currentState == State.GAMES_LIST){
+            showGames()
         }
     }
 
@@ -117,7 +120,10 @@ class MainPresenter : MvpPresenter<MainView>() {
                 .doOnNext { log("Load from bd games count ${it.size}") }
                 .map { getGamesByDate(it) }
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe( {this.setForecasts(it) },{ this.onLoadError(it) },{ onComplete.invoke() })
+                .subscribe(
+                        { this.setForecasts(it) },
+                        { this.onLoadError(it) },
+                        { onComplete.invoke() })
     }
 
     private fun showLoadProgress() {

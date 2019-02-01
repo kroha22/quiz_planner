@@ -3,8 +3,8 @@
     android:id="@+id/tab_main"
     android:layout_width="50dp"
     android:layout_height="wrap_content"
-    android:background="@color/colorPrimary"
-    android:gravity="center"
+    android:gravity="center_horizontal"
+    android:paddingBottom="4dp"
     android:orientation="vertical">
 
     <TextView
@@ -12,18 +12,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:maxLines="1"
-        android:textSize="@dimen/default_text_size_big"
-        android:text="Пн"
+        android:text="01"
         android:textColor="@color/white"
+        android:textSize="@dimen/tab_text_size_big"
         android:textStyle="bold" />
 
     <TextView
         android:id="@+id/tab_sub_title"
         android:layout_width="wrap_content"
-        android:textSize="@dimen/default_text_size"
         android:layout_height="wrap_content"
-        android:text="01.01"
         android:maxLines="1"
-        android:textColor="@color/white" />
-
+        android:text="Пн"
+        android:textAllCaps="true"
+        android:textColor="@color/white"
+        android:textSize="@dimen/tab_text_size" />
 </LinearLayout>

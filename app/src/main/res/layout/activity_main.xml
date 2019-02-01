@@ -11,9 +11,7 @@
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="@dimen/appbar_padding_top"
-        android:theme="@style/AppTheme.AppBarOverlay">
+        android:layout_height="wrap_content">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
@@ -21,7 +19,6 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="?attr/colorPrimary"
-            app:layout_scrollFlags="scroll|enterAlways"
             app:popupTheme="@style/AppTheme.PopupOverlay"
             app:title="@string/app_name">
 
@@ -32,30 +29,33 @@
 
                 <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="?attr/actionBarSize">
+                    android:layout_height="?attr/actionBarSize"
+                    android:gravity="center_vertical">
 
                     <ImageView
-                        android:id="@+id/toolbar_menu"
+                        android:id="@+id/toolbar_icon"
                         android:layout_width="@dimen/toolbar_icon_size"
                         android:layout_height="@dimen/toolbar_icon_size"
                         android:layout_alignParentLeft="true"
                         android:src="@mipmap/ic_launcher" />
 
-                    <ImageView
-                        android:id="@+id/toolbar_search"
-                        android:layout_width="@dimen/toolbar_icon_size"
-                        android:layout_height="@dimen/toolbar_icon_size"
-                        android:layout_alignParentRight="true"
-                        android:src="@drawable/ic_search_24dp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="@dimen/default_padding"
+                        android:layout_toRightOf="@id/toolbar_icon"
+                        android:text="@string/title"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/title_text_size" />
 
                 </RelativeLayout>
 
                 <TextView
                     android:id="@+id/toolbar_month"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="@string/month"
+                    android:layout_gravity="center"
                     android:textColor="@color/white"
                     android:textSize="@dimen/title_text_size"
                     android:textStyle="bold" />
@@ -65,12 +65,13 @@
 
         <android.support.design.widget.TabLayout
             android:id="@+id/tabs"
-            app:tabMode="scrollable"
-            app:tabGravity="fill"
-            app:tabIndicatorColor="@color/colorAccent"
-            app:tabTextColor="@color/white"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            app:tabGravity="fill"
+            app:tabIndicatorFullWidth="false"
+            app:tabIndicatorColor="@color/white"
+            app:tabIndicatorHeight="4dp"
+            app:tabMode="scrollable" />
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.view.ViewPager
@@ -82,42 +83,16 @@
     <LinearLayout
         android:id="@+id/wait_view"
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="100dp"
         android:clickable="true"
         android:focusable="true"
         android:gravity="center"
-        android:orientation="vertical"
-        android:layout_height="match_parent">
+        android:orientation="vertical">
 
-        <android.support.design.card.MaterialCardView
+        <ProgressBar
             android:layout_width="wrap_content"
-            app:cardBackgroundColor="@color/white"
-            app:cardCornerRadius="20dp"
-            app:strokeColor="@color/colorAccentLight"
-            app:strokeWidth="2dp"
-            android:layout_height="wrap_content">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center"
-                android:padding="@dimen/default_padding"
-                android:layout_height="wrap_content">
-
-                <ProgressBar
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="@dimen/title_text_size"
-                    android:textColor="@color/colorAccentVeryDark"
-                    android:text="@string/wait"/>
-
-
-            </LinearLayout>
-
-        </android.support.design.card.MaterialCardView>
+            android:layout_height="wrap_content" />
 
     </LinearLayout>
 

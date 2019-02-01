@@ -8,8 +8,8 @@ object QuizPlanner{
     //------------------------------------------------------------------------------------------------
     val myLocale = Locale("ru", "RU")
     val formatterDay = SimpleDateFormat("EEE", myLocale)
-    val formatterDate = SimpleDateFormat("dd.MM", myLocale)
-    val formatterMonth = SimpleDateFormat("MMM", myLocale)
+    val formatterDate = SimpleDateFormat("dd", myLocale)
+    val formatterMonth = SimpleDateFormat("LLLL", myLocale)
     val formatterISO = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", myLocale)
     //------------------------------------------------------------------------------------------------
 

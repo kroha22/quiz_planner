@@ -3,12 +3,13 @@ package com.quizplanner.quizPlanner.ui
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
+import android.graphics.Canvas
 import android.os.Bundle
 import android.support.design.widget.TabLayout
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
+import android.support.v4.content.ContextCompat
 import android.support.v7.widget.RecyclerView
 import android.text.format.DateUtils
 import android.view.*
@@ -87,7 +88,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, DateFragment.ItemClickLis
 
         tabs.addOnTabSelectedListener(TabLayout.ViewPagerOnTabSelectedListener(container))
         tabs.setupWithViewPager(container)
-        tabs.setSelectedTabIndicatorColor(Color.TRANSPARENT)
 
         fab.setOnClickListener { presenter.onRefreshClick() }
     }
@@ -211,8 +211,8 @@ class MainActivity : MvpAppCompatActivity(), MainView, DateFragment.ItemClickLis
             val subtitle = view.findViewById<TextView>(R.id.tab_sub_title)
 
             val item = tabItems[position]
-            title.text = formatterDay.format(item)
-            subtitle.text = formatterDate.format(item)
+            title.text = formatterDate.format(item)
+            subtitle.text = formatterDay.format(item)
 
             toolbar_month.text = formatterMonth.format(item)
 
@@ -237,6 +237,7 @@ class DateFragment : Fragment() {
         val recyclerView: RecyclerView = inflater.inflate(R.layout.quiz_list, container, false) as RecyclerView
         adapter.setOnClickListener { clickListener?.onItemClick(it) }
         recyclerView.adapter = adapter
+        recyclerView.addItemDecoration(SimpleDividerItemDecoration(context!!))
         return recyclerView
     }
 
@@ -312,6 +313,31 @@ class DateFragment : Fragment() {
             val count: TextView = view.item_count
             val time: TextView = view.item_time
             val img: ImageView = view.item_img
+        }
+    }
+
+    //------------------------------------------------------------------------------------------------
+    class SimpleDividerItemDecoration(context: Context) : RecyclerView.ItemDecoration() {
+        private val mDivider = ContextCompat.getDrawable(context, R.drawable.line_divider)!!
+
+        override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+            val left = parent.paddingLeft
+            val right = parent.width - parent.paddingRight
+
+            val childCount = parent.childCount
+            for (i in 0..childCount) {
+                val child = parent.getChildAt(i)
+
+                if (child != null) {
+                    val params = child.layoutParams as RecyclerView.LayoutParams
+
+                    val top = child.bottom + params.bottomMargin
+                    val bottom = top + mDivider.intrinsicHeight
+
+                    mDivider.setBounds(left, top, right, bottom)
+                    mDivider.draw(c)
+                }
+            }
         }
     }
     //------------------------------------------------------------------------------------------------

@@ -18,4 +18,8 @@
 
     <dimen name="article_keylines">72dp</dimen>
     <dimen name="md_keylines">16dp</dimen>
+
+    <dimen name="tab_text_size_big">18sp</dimen>
+    <dimen name="tab_text_size">14sp</dimen>
+    <dimen name="quiz_list_margin">10dp</dimen>
 </resources>

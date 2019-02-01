@@ -22,8 +22,7 @@
             android:theme="@style/ThemeOverlay.AppCompat.Dark"
             app:contentScrim="?attr/colorPrimary"
             app:expandedTitleMarginEnd="@dimen/article_keylines"
-            app:expandedTitleMarginStart="@dimen/md_keylines"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+            app:expandedTitleMarginStart="@dimen/md_keylines">
 
             <ImageView
                 android:id="@+id/image"

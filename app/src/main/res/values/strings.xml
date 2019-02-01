@@ -5,10 +5,10 @@
     <string name="base_api_url">http://3.17.121.252/</string>
     <string name="games_request">getGamesList</string>
 
-    <string name="title_quiz_detail">Quiz Detail</string>
+    <string name="title">Расписание</string>
     <string name="place">place</string>
     <string name="name">name</string>
-    <string name="price">руб.</string>
+    <string name="price"> руб.</string>
     <string name="time">18:00</string>
     <string name="month">month</string>
     <string name="description">"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed convallis volutpat metus id tristique. Sed nec enim vitae lacus finibus ultricies. Nullam rhoncus, odio et mattis cursus, leo ante imperdiet tellus, at aliquam odio purus quis nunc. In fermentum, enim ac aliquam interdum, nisl dolor malesuada tellus, porta convallis ipsum dolor ac eros. Sed tincidunt metus diam, ac ultrices lorem condimentum quis. Fusce eget nisl vehicula, sagittis lorem a, tempor metus. Cras semper metus ac nulla suscipit rutrum. Suspendisse et quam justo."</string>
