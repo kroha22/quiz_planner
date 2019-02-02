@@ -4,7 +4,6 @@ import com.google.gson.annotations.SerializedName
 import com.j256.ormlite.field.DataType
 import com.j256.ormlite.field.DatabaseField
 import com.j256.ormlite.table.DatabaseTable
-import com.quizplanner.quizPlanner.QuizPlanner.formatterISO
 
 /**
  * Created by Olga Cherepanova
@@ -85,21 +84,6 @@ class QuizData {
     }
 
     constructor()
-
-    fun getQuiz(): Quiz {
-        return Quiz(id!!,
-                organization!!,
-                gameTheme!!,
-                description!!,
-                formatterISO.parse(date),
-                time!!,
-                location!!,
-                price!!,
-                countOfPlayers!!,
-                difficulty!!,
-                registrationLink!!,
-                "")
-    }
 
 }
 

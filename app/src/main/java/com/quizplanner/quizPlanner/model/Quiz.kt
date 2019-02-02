@@ -18,7 +18,8 @@ data class Quiz(val id: String,
                 val countOfPlayers: String,
                 val difficulty: String,
                 val registrationLink: String,
-                val imgUrl: String): Serializable {
+                val imgUrl: String,
+                var isChecked: Boolean): Serializable {
 
     override fun toString(): String {
         return "Quiz(id='$id', organization='$organization', gameTheme='$gameTheme', description='$description', date=$date, time='$time', location='$location', price='$price', countOfPlayers='$countOfPlayers', difficulty='$difficulty', registrationLink='$registrationLink', imgUrl='$imgUrl')"

@@ -8,7 +8,6 @@ import com.quizplanner.quizPlanner.QuizPlanner.formatterISO
 import com.quizplanner.quizPlanner.exchange.RetrofitService
 import com.quizplanner.quizPlanner.model.Db
 import com.quizplanner.quizPlanner.model.Quiz
-import com.quizplanner.quizPlanner.model.QuizData
 import rx.Observable
 import rx.Subscription
 import rx.android.schedulers.AndroidSchedulers
@@ -79,7 +78,7 @@ class MainPresenter : MvpPresenter<MainView>() {
     fun start() {
         if (currentState == State.EMPTY) {
 
-            getForecasts {
+            getGamesFromDb {
                 if (gamesByDate.isEmpty()) {
                     startLoad()
                 } else {
@@ -103,20 +102,30 @@ class MainPresenter : MvpPresenter<MainView>() {
         startLoad()
     }
 
-    fun onQuizSelected(quiz: Quiz) {
+    fun onGameSelected(quiz: Quiz) {
         selectedQuiz = quiz
 
         viewState.showQuizView(quiz)
         setCurrentState(State.GAME)
     }
 
-    private fun getForecasts(onComplete: ()->Unit) {
+    fun onGameCheckChanged(quiz: Quiz) {
+        if (quiz.isChecked) {
+            dao!!.setCheckedGame(quiz)
+        } else {
+            dao!!.setUncheckedGame(quiz)
+        }
+    }
+
+    private fun getGamesFromDb(onComplete: ()->Unit) {
         showLoadProgress()
 
-        subscription = loadForecastsFromDb()
+        subscription = clearDbOldGames()
                 .timeout(1, TimeUnit.SECONDS)
                 .retry(2)
                 .subscribeOn(Schedulers.io())
+                .doOnNext { log("Clear from bd games count $it") }
+                .map { dao!!.getGames() }
                 .doOnNext { log("Load from bd games count ${it.size}") }
                 .map { getGamesByDate(it) }
                 .observeOn(AndroidSchedulers.mainThread())
@@ -131,9 +140,9 @@ class MainPresenter : MvpPresenter<MainView>() {
         setCurrentState(State.LOAD)
     }
 
-    private fun loadForecastsFromDb(): Observable<List<QuizData>> {
-        return Observable.create<List<QuizData>> { subscriber ->
-            subscriber.onNext(dao!!.getGames())
+    private fun clearDbOldGames(): Observable<Int> {
+        return Observable.create<Int> { subscriber ->
+            subscriber.onNext(dao!!.clearGames(from))
             subscriber.onCompleted()
         }
     }
@@ -146,7 +155,7 @@ class MainPresenter : MvpPresenter<MainView>() {
                 .retry(2)
                 .subscribeOn(Schedulers.io())
                 .doOnNext { log("Consume games count ${it.size}") }
-                .doOnNext { dao!!.saveGames(it) }
+                .map { dao!!.saveGames(it) }
                 .doOnNext { log("Save games count ${it.size}") }
                 .map { getGamesByDate(it) }
                 .observeOn(AndroidSchedulers.mainThread())
@@ -155,16 +164,16 @@ class MainPresenter : MvpPresenter<MainView>() {
                         { this.showGames() })
     }
 
-    private fun getGamesByDate(games: List<QuizData>): LinkedHashMap<Date, MutableList<Quiz>> {
+    private fun getGamesByDate(games: List<Quiz>): LinkedHashMap<Date, MutableList<Quiz>> {
         val gamesByDate = LinkedHashMap<Date, MutableList<Quiz>>()
         for (game in games) {
-            val date = formatterISO.parse(game.date!!)
+            val date = game.date
             var list = gamesByDate[date]
             if (list == null) {
                 list = ArrayList()
                 gamesByDate[date] = list
             }
-            list.add(game.getQuiz())
+            list.add(game)
         }
         return gamesByDate
     }
@@ -193,7 +202,9 @@ class MainPresenter : MvpPresenter<MainView>() {
     private fun showReloadMsg(errMsg: String) {
         viewState.showDialog(DialogBuilder()
                 .msg("$errMsg $RELOAD_REQUEST")
-                .onPositive { this.startLoad() })
+                .positive("Ок")
+                .onPositive { this.startLoad() }
+                .cancelable(false))
         setCurrentState(State.MESSAGE)
     }
 

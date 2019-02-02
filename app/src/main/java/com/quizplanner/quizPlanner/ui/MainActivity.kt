@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
+import android.graphics.Color
 import android.os.Bundle
 import android.support.design.widget.TabLayout
 import android.support.v4.app.Fragment
@@ -150,7 +151,11 @@ class MainActivity : MvpAppCompatActivity(), MainView, DateFragment.ItemClickLis
     }
 
     override fun onItemClick(quiz: Quiz) {
-        presenter.onQuizSelected(quiz)
+        presenter.onGameSelected(quiz)
+    }
+
+    override fun onItemCheckChanged(quiz: Quiz) {
+        presenter.onGameCheckChanged(quiz)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -227,6 +232,8 @@ class DateFragment : Fragment() {
     //------------------------------------------------------------------------------------------------
     interface ItemClickListener {
         fun onItemClick(quiz: Quiz)
+
+        fun onItemCheckChanged(quiz: Quiz)
     }
     //------------------------------------------------------------------------------------------------
 
@@ -236,6 +243,7 @@ class DateFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val recyclerView: RecyclerView = inflater.inflate(R.layout.quiz_list, container, false) as RecyclerView
         adapter.setOnClickListener { clickListener?.onItemClick(it) }
+        adapter.setOnCheckChangedListener { clickListener?.onItemCheckChanged(it) }
         recyclerView.adapter = adapter
         recyclerView.addItemDecoration(SimpleDividerItemDecoration(context!!))
         return recyclerView
@@ -260,6 +268,7 @@ class DateFragment : Fragment() {
     class SimpleItemRecyclerViewAdapter :
             RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder>() {
 
+        private var onCheckChangedListener: (Quiz) -> Unit = {}
         private var onClickListener: (Quiz) -> Unit = {}
         private var values: MutableList<Quiz> = ArrayList()
 
@@ -271,6 +280,10 @@ class DateFragment : Fragment() {
 
         fun setOnClickListener(onClickListener: (Quiz) -> Unit) {
             this.onClickListener = onClickListener
+        }
+
+        fun setOnCheckChangedListener(onCheckListener: (Quiz) -> Unit) {
+            this.onCheckChangedListener = onCheckListener
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -286,6 +299,7 @@ class DateFragment : Fragment() {
             holder.price.text = item.price
             holder.count.text = item.countOfPlayers
             holder.time.text = item.time
+            holder.setChecked(item.isChecked)
 
             if (!item.imgUrl.isEmpty()) {
                 Picasso.get()
@@ -295,6 +309,12 @@ class DateFragment : Fragment() {
                         .into(holder.img)
             }
 
+            holder.check.setOnClickListener {
+                val curr = item.isChecked
+                item.isChecked = !curr
+                holder.setChecked(item.isChecked)
+                onCheckChangedListener.invoke(item)
+            }
 
             with(holder.itemView) {
                 tag = item
@@ -313,6 +333,15 @@ class DateFragment : Fragment() {
             val count: TextView = view.item_count
             val time: TextView = view.item_time
             val img: ImageView = view.item_img
+            val check: ImageView = view.item_check
+
+            fun setChecked(isChecked:Boolean){
+                if (isChecked){
+                    check.setColorFilter(Color.GREEN)
+                } else {
+                    check.colorFilter = null
+                }
+            }
         }
     }
 
