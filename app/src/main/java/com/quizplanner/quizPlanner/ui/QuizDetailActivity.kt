@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.support.v4.app.NavUtils
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
+import com.quizplanner.quizPlanner.QuizPlanner
 import com.quizplanner.quizPlanner.R
 import com.quizplanner.quizPlanner.model.Quiz
 import kotlinx.android.synthetic.main.activity_quiz_detail.*
@@ -35,15 +36,20 @@ class QuizDetailActivity : AppCompatActivity() {
                     ?: throw AssertionError()
 
             this.item = item as Quiz
-            toolbar_layout.title = item.organization
-            detail_place.text = item.location
+            detail_title.text = item.organization
+            detail_theme.text = item.gameTheme
+            detail_date.text = QuizPlanner.formatterDateMonth.format(item.date)
+            detail_time.text = item.time
+            detail_location.text = item.location
+            detail_difficulty.text = item.difficulty
             detail_count.text = item.countOfPlayers
             detail_price.text = item.price
             detail_description.text = item.description
+            detail_link.text = item.registrationLink
 /*
             Picasso.get()
                     .load(item.imgUrl)
-                    .into(image)*/
+                    .into(detail_img)*/
         }
     }
 

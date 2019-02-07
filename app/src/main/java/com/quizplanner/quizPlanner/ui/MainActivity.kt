@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
-import android.graphics.Color
 import android.os.Bundle
 import android.support.design.widget.TabLayout
 import android.support.v4.app.Fragment
@@ -294,11 +293,14 @@ class DateFragment : Fragment() {
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val item = values[position]
-            holder.name.text = item.organization
-            holder.place.text = item.location
+            holder.title.text = item.organization
+            holder.theme.text = item.gameTheme
+            holder.location.text = item.location
             holder.price.text = item.price
+            holder.difficulty.text = item.difficulty
             holder.count.text = item.countOfPlayers
             holder.time.text = item.time
+            holder.link.text = item.registrationLink
             holder.setChecked(item.isChecked)
 
             if (!item.imgUrl.isEmpty()) {
@@ -327,17 +329,20 @@ class DateFragment : Fragment() {
         //------------------------------------------------------------------------------------------------
 
         inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-            val name: TextView = view.item_name
-            val place: TextView = view.item_place
+            val title: TextView = view.item_title
+            val theme: TextView = view.item_theme
+            val location: TextView = view.item_location
             val price: TextView = view.item_price
+            val difficulty: TextView = view.item_difficulty
+            val link: TextView = view.item_link
             val count: TextView = view.item_count
             val time: TextView = view.item_time
             val img: ImageView = view.item_img
             val check: ImageView = view.item_check
 
-            fun setChecked(isChecked:Boolean){
-                if (isChecked){
-                    check.setColorFilter(Color.GREEN)
+            fun setChecked(isChecked: Boolean) {
+                if (isChecked) {
+                    check.setColorFilter(ContextCompat.getColor(check.context, R.color.colorAccentLight))
                 } else {
                     check.colorFilter = null
                 }
