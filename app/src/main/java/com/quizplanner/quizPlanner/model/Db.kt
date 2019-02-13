@@ -138,28 +138,50 @@ object Db {
     //--------------------------------------------------------------------------------------------
 
     class DAO(context: Context) {
+        //--------------------------------------------------------------------------------------------
+        companion object {
+            private val TAG: String = DAO::class.java.name
+            private fun log(msg: String) {
+                QuizPlanner.log(TAG, msg)
+            }
+        }
+        //--------------------------------------------------------------------------------------------
+
         private val mDbHelper: DbHelper = DbHelper.getInstance(context)
 
         fun getGames(): List<Quiz> {
-            return getQuizList(mDbHelper.getQuizDataDao().queryForAll())
+            val games = getQuizList(mDbHelper.getQuizDataDao().queryForAll())
+            log("getGames ${games.map { it.id }.toList()}")
+            return games
         }
 
         fun saveGames(games: List<QuizData>): List<Quiz> {
             val dao = mDbHelper.getQuizDataDao()
 
+            var newGames = 0
+            var updatedGames = 0
             for (f in games) {
-                dao.createOrUpdate(f)
+                val status = dao.createOrUpdate(f)
+                if (status.isCreated) {
+                    newGames++
+                }
+                if (status.isUpdated) {
+                    updatedGames++
+                }
             }
+            log("saveGames, count =${games.size}, newGames = $newGames, updatedGames = $updatedGames")
 
             return getQuizList(games)
         }
 
         fun setCheckedGame(game: Quiz) {
             mDbHelper.getCheckedGamesDao().create(CheckedGames(game.id))
+            log("setCheckedGame, game =${game.id}")
         }
 
         fun setUncheckedGame(game: Quiz) {
             mDbHelper.getCheckedGamesDao().deleteById(game.id)
+            log("setUncheckedGame, game =${game.id}")
         }
 
         fun clearGames(date: Date): Int {
@@ -172,13 +194,14 @@ object Db {
                 quizDao.deleteById(g.id)
                 checkedGamesDao.deleteById(g.id)
             }
+            log("clearGames, count =${gamesToDel.size}")
 
             return gamesToDel.size
         }
 
         private fun getQuizList(games: List<QuizData>): MutableList<Quiz> {
             val checkedGamesDao = mDbHelper.getCheckedGamesDao()
-            return games.map { getQuiz(it, checkedGamesDao.contains(CheckedGames(it.id))) }.toMutableList()
+            return games.map { getQuiz(it, checkedGamesDao.queryForId(it.id) != null) }.toMutableList()
         }
 
         private fun getQuiz(quizData: QuizData, isCheckedGame: Boolean): Quiz {

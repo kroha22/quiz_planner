@@ -5,6 +5,9 @@ import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
 import com.quizplanner.quizPlanner.QuizPlanner
 import com.quizplanner.quizPlanner.QuizPlanner.formatterISO
+import com.quizplanner.quizPlanner.QuizPlanner.getDates
+import com.quizplanner.quizPlanner.QuizPlanner.isOneDay
+import com.quizplanner.quizPlanner.QuizPlanner.today
 import com.quizplanner.quizPlanner.exchange.RetrofitService
 import com.quizplanner.quizPlanner.model.Db
 import com.quizplanner.quizPlanner.model.Quiz
@@ -32,10 +35,8 @@ class MainPresenter : MvpPresenter<MainView>() {
         private const val NO_DATA_MESSAGE = "Отсутствуют данные для отображения."
         private const val RELOAD_REQUEST = "Повторить загруку?"
         //-------------------------------------------------------------------------------------------
-
-        private const val MS_ON_DAY: Long = 86400000
-        private const val DAYS_FROM: Int = 20
-        private const val DAYS_TO: Int = 20
+        private const val DAYS_FROM: Int = 3
+        private const val DAYS_TO: Int = 7
 
         //-------------------------------------------------------------------------------------------
         private enum class State {
@@ -52,18 +53,17 @@ class MainPresenter : MvpPresenter<MainView>() {
     private lateinit var escapeHandler: () -> Unit
     private var isInitialized: Boolean = false
     private val gamesByDate = LinkedHashMap<Date, List<Quiz>>()
+    private var selectedDate: Date = today()
     private var selectedQuiz: Quiz? = null
 
     private var subscription: Subscription? = null
-    private var currentState: State? = null
+    private var currentState: State = State.EMPTY
 
-    private var from = Date(System.currentTimeMillis() - 86400000 * 3)
-    private var to = Date(System.currentTimeMillis() + 86400000 * 7)
+    private var dates: MutableList<Date> = ArrayList()
 
     fun init(context: Context) {
         this.dataLoader = RetrofitService.getInstance(context)
         this.dao = Db.DAO(context)
-        this.currentState = State.EMPTY
 
         updateDates()
 
@@ -77,17 +77,18 @@ class MainPresenter : MvpPresenter<MainView>() {
 
     fun start() {
         if (currentState == State.EMPTY) {
-
-            getGamesFromDb {
-                if (gamesByDate.isEmpty()) {
-                    startLoad()
-                } else {
-                    showGames()
-                }
-            }
-        } else if (currentState == State.GAMES_LIST){
-            showGames()
+            getGamesFromDb()
         }
+    }
+
+    private fun hasGames(gamesByDate: Map<Date, List<Quiz>>): Boolean {
+        for (games in gamesByDate.entries) {
+            if (!games.value.isEmpty()) {
+                return true
+            }
+        }
+        return false
+
     }
 
     fun isInitialized(): Boolean {
@@ -117,22 +118,27 @@ class MainPresenter : MvpPresenter<MainView>() {
         }
     }
 
-    private fun getGamesFromDb(onComplete: ()->Unit) {
+    fun onLinkClick(quiz: Quiz) {
+        var url = quiz.registrationLink
+        if (!url.startsWith("http://") && !url.startsWith("https://")) {
+            url = "http://$url"
+        }
+        viewState.requestLink(url)
+    }
+
+    fun onDateSelect(date: Date) {
+        selectedDate = date
+    }
+
+    private fun getGamesFromDb() {
         showLoadProgress()
 
         subscription = clearDbOldGames()
-                .timeout(1, TimeUnit.SECONDS)
-                .retry(2)
                 .subscribeOn(Schedulers.io())
-                .doOnNext { log("Clear from bd games count $it") }
                 .map { dao!!.getGames() }
-                .doOnNext { log("Load from bd games count ${it.size}") }
                 .map { getGamesByDate(it) }
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        { this.setForecasts(it) },
-                        { this.onLoadError(it) },
-                        { onComplete.invoke() })
+                .subscribe( { onLoadedFromDb(it) }, { this.onLoadError(it) } )
     }
 
     private fun showLoadProgress() {
@@ -141,44 +147,48 @@ class MainPresenter : MvpPresenter<MainView>() {
     }
 
     private fun clearDbOldGames(): Observable<Int> {
+
         return Observable.create<Int> { subscriber ->
-            subscriber.onNext(dao!!.clearGames(from))
-            subscriber.onCompleted()
+            subscriber.onNext(dao!!.clearGames(dates.first()))
         }
+    }
+
+    private fun onLoadedFromDb(gamesByDate: LinkedHashMap<Date, List<Quiz>>) {
+        if (hasGames(gamesByDate)) {
+            showGames(gamesByDate)
+        } else {
+            startLoad()
+        }
+    }
+
+    private fun showGames(gamesByDate: LinkedHashMap<Date, List<Quiz>>) {
+        setGames(gamesByDate)
+        showGames()
     }
 
     private fun startLoad() {
         showLoadProgress()
 
-        subscription = dataLoader!!.getQuizData(formatterISO.format(from), formatterISO.format(to))
+        subscription = dataLoader!!.getQuizData(formatterISO.format(dates.first()), formatterISO.format(dates.last()))
                 .timeout(1, TimeUnit.SECONDS)
                 .retry(2)
                 .subscribeOn(Schedulers.io())
-                .doOnNext { log("Consume games count ${it.size}") }
+                .doOnNext { log("Consume games count ${it.map { games -> games.id }.toList()}") }
                 .map { dao!!.saveGames(it) }
-                .doOnNext { log("Save games count ${it.size}") }
                 .map { getGamesByDate(it) }
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ this.setForecasts(it) },
-                        { this.onLoadError(it) },
-                        { this.showGames() })
+                .subscribe({ showGames(it) }, { onLoadError(it) } )
     }
 
-    private fun getGamesByDate(games: List<Quiz>): LinkedHashMap<Date, MutableList<Quiz>> {
-        val gamesByDate = LinkedHashMap<Date, MutableList<Quiz>>()
-        for (game in games) {
-            val date = game.date
-            var list = gamesByDate[date]
-            if (list == null) {
-                list = ArrayList()
-                gamesByDate[date] = list
-            }
-            list.add(game)
+    private fun getGamesByDate(games: List<Quiz>): LinkedHashMap<Date, List<Quiz>> {
+        val gamesByDate = LinkedHashMap<Date, List<Quiz>>()
+        for (date in dates) {
+            gamesByDate[date] = ArrayList(games.filter { game -> isOneDay(game.date, date) })
         }
         return gamesByDate
     }
 
-    private fun setForecasts(gamesByDate: LinkedHashMap<Date, MutableList<Quiz>>) {
+    private fun setGames(gamesByDate: LinkedHashMap<Date, List<Quiz>>) {
         this.gamesByDate.clear()
         this.gamesByDate.putAll(gamesByDate)
     }
@@ -190,7 +200,7 @@ class MainPresenter : MvpPresenter<MainView>() {
 
     private fun showGames() {
         viewState.hideLoadProgress()
-        viewState.setContent(gamesByDate)
+        viewState.setContent(gamesByDate, selectedDate)
 
         if (gamesByDate.isEmpty()) {
             viewState.showMessage(NO_DATA_MESSAGE)
@@ -213,9 +223,8 @@ class MainPresenter : MvpPresenter<MainView>() {
     }
 
     private fun updateDates() {
-        from = Date(System.currentTimeMillis() - MS_ON_DAY * DAYS_FROM)
-        to = Date(System.currentTimeMillis() + MS_ON_DAY * DAYS_TO)
+        dates.clear()
+        dates.addAll(getDates(DAYS_FROM, DAYS_TO))
     }
-
 
 }

@@ -1,13 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/quiz_list"
-    android:name="com.quizplanner.quiz_planner.QuizListFragment"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_marginTop="@dimen/quiz_list_margin"
-    android:layout_marginLeft="@dimen/quiz_list_margin"
-    android:layout_marginRight="@dimen/quiz_list_margin"
-    app:layoutManager="LinearLayoutManager"
-    tools:listitem="@layout/quiz_list_item" />
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/quiz_list"
+        android:name="com.quizplanner.quiz_planner.QuizListFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layoutManager="LinearLayoutManager"
+        tools:listitem="@layout/quiz_list_item" />
+
+    <TextView
+        android:id="@+id/quiz_list_empty_view"
+        android:name="com.quizplanner.quiz_planner.QuizListFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="Нет запланированных игр"
+        android:textColor="@color/dark_grey" />
+
+</RelativeLayout>

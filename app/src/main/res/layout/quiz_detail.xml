@@ -46,7 +46,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/game_location"
-                android:textAppearance="?attr/textAppearanceListItem"
                 android:textColor="@color/dark_grey"
                 android:textSize="@dimen/default_text_size"
                 android:textStyle="italic" />
@@ -61,7 +60,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginRight="@dimen/item_text_margin"
                     android:text="@string/game_date"
-                    android:textAppearance="?attr/textAppearanceListItem"
                     android:textColor="@color/dark_grey"
                     android:textSize="@dimen/default_text_size"
                     android:textStyle="italic" />
@@ -71,7 +69,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/dummy"
-                    android:textAppearance="?attr/textAppearanceListItem"
                     android:textColor="@color/dark_grey"
                     android:textSize="@dimen/default_text_size"
                     android:textStyle="italic" />
@@ -132,7 +129,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="@dimen/item_text_margin"
                 android:text="@string/game_difficulty"
-                android:textAppearance="?attr/textAppearanceListItem"
                 android:textColor="@color/dark_grey"
                 android:textSize="@dimen/default_text_size"
                 android:textStyle="italic" />
@@ -142,7 +138,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/dummy"
-                android:textAppearance="?attr/textAppearanceListItem"
                 android:textColor="@color/dark_grey"
                 android:textSize="@dimen/default_text_size"
                 android:textStyle="italic" />
@@ -159,7 +154,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="@dimen/item_text_margin"
                 android:text="@string/game_count_of_players"
-                android:textAppearance="?attr/textAppearanceListItem"
                 android:textColor="@color/dark_grey"
                 android:textSize="@dimen/default_text_size"
                 android:textStyle="italic" />
@@ -169,7 +163,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/dummy"
-                android:textAppearance="?attr/textAppearanceListItem"
                 android:textColor="@color/dark_grey"
                 android:textSize="@dimen/default_text_size"
                 android:textStyle="italic" />
@@ -186,7 +179,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="@dimen/item_text_margin"
                 android:text="@string/game_price"
-                android:textAppearance="?attr/textAppearanceListItem"
                 android:textColor="@color/dark_grey"
                 android:textSize="@dimen/default_text_size"
                 android:textStyle="italic" />
@@ -197,7 +189,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="@dimen/item_text_margin"
                 android:text="@string/dummy"
-                android:textAppearance="?attr/textAppearanceListItem"
                 android:textColor="@color/dark_grey"
                 android:textSize="@dimen/default_text_size"
                 android:textStyle="italic" />
@@ -206,7 +197,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/game_price_dimen"
-                android:textAppearance="?attr/textAppearanceListItem"
                 android:textColor="@color/dark_grey"
                 android:textSize="@dimen/default_text_size"
                 android:textStyle="italic" />
@@ -219,22 +209,11 @@
             android:orientation="horizontal">
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="@dimen/item_text_margin"
-                android:text="@string/game_link"
-                android:textAppearance="?attr/textAppearanceListItem"
-                android:textColor="@color/dark_grey"
-                android:textSize="@dimen/default_text_size"
-                android:textStyle="italic" />
-
-            <TextView
                 android:id="@+id/detail_link"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="@dimen/item_text_margin"
-                android:text="@string/dummy"
-                android:textAppearance="?attr/textAppearanceListItem"
+                android:text="@string/game_link"
                 android:textColor="@color/blue"
                 android:textSize="@dimen/default_text_size"
                 android:textStyle="italic" />

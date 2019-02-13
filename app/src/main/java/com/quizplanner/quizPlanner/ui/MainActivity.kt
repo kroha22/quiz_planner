@@ -3,7 +3,7 @@ package com.quizplanner.quizPlanner.ui
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.graphics.Canvas
+import android.net.Uri
 import android.os.Bundle
 import android.support.design.widget.TabLayout
 import android.support.v4.app.Fragment
@@ -11,9 +11,9 @@ import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.RecyclerView
-import android.text.format.DateUtils
 import android.view.*
 import android.widget.ImageView
+import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
 import com.arellomobile.mvp.MvpAppCompatActivity
@@ -25,6 +25,7 @@ import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
 import com.quizplanner.quizPlanner.QuizPlanner.formatterDate
 import com.quizplanner.quizPlanner.QuizPlanner.formatterDay
 import com.quizplanner.quizPlanner.QuizPlanner.formatterMonth
+import com.quizplanner.quizPlanner.QuizPlanner.isOneDay
 import com.quizplanner.quizPlanner.R
 import com.quizplanner.quizPlanner.model.Quiz
 import com.quizplanner.quizPlanner.ui.QuizDetailActivity.Companion.QUIZ_ITEM_CODE
@@ -42,19 +43,26 @@ import kotlin.collections.LinkedHashMap
  */
 
 //---------------------------------------------------------------------------------------------
-@StateStrategyType(SkipStrategy::class)
+
 interface MainView : MvpView {
 
     companion object {
-        const val PROGRESS_TAG = "ERROR_TAG"
+        const val PROGRESS_TAG = "PROGRESS_TAG"
     }
 
+    @StateStrategyType(SkipStrategy::class)
+    fun requestLink(link: String)
+
+    @StateStrategyType(SkipStrategy::class)
     fun showMessage(msg: String)
 
+    @StateStrategyType(SkipStrategy::class)
     fun showDialog(dialogBuilder: DialogBuilder)
 
-    fun setContent(mTabItems: LinkedHashMap<Date, List<Quiz>>)
+    @StateStrategyType(AddToEndSingleStrategy::class)
+    fun setContent(dateByGames: LinkedHashMap<Date, List<Quiz>>, selectedDate: Date)
 
+    @StateStrategyType(AddToEndSingleStrategy::class)
     fun showQuizView(quiz: Quiz)
 
     @StateStrategyType(value = AddToEndSingleStrategy::class, tag = PROGRESS_TAG)
@@ -80,8 +88,11 @@ class MainActivity : MvpAppCompatActivity(), MainView, DateFragment.ItemClickLis
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        setSupportActionBar(toolbar)
+        for (f in supportFragmentManager.fragments) {
+            supportFragmentManager.beginTransaction().remove(f).commit()
+        }
 
+        setSupportActionBar(toolbar)
         sectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
         container.adapter = sectionsPagerAdapter
         container.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(tabs))
@@ -100,6 +111,11 @@ class MainActivity : MvpAppCompatActivity(), MainView, DateFragment.ItemClickLis
             presenter.setEscapeHandler { finish() }
         }
         presenter.start()
+    }
+
+    override fun requestLink(link: String) {
+        val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(link))
+        startActivity(browserIntent)
     }
 
     override fun showQuizView(quiz: Quiz) {
@@ -125,27 +141,36 @@ class MainActivity : MvpAppCompatActivity(), MainView, DateFragment.ItemClickLis
         wait_view.visibility = View.GONE
     }
 
-    override fun setContent(mTabItems: LinkedHashMap<Date, List<Quiz>>) {
-        sectionsPagerAdapter.setItems(mTabItems)
+    override fun setContent(dateByGames: LinkedHashMap<Date, List<Quiz>>, selectedDate: Date) {
+        sectionsPagerAdapter.setItems(dateByGames)
 
         for (i in 0..tabs.tabCount) {
             val tab = tabs.getTabAt(i)
             if (tab != null) {
                 tab.customView = sectionsPagerAdapter.getTabView(i)
-                tab.select()
 
-                if (DateUtils.isToday(sectionsPagerAdapter.getItemDate(i).time)) {
-                    container.setCurrentItem(i, true)
+                if (isOneDay(sectionsPagerAdapter.getItemDate(i), selectedDate)) {
+                    tab.select()
                 }
             }
         }
-        if (tabs.tabCount == 1) {
-            val tab = tabs.getTabAt(0)
-            val view = tab?.customView
-            if (view != null) {
-                view.isSelected = true
+
+        tabs.addOnTabSelectedListener(object : TabLayout.BaseOnTabSelectedListener<TabLayout.Tab> {
+            val dates = ArrayList(dateByGames.keys)
+
+            override fun onTabReselected(p0: TabLayout.Tab) {
+
             }
-        }
+
+            override fun onTabUnselected(p0: TabLayout.Tab) {
+
+            }
+
+            override fun onTabSelected(p0: TabLayout.Tab) {
+                val pos = p0.position
+                presenter.onDateSelect(dates[pos])
+            }
+        })
 
     }
 
@@ -155,6 +180,10 @@ class MainActivity : MvpAppCompatActivity(), MainView, DateFragment.ItemClickLis
 
     override fun onItemCheckChanged(quiz: Quiz) {
         presenter.onGameCheckChanged(quiz)
+    }
+
+    override fun onLinkClick(quiz: Quiz) {
+        presenter.onLinkClick(quiz)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -180,14 +209,24 @@ class MainActivity : MvpAppCompatActivity(), MainView, DateFragment.ItemClickLis
     inner class SectionsPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
 
         private val tabItems: MutableList<Date> = ArrayList()
-        private val pages: MutableMap<Date, List<Quiz>> = LinkedHashMap()
+        private var gamesByDate: MutableMap<Date, List<Quiz>> = LinkedHashMap()
+        private val pages: MutableMap<Date, DateFragment> = LinkedHashMap()
 
-        fun setItems(items: Map<Date, List<Quiz>>) {
+        fun setItems(items: LinkedHashMap<Date, List<Quiz>>) {
             tabItems.clear()
-            pages.clear()
-
-            pages.putAll(items)
             tabItems.addAll(items.keys)
+
+            gamesByDate = items
+
+            for (date in ArrayList(pages.keys)) {
+                if (!tabItems.contains(date)) {
+                    pages.remove(date)
+                }
+            }
+
+            for (page in pages.entries) {
+                page.value.setValues(gamesByDate[page.key]!!)
+            }
 
             notifyDataSetChanged()
         }
@@ -198,8 +237,12 @@ class MainActivity : MvpAppCompatActivity(), MainView, DateFragment.ItemClickLis
 
         override fun getItem(position: Int): Fragment {
             val fragment = DateFragment()
+
             val date = tabItems[position]
-            fragment.setValues(pages[date]!!)
+            fragment.setValues(gamesByDate[date]!!)
+
+            pages[date] = fragment
+
             return fragment
         }
 
@@ -233,23 +276,39 @@ class DateFragment : Fragment() {
         fun onItemClick(quiz: Quiz)
 
         fun onItemCheckChanged(quiz: Quiz)
-    }
-    //------------------------------------------------------------------------------------------------
 
+        fun onLinkClick(quiz: Quiz)
+    }
+
+    //------------------------------------------------------------------------------------------------
+    private var isCreated = false
     private val adapter = SimpleItemRecyclerViewAdapter()
     private var clickListener: ItemClickListener? = null
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var emptyView: TextView
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val recyclerView: RecyclerView = inflater.inflate(R.layout.quiz_list, container, false) as RecyclerView
-        adapter.setOnClickListener { clickListener?.onItemClick(it) }
-        adapter.setOnCheckChangedListener { clickListener?.onItemCheckChanged(it) }
+        val mainView = inflater.inflate(R.layout.quiz_list, container, false) as RelativeLayout
+        recyclerView = mainView.findViewById(R.id.quiz_list)
+        emptyView = mainView.findViewById(R.id.quiz_list_empty_view)
+
+        adapter.setOnClickListener(clickListener)
         recyclerView.adapter = adapter
-        recyclerView.addItemDecoration(SimpleDividerItemDecoration(context!!))
-        return recyclerView
+        isCreated = true
+        return mainView
     }
 
     fun setValues(values: List<Quiz>) {
         adapter.setValues(values)
+
+        if (isCreated) {
+            refreshView()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        refreshView()
     }
 
     override fun onAttach(context: Context?) {
@@ -260,29 +319,36 @@ class DateFragment : Fragment() {
         } catch (e: ClassCastException) {
             throw ClassCastException(context.toString() + " must implement OnListItemSelectedListener")
         }
+    }
 
+    private fun refreshView() {
+        if (adapter.isEmpty()) {
+            emptyView.visibility = View.VISIBLE
+            recyclerView.visibility = View.INVISIBLE
+        } else {
+            emptyView.visibility = View.INVISIBLE
+            recyclerView.visibility = View.VISIBLE
+        }
     }
 
     //------------------------------------------------------------------------------------------------
     class SimpleItemRecyclerViewAdapter :
             RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder>() {
 
-        private var onCheckChangedListener: (Quiz) -> Unit = {}
-        private var onClickListener: (Quiz) -> Unit = {}
-        private var values: MutableList<Quiz> = ArrayList()
+        private var onClickListener: ItemClickListener? = null
+        private var values: List<Quiz> = ArrayList()
 
         fun setValues(values: List<Quiz>) {
-            this.values.clear()
-            this.values.addAll(0, values)
+            this.values = values
             notifyDataSetChanged()
         }
 
-        fun setOnClickListener(onClickListener: (Quiz) -> Unit) {
-            this.onClickListener = onClickListener
+        fun isEmpty(): Boolean {
+            return values.isEmpty()
         }
 
-        fun setOnCheckChangedListener(onCheckListener: (Quiz) -> Unit) {
-            this.onCheckChangedListener = onCheckListener
+        fun setOnClickListener(onClickListener: ItemClickListener?) {
+            this.onClickListener = onClickListener
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -300,14 +366,21 @@ class DateFragment : Fragment() {
             holder.difficulty.text = item.difficulty
             holder.count.text = item.countOfPlayers
             holder.time.text = item.time
-            holder.link.text = item.registrationLink
+
+            if (item.registrationLink.isEmpty()) {
+                holder.link.visibility = View.INVISIBLE
+            } else {
+                holder.link.visibility = View.VISIBLE
+                holder.link.setOnClickListener { onClickListener?.onLinkClick(item) }
+            }
+
             holder.setChecked(item.isChecked)
 
             if (!item.imgUrl.isEmpty()) {
                 Picasso.get()
                         .load(item.imgUrl)
                         .placeholder(R.drawable.ic_image_placeholder)
-                        .error(R.drawable.ic_image_placeholder)
+                        .error(R.drawable.ic_broken_image)
                         .into(holder.img)
             }
 
@@ -315,12 +388,12 @@ class DateFragment : Fragment() {
                 val curr = item.isChecked
                 item.isChecked = !curr
                 holder.setChecked(item.isChecked)
-                onCheckChangedListener.invoke(item)
+                onClickListener?.onItemCheckChanged(item)
             }
 
             with(holder.itemView) {
                 tag = item
-                setOnClickListener { onClickListener.invoke(item) }
+                setOnClickListener { onClickListener?.onItemClick(item) }
             }
         }
 
@@ -342,34 +415,9 @@ class DateFragment : Fragment() {
 
             fun setChecked(isChecked: Boolean) {
                 if (isChecked) {
-                    check.setColorFilter(ContextCompat.getColor(check.context, R.color.colorAccentLight))
+                    check.setColorFilter(ContextCompat.getColor(check.context, R.color.colorAccent))
                 } else {
                     check.colorFilter = null
-                }
-            }
-        }
-    }
-
-    //------------------------------------------------------------------------------------------------
-    class SimpleDividerItemDecoration(context: Context) : RecyclerView.ItemDecoration() {
-        private val mDivider = ContextCompat.getDrawable(context, R.drawable.line_divider)!!
-
-        override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
-            val left = parent.paddingLeft
-            val right = parent.width - parent.paddingRight
-
-            val childCount = parent.childCount
-            for (i in 0..childCount) {
-                val child = parent.getChildAt(i)
-
-                if (child != null) {
-                    val params = child.layoutParams as RecyclerView.LayoutParams
-
-                    val top = child.bottom + params.bottomMargin
-                    val bottom = top + mDivider.intrinsicHeight
-
-                    mDivider.setBounds(left, top, right, bottom)
-                    mDivider.draw(c)
                 }
             }
         }
