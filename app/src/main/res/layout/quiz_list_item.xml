@@ -18,7 +18,7 @@
             android:layout_width="@dimen/item_icon_size"
             android:layout_height="@dimen/item_icon_size"
             android:layout_marginTop="8dp"
-            android:src="@drawable/ic_check_black_24dp"
+            android:src="@drawable/ic_check"
             android:tint="@color/medium_grey" />
 
         <LinearLayout

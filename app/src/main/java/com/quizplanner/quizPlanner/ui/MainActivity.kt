@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.content.ContextCompat
+import android.support.v7.app.AlertDialog
 import android.support.v7.widget.RecyclerView
 import android.view.*
 import android.widget.ImageView
@@ -71,6 +72,12 @@ interface MainView : MvpView {
     @StateStrategyType(value = AddToEndSingleStrategy::class, tag = PROGRESS_TAG)
     fun hideLoadProgress()
 
+    @StateStrategyType(value = AddToEndSingleStrategy::class, tag = PROGRESS_TAG)
+    fun showStartLoad()
+
+    @StateStrategyType(value = AddToEndSingleStrategy::class, tag = PROGRESS_TAG)
+    fun hideStartLoad()
+
 }
 
 //---------------------------------------------------------------------------------------------
@@ -93,6 +100,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, DateFragment.ItemClickLis
         }
 
         setSupportActionBar(toolbar)
+
         sectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
         container.adapter = sectionsPagerAdapter
         container.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(tabs))
@@ -141,6 +149,18 @@ class MainActivity : MvpAppCompatActivity(), MainView, DateFragment.ItemClickLis
         wait_view.visibility = View.GONE
     }
 
+    override fun showStartLoad() {
+        start_load_view.visibility = View.VISIBLE
+        fab.hide()
+        appbar.visibility = View.GONE
+    }
+
+    override fun hideStartLoad() {
+        start_load_view.visibility = View.GONE
+        fab.show()
+        appbar.visibility = View.VISIBLE
+    }
+
     override fun setContent(dateByGames: LinkedHashMap<Date, List<Quiz>>, selectedDate: Date) {
         sectionsPagerAdapter.setItems(dateByGames)
 
@@ -187,18 +207,23 @@ class MainActivity : MvpAppCompatActivity(), MainView, DateFragment.ItemClickLis
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
     }
 
+    @SuppressLint("InflateParams")
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         val id = item.itemId
 
         if (id == R.id.action_settings) {
+            AlertDialog.Builder(this)
+                    .setIcon(R.mipmap.ic_launcher)
+                    .setTitle(R.string.contacts)
+                    .setView(layoutInflater.inflate(R.layout.contacts_view, null, false))
+                    .setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
+                    .setCancelable(true)
+                    .create()
+                    .show()
             return true
         }
 

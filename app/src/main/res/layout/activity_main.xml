@@ -50,12 +50,12 @@
                 </RelativeLayout>
 
                 <TextView
-                    android:paddingLeft="16dp"
                     android:id="@+id/toolbar_month"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:inputType="textCapSentences"
                     android:layout_gravity="center"
+                    android:inputType="textCapSentences"
+                    android:paddingLeft="16dp"
                     android:textColor="@color/white"
                     android:textSize="@dimen/title_text_size" />
 
@@ -68,31 +68,39 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:tabGravity="fill"
-            app:tabIndicatorFullWidth="false"
             app:tabIndicatorColor="@color/white"
+            app:tabIndicatorFullWidth="false"
             app:tabIndicatorHeight="4dp"
             app:tabMode="scrollable" />
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.v4.view.ViewPager
-        android:id="@+id/container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
-
     <LinearLayout
-        android:id="@+id/wait_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="100dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <ProgressBar
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+        <LinearLayout
+            android:id="@+id/wait_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="@dimen/default_padding"
+            android:visibility="gone">
+
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
     </LinearLayout>
 
@@ -103,5 +111,21 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         android:src="@drawable/ic_refresh" />
+
+    <LinearLayout
+        android:id="@+id/start_load_view"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:background="@color/white"
+        android:gravity="center"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_launcher_foreground"/>
+
+    </LinearLayout>
 
 </android.support.design.widget.CoordinatorLayout>
