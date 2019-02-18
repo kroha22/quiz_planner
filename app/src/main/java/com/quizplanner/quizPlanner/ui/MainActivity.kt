@@ -167,6 +167,8 @@ class MainActivity : MvpAppCompatActivity(), MainView, DateFragment.ItemClickLis
     override fun setContent(gamesByDate: LinkedHashMap<Date, List<Quiz>>, selectedDate: Date) {
         sectionsPagerAdapter.setItems(gamesByDate)
 
+        var lastPage = 0
+
         for (i in 0..tabs.tabCount) {
             val tab = tabs.getTabAt(i)
             if (tab != null) {
@@ -174,6 +176,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, DateFragment.ItemClickLis
 
                 if (isOneDay(sectionsPagerAdapter.getItemDate(i), selectedDate)) {
                     tab.select()
+                    lastPage = i
                 }
             }
         }
@@ -192,7 +195,84 @@ class MainActivity : MvpAppCompatActivity(), MainView, DateFragment.ItemClickLis
 
             override fun onTabSelected(p0: TabLayout.Tab) {
                 val pos = p0.position
+                /*DEBUG*/ log("!!!!!!", "0 onTabSelected lastPage $lastPage -> pos $pos")
                 presenter.onDateSelect(dates[pos])
+            }
+        })
+
+        container.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
+
+            override fun onPageSelected(position: Int) {
+
+                /*DEBUG*/ log("!!!!!!", "1 onPageSelected $lastPage -> $position")
+                if (lastPage == position) {
+                    return
+                }
+
+                if (!gamesByDate[dates[position]]!!.isEmpty()) {
+                    /*DEBUG*/ log("!!!!!!", "2 onPageSelected has games")
+                    lastPage = position
+                    return
+                }
+
+                /*DEBUG*/ log("!!!!!!", "2 onPageSelected games for position empty")
+
+                if (hasGames()) {
+
+                    /*DEBUG*/ log("!!!!!!", "3 onPageSelected has games for other positions")
+
+                    val last = gamesByDate.size - 1
+
+                    val isForward = if (lastPage < position) {
+                        !(lastPage == 0 && position == last)
+                    } else {
+                        lastPage == last && position == 0
+                    }
+
+                    /*DEBUG*/ log("!!!!!!", "4 onPageSelected isForward $isForward")
+
+                    val next = if (isForward) {
+                        getTabWithGamesAfter(position)
+                    } else {
+                        getTabWithGamesBefore(position)
+                    }
+                    /*DEBUG*/ log("!!!!!!", "6 onPageSelected next $position -> $next")
+
+                    lastPage = position
+                    tabs.getTabAt(next)?.select()
+                } else {
+                    /*DEBUG*/ log("!!!!!!", "3 onPageSelected gamesByDate isEmpty")
+                    tabs.getTabAt(position)?.select()
+                    lastPage = position
+                }
+
+            }
+
+            private fun getTabWithGamesBefore(pos: Int): Int {
+                for (i in pos - 1 downTo 0) {
+                    if (!gamesByDate[dates[i]]!!.isEmpty()) {
+                        return i
+                    }
+                }
+                return lastPage
+            }
+
+            private fun getTabWithGamesAfter(pos: Int): Int {
+                for (i in pos + 1 until gamesByDate.size) {
+                    if (!gamesByDate[dates[i]]!!.isEmpty()) {
+                        return i
+                    }
+                }
+                return lastPage
+            }
+
+            private fun hasGames(): Boolean {
+                for (games in gamesByDate.entries) {
+                    if (!games.value.isEmpty()) {
+                        return true
+                    }
+                }
+                return false
             }
         })
 
