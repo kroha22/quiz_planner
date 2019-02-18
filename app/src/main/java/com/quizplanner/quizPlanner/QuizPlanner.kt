@@ -29,6 +29,12 @@ object QuizPlanner{
         return Date(System.currentTimeMillis())
     }
 
+    fun formatterTime(): SimpleDateFormat {
+        val formatterTime = SimpleDateFormat("HH:mm", myLocale)
+        formatterTime.timeZone = TimeZone.getTimeZone("GMT")
+        return formatterTime
+    }
+
     fun getDates(daysBefore: Int, daysAfter: Int): List<Date> {
         val list = ArrayList<Date>()
         for (i in -daysBefore..daysAfter) {

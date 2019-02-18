@@ -6,12 +6,10 @@ import android.database.sqlite.SQLiteDatabase
 import com.j256.ormlite.android.apptools.OpenHelperManager
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper
 import com.j256.ormlite.dao.Dao
-import com.j256.ormlite.field.DataType
-import com.j256.ormlite.field.DatabaseField
 import com.j256.ormlite.support.ConnectionSource
-import com.j256.ormlite.table.DatabaseTable
 import com.j256.ormlite.table.TableUtils
 import com.quizplanner.quizPlanner.QuizPlanner
+import com.quizplanner.quizPlanner.exchange.Input
 import java.util.*
 
 
@@ -26,14 +24,12 @@ object Db {
     //--------------------------------------------------------------------------------------------
     class DbHelper(context: Context) : OrmLiteSqliteOpenHelper(context, DB_NAME, null, DB_VERSION) {
 
-        private var quizDataDao: Dao<QuizData, String>? = null
-        private var gamesDateDao: Dao<GamesDate, String>? = null
+        private var quizDao: Dao<Quiz, String>? = null
         private var checkedGamesDao: Dao<CheckedGames, String>? = null
 
         override fun onCreate(db: SQLiteDatabase, connectionSource: ConnectionSource) {
             try {
-                TableUtils.createTable(connectionSource, QuizData::class.java)
-                TableUtils.createTable(connectionSource, GamesDate::class.java)
+                TableUtils.createTable(connectionSource, Quiz::class.java)
                 TableUtils.createTable(connectionSource, CheckedGames::class.java)
             } catch (e: java.sql.SQLException) {
                 e.printStackTrace()
@@ -46,20 +42,11 @@ object Db {
         }
 
         @Throws(SQLException::class, java.sql.SQLException::class)
-        internal fun getQuizDataDao(): Dao<QuizData, String> {
-            if (quizDataDao == null) {
-                quizDataDao = getDao(QuizData::class.java)
+        internal fun getGamesDateDao(): Dao<Quiz, String> {
+            if (quizDao == null) {
+                quizDao = getDao(Quiz::class.java)
             }
-            return quizDataDao!!
-        }
-
-
-        @Throws(SQLException::class, java.sql.SQLException::class)
-        internal fun getGamesDateDao(): Dao<GamesDate, String> {
-            if (gamesDateDao == null) {
-                gamesDateDao = getDao(GamesDate::class.java)
-            }
-            return gamesDateDao!!
+            return quizDao!!
         }
 
         @Throws(SQLException::class, java.sql.SQLException::class)
@@ -91,51 +78,6 @@ object Db {
     }
 
     //--------------------------------------------------------------------------------------------
-    @DatabaseTable(tableName = GamesDate.TABLE)
-    class GamesDate() {
-
-        companion object {
-            const val TABLE = "games_date"
-        }
-
-        object Column {
-            const val ID = "id"
-            const val DATE_MS = "date_ms"
-        }
-
-        @DatabaseField(canBeNull = false, dataType = DataType.STRING, columnName = Column.ID, id = true)
-        var id: String? = null
-
-        @DatabaseField(canBeNull = false, dataType = DataType.LONG_OBJ, columnName = Column.DATE_MS)
-        var dateMs: Long? = null
-
-    }
-
-    //--------------------------------------------------------------------------------------------
-    @DatabaseTable(tableName = CheckedGames.TABLE)
-    class CheckedGames {
-
-        companion object {
-            const val TABLE = "checked_games"
-        }
-
-        object Column {
-            const val ID = "id"
-        }
-
-        @DatabaseField(canBeNull = false, dataType = DataType.STRING, columnName = Column.ID, id = true)
-        var id: String? = null
-
-        constructor()
-
-        constructor(id: String?) {
-            this.id = id
-        }
-
-    }
-
-
-    //--------------------------------------------------------------------------------------------
 
     class DAO(context: Context) {
         //--------------------------------------------------------------------------------------------
@@ -150,18 +92,18 @@ object Db {
         private val mDbHelper: DbHelper = DbHelper.getInstance(context)
 
         fun getGames(): List<Quiz> {
-            val games = getQuizList(mDbHelper.getQuizDataDao().queryForAll())
+            val games = getQuizList(mDbHelper.getGamesDateDao().queryForAll())
             log("getGames ${games.map { it.id }.toList()}")
             return games
         }
 
-        fun saveGames(games: List<QuizData>): List<Quiz> {
-            val dao = mDbHelper.getQuizDataDao()
+        fun saveGames(games: List<Input.QuizData>): List<Quiz> {
+            val dao = mDbHelper.getGamesDateDao()
 
             var newGames = 0
             var updatedGames = 0
-            for (f in games) {
-                val status = dao.createOrUpdate(f)
+            for (quiz in games) {
+                val status = dao.createOrUpdate(Quiz.fromQuizData(quiz))
                 if (status.isCreated) {
                     newGames++
                 }
@@ -171,7 +113,7 @@ object Db {
             }
             log("saveGames, count =${games.size}, newGames = $newGames, updatedGames = $updatedGames")
 
-            return getQuizList(games)
+            return getQuizList(games.map { Quiz.fromQuizData(it) })
         }
 
         fun setCheckedGame(game: Quiz) {
@@ -186,12 +128,11 @@ object Db {
 
         fun clearGames(date: Date): Int {
             val dao = mDbHelper.getGamesDateDao()
-            val gamesToDel = dao.queryBuilder().where().lt(GamesDate.Column.DATE_MS, date.time).query()
+            val gamesToDel = dao.queryBuilder().where().lt(Quiz.Column.DATE, date.time).query()
 
-            val quizDao = mDbHelper.getQuizDataDao()
             val checkedGamesDao = mDbHelper.getCheckedGamesDao()
             for (g in gamesToDel) {
-                quizDao.deleteById(g.id)
+                dao.deleteById(g.id)
                 checkedGamesDao.deleteById(g.id)
             }
             log("clearGames, count =${gamesToDel.size}")
@@ -199,25 +140,14 @@ object Db {
             return gamesToDel.size
         }
 
-        private fun getQuizList(games: List<QuizData>): MutableList<Quiz> {
+        private fun getQuizList(games: List<Quiz>): MutableList<Quiz> {
             val checkedGamesDao = mDbHelper.getCheckedGamesDao()
             return games.map { getQuiz(it, checkedGamesDao.queryForId(it.id) != null) }.toMutableList()
         }
 
-        private fun getQuiz(quizData: QuizData, isCheckedGame: Boolean): Quiz {
-            return Quiz(quizData.id!!,
-                    quizData.organization!!,
-                    quizData.gameTheme!!,
-                    quizData.description!!,
-                    QuizPlanner.formatterISO.parse(quizData.date),
-                    quizData.time!!,
-                    quizData.location!!,
-                    quizData.price!!,
-                    quizData.countOfPlayers!!,
-                    quizData.difficulty!!,
-                    quizData.registrationLink!!,
-                    "",
-                    isCheckedGame)
+        private fun getQuiz(quiz: Quiz, isCheckedGame: Boolean): Quiz {
+            quiz.isChecked = isCheckedGame
+            return quiz
         }
     }
 }

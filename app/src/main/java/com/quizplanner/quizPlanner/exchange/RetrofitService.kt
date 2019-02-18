@@ -1,7 +1,6 @@
 package com.quizplanner.quizPlanner.exchange
 
 import android.content.Context
-import com.quizplanner.quizPlanner.model.QuizData
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -59,7 +58,7 @@ class RetrofitService private constructor(context: Context) {
                 .build()
     }
 
-    fun getQuizData(dateFrom: String, dateTo: String): Observable<List<QuizData>> {
+    fun getQuizData(dateFrom: String, dateTo: String): Observable<List<Input.QuizData>> {
         return createApiService(Api::class.java)
                 .getGames(dateFrom, dateTo)
     }

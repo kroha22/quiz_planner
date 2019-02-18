@@ -34,7 +34,6 @@ class MainPresenter : MvpPresenter<MainView>() {
         private const val BD_ERROR_MESSAGE = "Внутренняя ошибка"
         private const val LOAD_ERROR_MESSAGE = "Во время загрузки произошла ошибка. Проверьте наличие сети"
         private const val NO_DATA_MESSAGE = "Отсутствуют данные для отображения"
-        private const val RELOAD_REQUEST = "Повторить загруку?"
         //-------------------------------------------------------------------------------------------
         private const val DAYS_FROM: Int = 3
         private const val DAYS_TO: Int = 7
@@ -81,15 +80,6 @@ class MainPresenter : MvpPresenter<MainView>() {
         }
     }
 
-    private fun hasGames(gamesByDate: Map<Date, List<Quiz>>): Boolean {
-        for (games in gamesByDate.entries) {
-            if (!games.value.isEmpty()) {
-                return true
-            }
-        }
-        return false
-    }
-
     fun isInitialized(): Boolean {
         return isInitialized
     }
@@ -119,7 +109,7 @@ class MainPresenter : MvpPresenter<MainView>() {
     }
 
     fun onLinkClick(quiz: Quiz) {
-        var url = quiz.registrationLink
+        var url = quiz.registrationLink!!
         if (!url.startsWith("http://") && !url.startsWith("https://")) {
             url = "http://$url"
         }
@@ -147,11 +137,19 @@ class MainPresenter : MvpPresenter<MainView>() {
 
     private fun onLoadedFromDb(gamesByDate: LinkedHashMap<Date, List<Quiz>>) {
         if (hasGames(gamesByDate)) {
-            viewState.hideStartLoad()
             showGames(gamesByDate)
-        } else {
-            startLoad { viewState.hideStartLoad() }
         }
+
+        startLoad { viewState.hideStartLoad() }
+    }
+
+    private fun hasGames(gamesByDate: Map<Date, List<Quiz>>): Boolean {
+        for (games in gamesByDate.entries) {
+            if (!games.value.isEmpty()) {
+                return true
+            }
+        }
+        return false
     }
 
     private fun onBdError(err: Throwable) {
@@ -167,7 +165,7 @@ class MainPresenter : MvpPresenter<MainView>() {
                 .timeout(1, TimeUnit.SECONDS)
                 .retry(2)
                 .subscribeOn(Schedulers.io())
-                .doOnNext { log("Consume games count ${it.map { games -> games.id }.toList()}") }
+                .doOnNext { log("Consume games count ${it.size}") }
                 .map { dao!!.saveGames(it) }
                 .map { getGamesByDate(it) }
                 .observeOn(AndroidSchedulers.mainThread())
@@ -183,7 +181,7 @@ class MainPresenter : MvpPresenter<MainView>() {
     private fun getGamesByDate(games: List<Quiz>): LinkedHashMap<Date, List<Quiz>> {
         val gamesByDate = LinkedHashMap<Date, List<Quiz>>()
         for (date in dates) {
-            gamesByDate[date] = ArrayList(games.filter { game -> isOneDay(game.date, date) })
+            gamesByDate[date] = ArrayList(games.filter { game -> isOneDay(game.getDate(), date) })
         }
         return gamesByDate
     }
@@ -221,7 +219,7 @@ class MainPresenter : MvpPresenter<MainView>() {
     private fun onError() {
         if (gamesByDate.isEmpty()) {
             for (date in dates) {
-                gamesByDate.put(date, emptyList())
+                gamesByDate[date] = emptyList()
             }
         }
 
@@ -229,7 +227,7 @@ class MainPresenter : MvpPresenter<MainView>() {
     }
 
     private fun showReloadMsg(errMsg: String) {
-        viewState.showMessage("$errMsg $RELOAD_REQUEST")
+        viewState.showMessage(errMsg)
     }
 
 }

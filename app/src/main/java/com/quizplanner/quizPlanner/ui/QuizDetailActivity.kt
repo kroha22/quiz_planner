@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
 import android.view.View
 import com.quizplanner.quizPlanner.QuizPlanner
+import com.quizplanner.quizPlanner.QuizPlanner.formatterTime
 import com.quizplanner.quizPlanner.R
 import com.quizplanner.quizPlanner.model.Quiz
 import com.squareup.picasso.Picasso
@@ -35,26 +36,28 @@ class QuizDetailActivity : AppCompatActivity() {
                     ?: throw AssertionError()
 
             this.item = item as Quiz
-            detail_title.text = item.organization
+            detail_title.text = item.organisationName
             detail_theme.text = item.gameTheme
             detail_date.text = QuizPlanner.formatterDateMonth.format(item.date)
-            detail_time.text = item.time
+            detail_time.text = formatterTime().format(item.date)
             detail_location.text = item.location
             detail_difficulty.text = item.difficulty
-            detail_count.text = item.countOfPlayers
-            detail_price.text = item.price
+            detail_count.text = item.countOfPlayers.toString()
+            detail_price.text = item.price.toString()
             detail_description.text = item.description
-            detail_link.text = item.registrationLink
-            if (item.registrationLink.isEmpty()) {
+
+            if (item.registrationLink!!.isEmpty()) {
                 detail_link.visibility = View.INVISIBLE
             } else {
                 detail_link.visibility = View.VISIBLE
                 detail_link.setOnClickListener { onLinkClick(item) }
             }
 
-            if(!item.imgUrl.isEmpty()){
+            if (!item.getImgUrl().isEmpty()) {
+                val apiUrl = getString(R.string.base_api_img_url)
+
                 Picasso.get()
-                        .load(item.imgUrl)
+                        .load(apiUrl + item.getImgUrl())
                         .placeholder(R.drawable.ic_image_placeholder)
                         .error(R.drawable.ic_broken_image)
                         .into(detail_img)
@@ -75,7 +78,7 @@ class QuizDetailActivity : AppCompatActivity() {
 
 
     private fun onLinkClick(quiz: Quiz) {
-        var url = quiz.registrationLink
+        var url = quiz.registrationLink!!
         if (!url.startsWith("http://") && !url.startsWith("https://")) {
             url = "http://$url"
         }

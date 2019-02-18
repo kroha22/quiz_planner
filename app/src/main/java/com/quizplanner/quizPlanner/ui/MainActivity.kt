@@ -3,6 +3,7 @@ package com.quizplanner.quizPlanner.ui
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.net.Uri
 import android.os.Bundle
 import android.support.design.widget.TabLayout
@@ -10,6 +11,7 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.content.ContextCompat
+import android.support.v4.view.ViewPager
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.RecyclerView
 import android.view.*
@@ -23,10 +25,12 @@ import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.viewstate.strategy.AddToEndSingleStrategy
 import com.arellomobile.mvp.viewstate.strategy.SkipStrategy
 import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
+import com.quizplanner.quizPlanner.QuizPlanner
 import com.quizplanner.quizPlanner.QuizPlanner.formatterDate
 import com.quizplanner.quizPlanner.QuizPlanner.formatterDay
 import com.quizplanner.quizPlanner.QuizPlanner.formatterMonth
 import com.quizplanner.quizPlanner.QuizPlanner.isOneDay
+import com.quizplanner.quizPlanner.QuizPlanner.log
 import com.quizplanner.quizPlanner.R
 import com.quizplanner.quizPlanner.model.Quiz
 import com.quizplanner.quizPlanner.ui.QuizDetailActivity.Companion.QUIZ_ITEM_CODE
@@ -61,7 +65,7 @@ interface MainView : MvpView {
     fun showDialog(dialogBuilder: DialogBuilder)
 
     @StateStrategyType(AddToEndSingleStrategy::class)
-    fun setContent(dateByGames: LinkedHashMap<Date, List<Quiz>>, selectedDate: Date)
+    fun setContent(gamesByDate: LinkedHashMap<Date, List<Quiz>>, selectedDate: Date)
 
     @StateStrategyType(AddToEndSingleStrategy::class)
     fun showQuizView(quiz: Quiz)
@@ -101,9 +105,8 @@ class MainActivity : MvpAppCompatActivity(), MainView, DateFragment.ItemClickLis
 
         setSupportActionBar(toolbar)
 
-        sectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
+        sectionsPagerAdapter = SectionsPagerAdapter(this, supportFragmentManager)
         container.adapter = sectionsPagerAdapter
-        container.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(tabs))
 
         tabs.addOnTabSelectedListener(TabLayout.ViewPagerOnTabSelectedListener(container))
         tabs.setupWithViewPager(container)
@@ -161,8 +164,8 @@ class MainActivity : MvpAppCompatActivity(), MainView, DateFragment.ItemClickLis
         appbar.visibility = View.VISIBLE
     }
 
-    override fun setContent(dateByGames: LinkedHashMap<Date, List<Quiz>>, selectedDate: Date) {
-        sectionsPagerAdapter.setItems(dateByGames)
+    override fun setContent(gamesByDate: LinkedHashMap<Date, List<Quiz>>, selectedDate: Date) {
+        sectionsPagerAdapter.setItems(gamesByDate)
 
         for (i in 0..tabs.tabCount) {
             val tab = tabs.getTabAt(i)
@@ -175,8 +178,9 @@ class MainActivity : MvpAppCompatActivity(), MainView, DateFragment.ItemClickLis
             }
         }
 
+        val dates = ArrayList(gamesByDate.keys)
+
         tabs.addOnTabSelectedListener(object : TabLayout.BaseOnTabSelectedListener<TabLayout.Tab> {
-            val dates = ArrayList(dateByGames.keys)
 
             override fun onTabReselected(p0: TabLayout.Tab) {
 
@@ -231,11 +235,25 @@ class MainActivity : MvpAppCompatActivity(), MainView, DateFragment.ItemClickLis
     }
     //------------------------------------------------------------------------------------------------
 
-    inner class SectionsPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
+    inner class SectionsPagerAdapter(context: Context, fm: FragmentManager) : FragmentPagerAdapter(fm) {
 
         private val tabItems: MutableList<Date> = ArrayList()
         private var gamesByDate: MutableMap<Date, List<Quiz>> = LinkedHashMap()
         private val pages: MutableMap<Date, DateFragment> = LinkedHashMap()
+        private val textColors: ColorStateList
+
+        init {
+            val states = arrayOf(intArrayOf(android.R.attr.state_enabled), // enabled
+                    intArrayOf(-android.R.attr.state_enabled) // disabled
+            )
+
+            val colors = intArrayOf(
+                    ContextCompat.getColor(context, R.color.white),
+                    ContextCompat.getColor(context, R.color.medium_grey)
+            )
+
+            textColors = ColorStateList(states, colors)
+        }
 
         fun setItems(items: LinkedHashMap<Date, List<Quiz>>) {
             tabItems.clear()
@@ -287,6 +305,15 @@ class MainActivity : MvpAppCompatActivity(), MainView, DateFragment.ItemClickLis
             subtitle.text = formatterDay.format(item)
 
             toolbar_month.text = formatterMonth.format(item)
+
+            title.setTextColor(textColors)
+            subtitle.setTextColor(textColors)
+
+            val date = tabItems[position]
+            val isEnabled = !gamesByDate[date]!!.isEmpty()
+            title.isEnabled = isEnabled
+            subtitle.isEnabled = isEnabled
+            view.isClickable = !isEnabled
 
             return view
         }
@@ -384,15 +411,15 @@ class DateFragment : Fragment() {
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val item = values[position]
-            holder.title.text = item.organization
+            holder.title.text = item.organisationName
             holder.theme.text = item.gameTheme
             holder.location.text = item.location
-            holder.price.text = item.price
+            holder.price.text = item.price.toString()
             holder.difficulty.text = item.difficulty
-            holder.count.text = item.countOfPlayers
-            holder.time.text = item.time
+            holder.count.text = item.countOfPlayers.toString()
+            holder.time.text = QuizPlanner.formatterTime().format(item.date)
 
-            if (item.registrationLink.isEmpty()) {
+            if (item.registrationLink!!.isEmpty()) {
                 holder.link.visibility = View.INVISIBLE
             } else {
                 holder.link.visibility = View.VISIBLE
@@ -401,9 +428,10 @@ class DateFragment : Fragment() {
 
             holder.setChecked(item.isChecked)
 
-            if (!item.imgUrl.isEmpty()) {
+            if (!item.getLogoUrl().isEmpty()) {
+                val apiUrl = holder.title.context.getString(R.string.base_api_img_url)
                 Picasso.get()
-                        .load(item.imgUrl)
+                        .load(apiUrl + item.getLogoUrl())
                         .placeholder(R.drawable.ic_image_placeholder)
                         .error(R.drawable.ic_broken_image)
                         .into(holder.img)
