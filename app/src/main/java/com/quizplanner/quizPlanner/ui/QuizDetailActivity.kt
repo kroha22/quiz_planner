@@ -3,6 +3,8 @@ package com.quizplanner.quizPlanner.ui
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.provider.CalendarContract
+import android.provider.CalendarContract.Events
 import android.support.v4.app.NavUtils
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
@@ -28,8 +30,7 @@ class QuizDetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_quiz_detail)
         setSupportActionBar(detail_toolbar)
-
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        detail_toolbar.setNavigationOnClickListener { this.onBackPressed() }
 
         if (savedInstanceState == null) {
             val item = intent.getSerializableExtra(QUIZ_ITEM_CODE)
@@ -39,7 +40,7 @@ class QuizDetailActivity : AppCompatActivity() {
             detail_title.text = item.organisationName
             detail_theme.text = item.gameTheme
             detail_date.text = QuizPlanner.formatterDateMonth.format(item.date)
-            detail_time.text = formatterTime().format(item.date)
+            detail_time.text = formatterTime.format(item.date)
             detail_location.text = item.location
             detail_difficulty.text = item.difficulty
             detail_count.text = item.countOfPlayers.toString()
@@ -61,6 +62,10 @@ class QuizDetailActivity : AppCompatActivity() {
                         .placeholder(R.drawable.ic_image_placeholder)
                         .error(R.drawable.ic_broken_image)
                         .into(detail_img)
+            }
+
+            toolbar_calendar.setOnClickListener {
+                createNotify(item)
             }
         }
 
@@ -88,5 +93,16 @@ class QuizDetailActivity : AppCompatActivity() {
     private fun requestLink(link: String) {
         val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(link))
         startActivity(browserIntent)
+    }
+
+    private fun createNotify(quiz: Quiz) {
+        val intent = Intent(Intent.ACTION_INSERT)
+                .setData(Events.CONTENT_URI)
+                .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, quiz.date)
+                .putExtra(Events.TITLE, quiz.gameTheme)
+                .putExtra(Events.DESCRIPTION, quiz.description)
+                .putExtra(Events.EVENT_LOCATION, quiz.location)
+                .putExtra(Intent.EXTRA_EMAIL, quiz.registrationLink)
+        startActivity(intent)
     }
 }

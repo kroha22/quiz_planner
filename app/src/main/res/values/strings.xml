@@ -23,5 +23,6 @@
     <string name="game_link">Зарегистрироваться</string>
     <string name="dummy">___</string>
     <string name="email">quizplanner54@gmail.com</string>
+    <string name="create_notify">Создать напоминание</string>
 
 </resources>

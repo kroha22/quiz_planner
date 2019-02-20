@@ -20,7 +20,7 @@ class Quiz: Serializable {
             game.id = quizData.id
             game.gameTheme = quizData.gameTheme
             game.description = quizData.description
-            game.date = QuizPlanner.formatterISO.parse(quizData.date!!).time
+            game.date = QuizPlanner.formatterISO().parse(quizData.date!!).time
             game.location = quizData.location
             game.price = quizData.price
             game.countOfPlayers = quizData.countOfPlayers

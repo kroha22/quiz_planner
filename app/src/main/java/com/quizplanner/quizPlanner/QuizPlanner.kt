@@ -6,14 +6,14 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
-object QuizPlanner{
+object QuizPlanner {
     //------------------------------------------------------------------------------------------------
     val myLocale = Locale("ru", "RU")
     val formatterDay = SimpleDateFormat("EEE", myLocale)
     val formatterDate = SimpleDateFormat("dd", myLocale)
     val formatterDateMonth = SimpleDateFormat("dd MMM", myLocale)
     val formatterMonth = SimpleDateFormat("LLLL", myLocale)
-    val formatterISO = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", myLocale)
+    val formatterTime = SimpleDateFormat("HH:mm", myLocale)
     private const val MS_ON_DAY: Long = 86400000
 
     //------------------------------------------------------------------------------------------------
@@ -29,10 +29,10 @@ object QuizPlanner{
         return Date(System.currentTimeMillis())
     }
 
-    fun formatterTime(): SimpleDateFormat {
-        val formatterTime = SimpleDateFormat("HH:mm", myLocale)
-        formatterTime.timeZone = TimeZone.getTimeZone("GMT")
-        return formatterTime
+    fun formatterISO(): SimpleDateFormat {//todo check timeZone
+        val formatterISO = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", myLocale)
+        formatterISO.timeZone = TimeZone.getTimeZone("UTC")
+        return formatterISO
     }
 
     fun getDates(daysBefore: Int, daysAfter: Int): List<Date> {

@@ -161,7 +161,7 @@ class MainPresenter : MvpPresenter<MainView>() {
     }
 
     private fun startLoad(onComplete: () -> Unit) {
-        subscription = dataLoader!!.getQuizData(formatterISO.format(dates.first()), formatterISO.format(dates.last()))
+        subscription = dataLoader!!.getQuizData(formatterISO().format(dates.first()), formatterISO().format(dates.last()))
                 .timeout(1, TimeUnit.SECONDS)
                 .retry(2)
                 .subscribeOn(Schedulers.io())

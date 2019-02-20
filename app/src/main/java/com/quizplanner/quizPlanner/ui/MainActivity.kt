@@ -11,14 +11,10 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.content.ContextCompat
-import android.support.v4.view.ViewPager
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.RecyclerView
 import android.view.*
-import android.widget.ImageView
-import android.widget.RelativeLayout
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import com.arellomobile.mvp.MvpAppCompatActivity
 import com.arellomobile.mvp.MvpView
 import com.arellomobile.mvp.presenter.InjectPresenter
@@ -30,7 +26,6 @@ import com.quizplanner.quizPlanner.QuizPlanner.formatterDate
 import com.quizplanner.quizPlanner.QuizPlanner.formatterDay
 import com.quizplanner.quizPlanner.QuizPlanner.formatterMonth
 import com.quizplanner.quizPlanner.QuizPlanner.isOneDay
-import com.quizplanner.quizPlanner.QuizPlanner.log
 import com.quizplanner.quizPlanner.R
 import com.quizplanner.quizPlanner.model.Quiz
 import com.quizplanner.quizPlanner.ui.QuizDetailActivity.Companion.QUIZ_ITEM_CODE
@@ -57,6 +52,9 @@ interface MainView : MvpView {
 
     @StateStrategyType(SkipStrategy::class)
     fun requestLink(link: String)
+
+    @StateStrategyType(SkipStrategy::class)
+    fun requestEmail(mail: String)
 
     @StateStrategyType(SkipStrategy::class)
     fun showMessage(msg: String)
@@ -127,6 +125,14 @@ class MainActivity : MvpAppCompatActivity(), MainView, DateFragment.ItemClickLis
     override fun requestLink(link: String) {
         val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(link))
         startActivity(browserIntent)
+    }
+
+    override fun requestEmail(mail: String) {
+        val intent = Intent(Intent.ACTION_SEND)
+        intent.type = "text/html"
+        intent.putExtra(Intent.EXTRA_EMAIL, mail)
+
+        startActivity(Intent.createChooser(intent, "Send Email"))
     }
 
     override fun showQuizView(quiz: Quiz) {
@@ -219,11 +225,16 @@ class MainActivity : MvpAppCompatActivity(), MainView, DateFragment.ItemClickLis
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
 
+        val view = layoutInflater.inflate(R.layout.contacts_view, null, false) as LinearLayout
+        view.findViewById<TextView>(R.id.email).apply {
+            setOnClickListener { requestEmail(text.toString()) }
+        }
+
         if (id == R.id.action_settings) {
             AlertDialog.Builder(this)
                     .setIcon(R.mipmap.ic_launcher)
                     .setTitle(R.string.contacts)
-                    .setView(layoutInflater.inflate(R.layout.contacts_view, null, false))
+                    .setView(view)
                     .setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
                     .setCancelable(true)
                     .create()
@@ -417,7 +428,7 @@ class DateFragment : Fragment() {
             holder.price.text = item.price.toString()
             holder.difficulty.text = item.difficulty
             holder.count.text = item.countOfPlayers.toString()
-            holder.time.text = QuizPlanner.formatterTime().format(item.date)
+            holder.time.text = QuizPlanner.formatterTime.format(item.date)
 
             if (item.registrationLink!!.isEmpty()) {
                 holder.link.visibility = View.INVISIBLE
