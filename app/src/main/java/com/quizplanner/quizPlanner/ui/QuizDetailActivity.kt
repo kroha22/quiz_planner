@@ -48,9 +48,12 @@ class QuizDetailActivity : AppCompatActivity() {
             detail_description.text = item.description
 
             if (item.registrationLink!!.isEmpty()) {
+                detail_link_label.visibility = View.INVISIBLE
                 detail_link.visibility = View.INVISIBLE
             } else {
+                detail_link_label.visibility = View.VISIBLE
                 detail_link.visibility = View.VISIBLE
+                detail_link.text = item.registrationLink
                 detail_link.setOnClickListener { onLinkClick(item) }
             }
 

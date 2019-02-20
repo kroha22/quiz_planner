@@ -18,7 +18,6 @@
 
     <dimen name="tab_text_size_big">18sp</dimen>
     <dimen name="tab_text_size">14sp</dimen>
-    <dimen name="quiz_list_margin">10dp</dimen>
     <dimen name="item_margin">4dp</dimen>
     <dimen name="item_padding">4dp</dimen>
 </resources>

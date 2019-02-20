@@ -37,7 +37,7 @@
                 android:id="@+id/detail_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/game_title"
+                android:text="@string/game_organization"
                 android:textAppearance="?attr/textAppearanceListItem"
                 android:textSize="@dimen/item_title_text_size"
                 android:textStyle="bold" />
@@ -211,12 +211,23 @@
             android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/detail_link"
+                android:id="@+id/detail_link_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="@dimen/item_text_margin"
                 android:text="@string/game_link"
+                android:textColor="@color/dark_grey"
+                android:textSize="@dimen/default_text_size"
+                android:textStyle="italic" />
+
+            <TextView
+                android:id="@+id/detail_link"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/item_text_margin"
+                android:text="@string/dummy"
                 android:textColor="@color/blue"
+                android:maxLines="1"
                 android:textSize="@dimen/default_text_size"
                 android:textStyle="italic" />
 

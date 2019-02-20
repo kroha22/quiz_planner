@@ -430,13 +430,6 @@ class DateFragment : Fragment() {
             holder.count.text = item.countOfPlayers.toString()
             holder.time.text = QuizPlanner.formatterTime.format(item.date)
 
-            if (item.registrationLink!!.isEmpty()) {
-                holder.link.visibility = View.INVISIBLE
-            } else {
-                holder.link.visibility = View.VISIBLE
-                holder.link.setOnClickListener { onClickListener?.onLinkClick(item) }
-            }
-
             holder.setChecked(item.isChecked)
 
             if (!item.getLogoUrl().isEmpty()) {
@@ -471,7 +464,6 @@ class DateFragment : Fragment() {
             val location: TextView = view.item_location
             val price: TextView = view.item_price
             val difficulty: TextView = view.item_difficulty
-            val link: TextView = view.item_link
             val count: TextView = view.item_count
             val time: TextView = view.item_time
             val img: ImageView = view.item_img
