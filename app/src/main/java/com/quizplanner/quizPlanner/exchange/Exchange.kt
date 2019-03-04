@@ -19,6 +19,7 @@ object Urls {
 
     object REQUEST {
         const val GAMES = "monthGamesList"
+        const val FAVORITES = "favouriteGamesList"
     }
 
     fun getApiBaseUrl(context: Context): String {
@@ -33,4 +34,8 @@ interface Api {
     @FormUrlEncoded
     @POST(Urls.REQUEST.GAMES)
     fun getGames(@Field("dateFrom") dateFrom: String, @Field("dateTo") dateTo: String): Observable<List<Input.QuizData>>
+
+    @FormUrlEncoded
+    @POST(Urls.REQUEST.FAVORITES)
+    fun getGames(@Field("gamesArray") gamesArray: List<String>): Observable<List<Input.QuizData>>
 }

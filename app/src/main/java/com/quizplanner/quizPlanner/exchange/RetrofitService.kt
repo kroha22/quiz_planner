@@ -63,6 +63,11 @@ class RetrofitService private constructor(context: Context) {
                 .getGames(dateFrom, dateTo)
     }
 
+    fun getQuizData(gamesArray: List<String>): Observable<List<Input.QuizData>> {
+        return createApiService(Api::class.java)
+                .getGames(gamesArray)
+    }
+
     internal fun <S> createApiService(apiClass: Class<S>): S {
         return mRetrofit.create(apiClass)
     }

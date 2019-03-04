@@ -8,6 +8,7 @@ import com.quizplanner.quizPlanner.QuizPlanner.formatterISO
 import com.quizplanner.quizPlanner.QuizPlanner.getDates
 import com.quizplanner.quizPlanner.QuizPlanner.isOneDay
 import com.quizplanner.quizPlanner.QuizPlanner.today
+import com.quizplanner.quizPlanner.exchange.Input
 import com.quizplanner.quizPlanner.exchange.RetrofitService
 import com.quizplanner.quizPlanner.model.Db
 import com.quizplanner.quizPlanner.model.Quiz
@@ -47,6 +48,7 @@ class MainPresenter : MvpPresenter<MainView>() {
 
     private lateinit var escapeHandler: () -> Unit
     private var isInitialized: Boolean = false
+    private val allGames = ArrayList<Quiz>()
     private val gamesByDate = LinkedHashMap<Date, List<Quiz>>()
     private var selectedDate: Date = today()
     private var selectedQuiz: Quiz? = null
@@ -89,9 +91,7 @@ class MainPresenter : MvpPresenter<MainView>() {
     }
 
     fun onRefreshClick() {
-        viewState.showLoadProgress()
-
-        startLoad { viewState.hideLoadProgress() }
+        startLoad({ viewState.showLoadProgress() }, { viewState.hideLoadProgress() })
     }
 
     fun onGameSelected(quiz: Quiz) {
@@ -106,41 +106,56 @@ class MainPresenter : MvpPresenter<MainView>() {
         } else {
             dao!!.setUncheckedGame(quiz)
         }
-    }
 
-    fun onLinkClick(quiz: Quiz) {
-        var url = quiz.registrationLink!!
-        if (!url.startsWith("http://") && !url.startsWith("https://")) {
-            url = "http://$url"
-        }
-        viewState.requestLink(url)
+        allGames[allGames.indexOf(quiz)].isChecked = quiz.isChecked
     }
 
     fun onDateSelect(date: Date) {
         selectedDate = date
     }
 
+    fun onContactsRequested() {
+        viewState.showContacts()
+    }
+
+    fun onCheckedGamesRequested() {
+        subscription = getCheckedGames()
+                .doOnNext { log("CheckedGames $it") }
+                .flatMap {
+                    if (!it.isEmpty()) {
+                        load({ viewState.showLoadProgress() }, { dataLoader!!.getQuizData(it) })
+                    } else {
+                        Observable.just(Collections.emptyList())
+                    }
+                }
+                .doOnNext { updateGames(it) }
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    viewState.showCheckedGames(it)
+                    viewState.hideLoadProgress()
+                }, {
+                    onLoadError(it)
+                    viewState.hideLoadProgress()
+                })
+    }
+
     private fun getGamesFromDb() {
         subscription = clearDbOldGames()
                 .subscribeOn(Schedulers.io())
                 .map { dao!!.getGames() }
-                .map { getGamesByDate(it) }
+                .map { setGames(it) }
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ onLoadedFromDb(it) }, { onBdError(it) })
+                .subscribe({ onLoadedFromDb() }, { onBdError(it) })
     }
 
-    private fun clearDbOldGames(): Observable<Int> {
-        return Observable.create<Int> { subscriber ->
-            subscriber.onNext(dao!!.clearGames(dates.first()))
-        }
-    }
+    private fun clearDbOldGames() = Observable.create<Int> { it.onNext(dao!!.clearGames(dates.first())) }
 
-    private fun onLoadedFromDb(gamesByDate: LinkedHashMap<Date, List<Quiz>>) {
+    private fun onLoadedFromDb() {
         if (hasGames(gamesByDate)) {
-            showGames(gamesByDate)
+            showGames()
         }
 
-        startLoad { viewState.hideStartLoad() }
+        startLoad({ }, { viewState.hideStartLoad() })
     }
 
     private fun hasGames(gamesByDate: Map<Date, List<Quiz>>): Boolean {
@@ -160,23 +175,38 @@ class MainPresenter : MvpPresenter<MainView>() {
         onError()
     }
 
-    private fun startLoad(onComplete: () -> Unit) {
-        subscription = dataLoader!!.getQuizData(formatterISO().format(dates.first()), formatterISO().format(dates.last()))
-                .timeout(1, TimeUnit.SECONDS)
-                .retry(2)
-                .subscribeOn(Schedulers.io())
-                .doOnNext { log("Consume games count ${it.size}") }
-                .map { dao!!.saveGames(it) }
-                .map { getGamesByDate(it) }
+    private fun getCheckedGames() = Observable.create<List<String>> { subscriber ->
+       subscriber.onNext(allGames.filter { it.isChecked }.map { it.id!! }.toList())
+    }
+
+    private fun startLoad(beforeStartLoad: () -> Unit, onComplete: () -> Unit) {
+        startLoad({ dataLoader!!.getQuizData(formatterISO().format(dates.first()), formatterISO().format(dates.last())) }, beforeStartLoad, onComplete)
+    }
+
+    private fun startLoad(from: () -> Observable<List<Input.QuizData>>, beforeStartLoad: () -> Unit, onComplete: () -> Unit) {
+        subscription = load(beforeStartLoad, from)
+                .doOnNext { setGames(it) }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
-                    showGames(it)
+                    showGames()
                     onComplete.invoke()
                 }, {
                     onLoadError(it)
                     onComplete.invoke()
                 })
     }
+
+    private fun load(beforeStartLoad: () -> Unit, from: () -> Observable<List<Input.QuizData>>): Observable<List<Quiz>> {
+        beforeStartLoad.invoke()
+
+        return from.invoke()
+                .timeout(1, TimeUnit.SECONDS)
+                .retry(2)
+                .subscribeOn(Schedulers.io())
+                .doOnNext { log("Consume games count ${it.size}") }
+                .map { dao!!.saveGames(it) }
+    }
+
 
     private fun getGamesByDate(games: List<Quiz>): LinkedHashMap<Date, List<Quiz>> {
         val gamesByDate = LinkedHashMap<Date, List<Quiz>>()
@@ -186,17 +216,26 @@ class MainPresenter : MvpPresenter<MainView>() {
         return gamesByDate
     }
 
-    private fun showGames(gamesByDate: LinkedHashMap<Date, List<Quiz>>) {
-        setGames(gamesByDate)
-        showGames()
-    }
-
     private fun showGames() {
         viewState.setContent(gamesByDate, selectedDate)
 
         if (gamesByDate.isEmpty()) {
             viewState.showMessage(NO_DATA_MESSAGE)
         }
+    }
+
+    private fun setGames(games: List<Quiz>) {
+        allGames.clear()
+        allGames.addAll(games)
+
+        setGames(getGamesByDate(allGames))
+    }
+
+    private fun updateGames(games: List<Quiz>) {
+        allGames.removeAll(games)
+        allGames.addAll(games)
+
+        setGames(getGamesByDate(allGames))
     }
 
     private fun setGames(gamesByDate: LinkedHashMap<Date, List<Quiz>>) {

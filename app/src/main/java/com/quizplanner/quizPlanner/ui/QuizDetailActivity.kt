@@ -42,8 +42,14 @@ class QuizDetailActivity : AppCompatActivity() {
             detail_date.text = QuizPlanner.formatterDateMonth.format(item.date)
             detail_time.text = formatterTime.format(item.date)
             detail_location.text = item.location
-            detail_difficulty.text = item.difficulty
-            detail_count.text = item.countOfPlayers.toString()
+
+            if (item.countOfPlayers != null) {
+                detail_count.text = item.countOfPlayers.toString()
+                detail_count.visibility = View.VISIBLE
+            } else {
+                detail_count.visibility = View.GONE
+            }
+
             detail_price.text = item.price.toString()
             detail_description.text = item.description
 

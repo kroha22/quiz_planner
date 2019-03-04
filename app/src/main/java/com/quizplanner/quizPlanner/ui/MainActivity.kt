@@ -34,6 +34,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.quiz_list_item.view.*
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 import kotlin.collections.LinkedHashMap
 
 
@@ -80,13 +81,19 @@ interface MainView : MvpView {
     @StateStrategyType(value = AddToEndSingleStrategy::class, tag = PROGRESS_TAG)
     fun hideStartLoad()
 
+    @StateStrategyType(value = AddToEndSingleStrategy::class)
+    fun showCheckedGames(checkedGames: List<Quiz>)
+
+    @StateStrategyType(value = AddToEndSingleStrategy::class)
+    fun showContacts()
+
 }
 
 //---------------------------------------------------------------------------------------------
 private const val MAIN: String = "MainActivity"
 //-------------------------------------------------------------------------------------------
 
-class MainActivity : MvpAppCompatActivity(), MainView, DateFragment.ItemClickListener {
+class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAdapter.ItemClickListener {
 
     private lateinit var sectionsPagerAdapter: SectionsPagerAdapter
 
@@ -170,6 +177,55 @@ class MainActivity : MvpAppCompatActivity(), MainView, DateFragment.ItemClickLis
         appbar.visibility = View.VISIBLE
     }
 
+    override fun showCheckedGames(checkedGames: List<Quiz>) {
+
+        var onItemUnchecked: (Quiz) -> Unit = {}
+
+        val view = CheckedGamesListView(layoutInflater, checkedGames, object : SimpleItemRecyclerViewAdapter.ItemClickListener {
+
+            override fun onItemClick(quiz: Quiz) {
+                presenter.onGameSelected(quiz)
+            }
+
+            override fun onItemCheckChanged(quiz: Quiz) {
+
+                if (!quiz.isChecked) {
+                    onItemUnchecked.invoke(quiz)
+                }
+                sectionsPagerAdapter.notifyDataSetChanged(quiz)
+            }
+
+        })
+
+        onItemUnchecked = { view.removeItem(it) }
+
+        AlertDialog.Builder(this)
+                .setIcon(R.mipmap.ic_launcher)
+                .setTitle(R.string.favorites)
+                .setView(view.getView())
+                .setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
+                .setCancelable(true)
+                .create()
+                .show()
+    }
+
+    @SuppressLint("InflateParams")
+    override fun showContacts() {
+        val view = layoutInflater.inflate(R.layout.contacts_view, null, false) as LinearLayout
+        view.findViewById<TextView>(R.id.email).apply {
+            setOnClickListener { requestEmail(text.toString()) }
+        }
+
+        AlertDialog.Builder(this)
+                .setIcon(R.mipmap.ic_launcher)
+                .setTitle(R.string.contacts)
+                .setView(view)
+                .setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
+                .setCancelable(true)
+                .create()
+                .show()
+    }
+
     override fun setContent(gamesByDate: LinkedHashMap<Date, List<Quiz>>, selectedDate: Date) {
         sectionsPagerAdapter.setItems(gamesByDate)
 
@@ -212,10 +268,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, DateFragment.ItemClickLis
         presenter.onGameCheckChanged(quiz)
     }
 
-    override fun onLinkClick(quiz: Quiz) {
-        presenter.onLinkClick(quiz)
-    }
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
@@ -225,20 +277,11 @@ class MainActivity : MvpAppCompatActivity(), MainView, DateFragment.ItemClickLis
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
 
-        val view = layoutInflater.inflate(R.layout.contacts_view, null, false) as LinearLayout
-        view.findViewById<TextView>(R.id.email).apply {
-            setOnClickListener { requestEmail(text.toString()) }
-        }
-
-        if (id == R.id.action_settings) {
-            AlertDialog.Builder(this)
-                    .setIcon(R.mipmap.ic_launcher)
-                    .setTitle(R.string.contacts)
-                    .setView(view)
-                    .setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
-                    .setCancelable(true)
-                    .create()
-                    .show()
+        if (id == R.id.action_contacts) {
+            presenter.onContactsRequested()
+            return true
+        } else if (id == R.id.action_favorites) {
+            presenter.onCheckedGamesRequested()
             return true
         }
 
@@ -283,6 +326,15 @@ class MainActivity : MvpAppCompatActivity(), MainView, DateFragment.ItemClickLis
             }
 
             notifyDataSetChanged()
+        }
+
+        fun notifyDataSetChanged(quiz: Quiz) {
+            for (page in pages) {
+                if (isOneDay(page.key, quiz.getDate())) {
+                    page.value.onItemCheckChanged(quiz)
+                    return
+                }
+            }
         }
 
         fun getItemDate(position: Int): Date {
@@ -334,19 +386,9 @@ class MainActivity : MvpAppCompatActivity(), MainView, DateFragment.ItemClickLis
 //------------------------------------------------------------------------------------------------
 
 class DateFragment : Fragment() {
-    //------------------------------------------------------------------------------------------------
-    interface ItemClickListener {
-        fun onItemClick(quiz: Quiz)
-
-        fun onItemCheckChanged(quiz: Quiz)
-
-        fun onLinkClick(quiz: Quiz)
-    }
-
-    //------------------------------------------------------------------------------------------------
     private var isCreated = false
-    private val adapter = SimpleItemRecyclerViewAdapter()
-    private var clickListener: ItemClickListener? = null
+    private val adapter = SimpleItemRecyclerViewAdapter(false)
+    private var clickListener: SimpleItemRecyclerViewAdapter.ItemClickListener? = null
     private lateinit var recyclerView: RecyclerView
     private lateinit var emptyView: TextView
 
@@ -369,6 +411,11 @@ class DateFragment : Fragment() {
         }
     }
 
+    fun onItemCheckChanged(quiz: Quiz) {
+        adapter.onItemCheckChanged(quiz)
+        adapter.notifyDataSetChanged()
+    }
+
     override fun onResume() {
         super.onResume()
         refreshView()
@@ -378,7 +425,7 @@ class DateFragment : Fragment() {
         super.onAttach(context)
 
         try {
-            clickListener = context as ItemClickListener
+            clickListener = context as SimpleItemRecyclerViewAdapter.ItemClickListener
         } catch (e: ClassCastException) {
             throw ClassCastException(context.toString() + " must implement OnListItemSelectedListener")
         }
@@ -393,90 +440,165 @@ class DateFragment : Fragment() {
             recyclerView.visibility = View.VISIBLE
         }
     }
+}
+//------------------------------------------------------------------------------------------------
+
+class CheckedGamesListView(inflater: LayoutInflater, values: List<Quiz>, clickListener: SimpleItemRecyclerViewAdapter.ItemClickListener) {
+    @SuppressLint("InflateParams")
+    private val mainView = inflater.inflate(R.layout.quiz_list, null, false) as RelativeLayout
+    private val adapter = SimpleItemRecyclerViewAdapter(false)
+    private val recyclerView: RecyclerView = mainView.findViewById(R.id.quiz_list)
+    private val emptyView: TextView = mainView.findViewById(R.id.quiz_list_empty_view)
+
+    init {
+        adapter.setValues(values)
+        adapter.setOnClickListener(clickListener)
+        recyclerView.adapter = adapter
+
+        emptyView.text = mainView.resources.getText(R.string.favorites_empty)
+
+        if (!values.isEmpty()) {
+            emptyView.visibility = View.INVISIBLE
+        } else {
+            emptyView.visibility = View.VISIBLE
+        }
+
+    }
+
+    fun removeItem(quiz: Quiz) {
+        adapter.removeItem(quiz)
+
+        if (adapter.isEmpty()) {
+            emptyView.visibility = View.VISIBLE
+        }
+    }
+
+    fun getView() = mainView
+}
+
+//------------------------------------------------------------------------------------------------
+class SimpleItemRecyclerViewAdapter(private val showDate: Boolean) :
+        RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder>() {
+    //------------------------------------------------------------------------------------------------
+    interface ItemClickListener {
+        fun onItemClick(quiz: Quiz)
+
+        fun onItemCheckChanged(quiz: Quiz)
+    }
 
     //------------------------------------------------------------------------------------------------
-    class SimpleItemRecyclerViewAdapter :
-            RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder>() {
 
-        private var onClickListener: ItemClickListener? = null
-        private var values: List<Quiz> = ArrayList()
+    private var onClickListener: ItemClickListener? = null
+    private var values: MutableList<Quiz> = ArrayList()
+    private val onItemCheckChanged: MutableMap<Quiz, () -> Unit> = HashMap()
 
-        fun setValues(values: List<Quiz>) {
-            this.values = values
-            notifyDataSetChanged()
+    fun setValues(values: List<Quiz>) {
+        this.values = ArrayList(values)
+        notifyDataSetChanged()
+    }
+
+    fun removeItem(item: Quiz) {
+        val pos = values.indexOf(item)
+        values.remove(item)
+        notifyItemRemoved(pos)
+    }
+
+    fun onItemCheckChanged(item: Quiz) {
+        val currItem = values[values.indexOf(item)]
+        currItem.isChecked = item.isChecked
+        onClickListener?.onItemCheckChanged(currItem)
+
+        onItemCheckChanged[item]?.invoke()
+    }
+
+    fun isEmpty(): Boolean {
+        return values.isEmpty()
+    }
+
+    fun setOnClickListener(onClickListener: ItemClickListener?) {
+        this.onClickListener = onClickListener
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.quiz_list_item, parent, false)
+        return ViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val item = values[position]
+        holder.title.text = item.organisationName
+        holder.theme.text = item.gameTheme
+        holder.location.text = item.location
+
+        holder.price.visibility = View.GONE
+        // holder.price.text = item.price.toString()
+
+        if (showDate) {
+            holder.date.text = QuizPlanner.formatterDate.format(item.date)
+            holder.dateLine.visibility = View.VISIBLE
+        } else {
+            holder.dateLine.visibility = View.GONE
         }
 
-        fun isEmpty(): Boolean {
-            return values.isEmpty()
-        }
-
-        fun setOnClickListener(onClickListener: ItemClickListener?) {
-            this.onClickListener = onClickListener
-        }
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            val view = LayoutInflater.from(parent.context)
-                    .inflate(R.layout.quiz_list_item, parent, false)
-            return ViewHolder(view)
-        }
-
-        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            val item = values[position]
-            holder.title.text = item.organisationName
-            holder.theme.text = item.gameTheme
-            holder.location.text = item.location
-            holder.price.text = item.price.toString()
-            holder.difficulty.text = item.difficulty
+        if (item.countOfPlayers != null) {
             holder.count.text = item.countOfPlayers.toString()
-            holder.time.text = QuizPlanner.formatterTime.format(item.date)
-
-            holder.setChecked(item.isChecked)
-
-            if (!item.getLogoUrl().isEmpty()) {
-                val apiUrl = holder.title.context.getString(R.string.base_api_img_url)
-                Picasso.get()
-                        .load(apiUrl + item.getLogoUrl())
-                        .placeholder(R.drawable.ic_image_placeholder)
-                        .error(R.drawable.ic_broken_image)
-                        .into(holder.img)
-            }
-
-            holder.check.setOnClickListener {
-                val curr = item.isChecked
-                item.isChecked = !curr
-                holder.setChecked(item.isChecked)
-                onClickListener?.onItemCheckChanged(item)
-            }
-
-            with(holder.itemView) {
-                tag = item
-                setOnClickListener { onClickListener?.onItemClick(item) }
-            }
+            holder.countLine.visibility = View.VISIBLE
+        } else {
+            holder.countLine.visibility = View.GONE
         }
 
-        override fun getItemCount() = values.size
+        holder.time.text = QuizPlanner.formatterTime.format(item.date)
 
-        //------------------------------------------------------------------------------------------------
+        holder.setChecked(item.isChecked)
 
-        inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-            val title: TextView = view.item_title
-            val theme: TextView = view.item_theme
-            val location: TextView = view.item_location
-            val price: TextView = view.item_price
-            val difficulty: TextView = view.item_difficulty
-            val count: TextView = view.item_count
-            val time: TextView = view.item_time
-            val img: ImageView = view.item_img
-            val check: ImageView = view.item_check
+        onItemCheckChanged[item] = { holder.setChecked(item.isChecked) }
 
-            fun setChecked(isChecked: Boolean) {
-                if (isChecked) {
-                    check.setColorFilter(ContextCompat.getColor(check.context, R.color.colorAccent))
-                } else {
-                    check.colorFilter = null
-                }
+        if (!item.getLogoUrl().isEmpty()) {
+            val apiUrl = holder.title.context.getString(R.string.base_api_img_url)
+            Picasso.get()
+                    .load(apiUrl + item.getLogoUrl())
+                    .placeholder(R.drawable.ic_image_placeholder)
+                    .error(R.drawable.ic_broken_image)
+                    .into(holder.img)
+        }
+
+        holder.check.setOnClickListener {
+            val curr = item.isChecked
+            item.isChecked = !curr
+            holder.setChecked(item.isChecked)
+            onClickListener?.onItemCheckChanged(item)
+        }
+
+        with(holder.itemView) {
+            tag = item
+            setOnClickListener { onClickListener?.onItemClick(item) }
+        }
+    }
+
+    override fun getItemCount() = values.size
+
+    //------------------------------------------------------------------------------------------------
+
+    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val title: TextView = view.item_title
+        val theme: TextView = view.item_theme
+        val location: TextView = view.item_location
+        val price: TextView = view.item_price
+        val count: TextView = view.item_count
+        val time: TextView = view.item_time
+        val img: ImageView = view.item_img
+        val check: ImageView = view.item_check
+        val date: TextView = view.item_date
+        val dateLine: LinearLayout = view.item_date_line
+        val countLine: LinearLayout = view.item_count_line
+
+        fun setChecked(isChecked: Boolean) {
+            if (isChecked) {
+                check.setColorFilter(ContextCompat.getColor(check.context, R.color.colorAccent))
+            } else {
+                check.colorFilter = null
             }
         }
     }
-    //------------------------------------------------------------------------------------------------
 }

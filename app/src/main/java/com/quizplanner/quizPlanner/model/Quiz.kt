@@ -9,7 +9,7 @@ import java.io.Serializable
 import java.util.*
 
 @DatabaseTable(tableName = Quiz.TABLE)
-class Quiz: Serializable {
+class Quiz : Serializable {
 
     companion object {
         const val TABLE = "game_data"
@@ -101,6 +101,19 @@ class Quiz: Serializable {
 
     override fun toString(): String {
         return "Quiz(id=$id, gameTheme=$gameTheme, description=$description, date=$date, location=$location, price=$price, countOfPlayers=$countOfPlayers, difficulty=$difficulty, registrationLink=$registrationLink, gameImgFilename=$gameImgFilename, gameImgPath=$gameImgPath, organisationName=$organisationName, organisationLogoFilename=$organisationLogoFilename, organisationLogoPath=$organisationLogoPath)"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other?.javaClass != javaClass) return false
+
+        other as Quiz
+
+        return id.equals(other.id)
+    }
+
+    override fun hashCode(): Int {
+        return id?.hashCode() ?: 0
     }
 
     fun getImgUrl() = if (gameImgPath != null && gameImgFilename != null) {

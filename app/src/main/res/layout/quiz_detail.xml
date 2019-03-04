@@ -84,8 +84,8 @@
                 android:orientation="horizontal">
 
                 <ImageView
-                    android:layout_width="@dimen/item_time_icon_size"
-                    android:layout_height="@dimen/item_time_icon_size"
+                    android:layout_width="@dimen/item_icon_size"
+                    android:layout_height="@dimen/item_icon_size"
                     android:layout_gravity="top"
                     android:layout_marginRight="@dimen/item_text_margin"
                     android:src="@drawable/ic_time" />
@@ -120,31 +120,6 @@
             android:textColor="@color/dark_grey"
             android:textIsSelectable="true"
             android:textSize="@dimen/default_text_size" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="@dimen/item_text_margin"
-                android:text="@string/game_difficulty"
-                android:textColor="@color/dark_grey"
-                android:textSize="@dimen/default_text_size"
-                android:textStyle="italic" />
-
-            <TextView
-                android:id="@+id/detail_difficulty"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/dummy"
-                android:textColor="@color/dark_grey"
-                android:textSize="@dimen/default_text_size"
-                android:textStyle="italic" />
-
-        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"

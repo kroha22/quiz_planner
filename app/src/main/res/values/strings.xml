@@ -21,5 +21,8 @@
     <string name="game_link">Зарегистрироваться:</string>
     <string name="game_price">Стоимость:</string>
     <string name="game_price_dimen"> руб.</string>
+    <string name="favorites">Избранное</string>
+    <string name="tagline">Выбери квиз по душе</string>
+    <string name="favorites_empty">Вы не выбрали ни одной игры</string>
 
 </resources>
