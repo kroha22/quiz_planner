@@ -14,14 +14,16 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.RecyclerView
 import android.view.*
-import android.widget.*
+import android.widget.LinearLayout
+import android.widget.RelativeLayout
+import android.widget.TextView
+import android.widget.Toast
 import com.arellomobile.mvp.MvpAppCompatActivity
 import com.arellomobile.mvp.MvpView
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.viewstate.strategy.AddToEndSingleStrategy
 import com.arellomobile.mvp.viewstate.strategy.SkipStrategy
 import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
-import com.quizplanner.quizPlanner.QuizPlanner
 import com.quizplanner.quizPlanner.QuizPlanner.formatterDate
 import com.quizplanner.quizPlanner.QuizPlanner.formatterDay
 import com.quizplanner.quizPlanner.QuizPlanner.formatterMonth
@@ -29,12 +31,9 @@ import com.quizplanner.quizPlanner.QuizPlanner.isOneDay
 import com.quizplanner.quizPlanner.R
 import com.quizplanner.quizPlanner.model.Quiz
 import com.quizplanner.quizPlanner.ui.QuizDetailActivity.Companion.QUIZ_ITEM_CODE
-import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.quiz_list_item.view.*
 import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 import kotlin.collections.LinkedHashMap
 
 
@@ -82,7 +81,7 @@ interface MainView : MvpView {
     fun hideStartLoad()
 
     @StateStrategyType(value = AddToEndSingleStrategy::class)
-    fun showCheckedGames(checkedGames: List<Quiz>)
+    fun showCheckedGames()
 
     @StateStrategyType(value = AddToEndSingleStrategy::class)
     fun showContacts()
@@ -177,36 +176,9 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
         appbar.visibility = View.VISIBLE
     }
 
-    override fun showCheckedGames(checkedGames: List<Quiz>) {
-
-        var onItemUnchecked: (Quiz) -> Unit = {}
-
-        val view = CheckedGamesListView(layoutInflater, checkedGames, object : SimpleItemRecyclerViewAdapter.ItemClickListener {
-
-            override fun onItemClick(quiz: Quiz) {
-                presenter.onGameSelected(quiz)
-            }
-
-            override fun onItemCheckChanged(quiz: Quiz) {
-
-                if (!quiz.isChecked) {
-                    onItemUnchecked.invoke(quiz)
-                }
-                sectionsPagerAdapter.notifyDataSetChanged(quiz)
-            }
-
-        })
-
-        onItemUnchecked = { view.removeItem(it) }
-
-        AlertDialog.Builder(this)
-                .setIcon(R.mipmap.ic_launcher)
-                .setTitle(R.string.favorites)
-                .setView(view.getView())
-                .setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
-                .setCancelable(true)
-                .create()
-                .show()
+    override fun showCheckedGames() {
+        val intent = Intent(this, FavoritesActivity::class.java)
+        startActivity(intent)
     }
 
     @SuppressLint("InflateParams")
@@ -328,15 +300,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
             notifyDataSetChanged()
         }
 
-        fun notifyDataSetChanged(quiz: Quiz) {
-            for (page in pages) {
-                if (isOneDay(page.key, quiz.getDate())) {
-                    page.value.onItemCheckChanged(quiz)
-                    return
-                }
-            }
-        }
-
         fun getItemDate(position: Int): Date {
             return tabItems[position]
         }
@@ -411,11 +374,6 @@ class DateFragment : Fragment() {
         }
     }
 
-    fun onItemCheckChanged(quiz: Quiz) {
-        adapter.onItemCheckChanged(quiz)
-        adapter.notifyDataSetChanged()
-    }
-
     override fun onResume() {
         super.onResume()
         refreshView()
@@ -438,168 +396,6 @@ class DateFragment : Fragment() {
         } else {
             emptyView.visibility = View.INVISIBLE
             recyclerView.visibility = View.VISIBLE
-        }
-    }
-}
-//------------------------------------------------------------------------------------------------
-
-class CheckedGamesListView(inflater: LayoutInflater, values: List<Quiz>, clickListener: SimpleItemRecyclerViewAdapter.ItemClickListener) {
-    @SuppressLint("InflateParams")
-    private val mainView = inflater.inflate(R.layout.quiz_list, null, false) as RelativeLayout
-    private val adapter = SimpleItemRecyclerViewAdapter(true)
-    private val recyclerView: RecyclerView = mainView.findViewById(R.id.quiz_list)
-    private val emptyView: TextView = mainView.findViewById(R.id.quiz_list_empty_view)
-
-    init {
-        adapter.setValues(values)
-        adapter.setOnClickListener(clickListener)
-        recyclerView.adapter = adapter
-
-        emptyView.text = mainView.resources.getText(R.string.favorites_empty)
-
-        if (!values.isEmpty()) {
-            emptyView.visibility = View.INVISIBLE
-        } else {
-            emptyView.visibility = View.VISIBLE
-        }
-
-    }
-
-    fun removeItem(quiz: Quiz) {
-        adapter.removeItem(quiz)
-
-        if (adapter.isEmpty()) {
-            emptyView.visibility = View.VISIBLE
-        }
-    }
-
-    fun getView() = mainView
-}
-
-//------------------------------------------------------------------------------------------------
-class SimpleItemRecyclerViewAdapter(private val showDate: Boolean) :
-        RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder>() {
-    //------------------------------------------------------------------------------------------------
-    interface ItemClickListener {
-        fun onItemClick(quiz: Quiz)
-
-        fun onItemCheckChanged(quiz: Quiz)
-    }
-
-    //------------------------------------------------------------------------------------------------
-
-    private var onClickListener: ItemClickListener? = null
-    private var values: MutableList<Quiz> = ArrayList()
-    private val onItemCheckChanged: MutableMap<Quiz, () -> Unit> = HashMap()
-
-    fun setValues(values: List<Quiz>) {
-        this.values = ArrayList(values)
-        notifyDataSetChanged()
-    }
-
-    fun removeItem(item: Quiz) {
-        val pos = values.indexOf(item)
-        values.remove(item)
-        notifyItemRemoved(pos)
-    }
-
-    fun onItemCheckChanged(item: Quiz) {
-        val currItem = values[values.indexOf(item)]
-        currItem.isChecked = item.isChecked
-        onClickListener?.onItemCheckChanged(currItem)
-
-        onItemCheckChanged[item]?.invoke()
-    }
-
-    fun isEmpty(): Boolean {
-        return values.isEmpty()
-    }
-
-    fun setOnClickListener(onClickListener: ItemClickListener?) {
-        this.onClickListener = onClickListener
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context)
-                .inflate(R.layout.quiz_list_item, parent, false)
-        return ViewHolder(view)
-    }
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = values[position]
-        holder.title.text = item.organisationName
-        holder.theme.text = item.gameTheme
-        holder.location.text = item.location
-
-        holder.priceLine.visibility = View.GONE
-        // holder.price.text = item.price.toString()
-
-        if (showDate) {
-            holder.date.text = QuizPlanner.formatterDateMonth.format(item.date)
-            holder.dateLine.visibility = View.VISIBLE
-        } else {
-            holder.dateLine.visibility = View.GONE
-        }
-
-        if (item.countOfPlayers != null) {
-            holder.count.text = item.countOfPlayers.toString()
-            holder.countLine.visibility = View.VISIBLE
-        } else {
-            holder.countLine.visibility = View.GONE
-        }
-
-        holder.time.text = QuizPlanner.formatterTime.format(item.date)
-
-        holder.setChecked(item.isChecked)
-
-        onItemCheckChanged[item] = { holder.setChecked(item.isChecked) }
-
-        if (!item.getLogoUrl().isEmpty()) {
-            val apiUrl = holder.title.context.getString(R.string.base_api_img_url)
-            Picasso.get()
-                    .load(apiUrl + item.getLogoUrl())
-                    .placeholder(R.drawable.ic_image_placeholder)
-                    .error(R.drawable.ic_broken_image)
-                    .into(holder.img)
-        }
-
-        holder.check.setOnClickListener {
-            val curr = item.isChecked
-            item.isChecked = !curr
-            holder.setChecked(item.isChecked)
-            onClickListener?.onItemCheckChanged(item)
-        }
-
-        with(holder.itemView) {
-            tag = item
-            setOnClickListener { onClickListener?.onItemClick(item) }
-        }
-    }
-
-    override fun getItemCount() = values.size
-
-    //------------------------------------------------------------------------------------------------
-
-    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val title: TextView = view.item_title
-        val theme: TextView = view.item_theme
-        val location: TextView = view.item_location
-        val price: TextView = view.item_price
-        val count: TextView = view.item_count
-        val time: TextView = view.item_time
-        val img: ImageView = view.item_img
-        val check: ImageView = view.item_check
-        val date: TextView = view.item_date
-        val priceLine: LinearLayout = view.item_price_line
-        val dateLine: LinearLayout = view.item_date_line
-        val countLine: LinearLayout = view.item_count_line
-
-        fun setChecked(isChecked: Boolean) {
-            if (isChecked) {
-                check.setColorFilter(ContextCompat.getColor(check.context, R.color.colorAccent))
-            } else {
-                check.colorFilter = null
-            }
         }
     }
 }

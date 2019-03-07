@@ -1,10 +1,7 @@
 package com.quizplanner.quizPlanner.exchange
 
 import android.content.Context
-import com.google.gson.Gson
-import okhttp3.MediaType
 import okhttp3.OkHttpClient
-import okhttp3.RequestBody
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
@@ -66,8 +63,7 @@ class RetrofitService private constructor(context: Context) {
                 .getGames(dateFrom, dateTo)
     }
 
-    fun getQuizData(gamesArray: ArrayList<String>): Observable<List<Input.QuizData>> {
-        val body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), Gson().toJson(Favorites(gamesArray)))
+    fun getQuizData(gamesArray: List<String>): Observable<List<Input.QuizData>> {
         return createApiService(Api::class.java)
                 .getGames(Favorites(gamesArray))
     }

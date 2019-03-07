@@ -13,7 +13,7 @@ import rx.Observable
  */
 
 //---------------------------------------------------------------------------------------------------
-class Favorites(private var gamesArray: ArrayList<String>)
+class Favorites(private var gamesArray: List<String>)
 
 //---------------------------------------------------------------------------------------------------
 

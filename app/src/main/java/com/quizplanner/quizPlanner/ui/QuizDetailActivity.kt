@@ -5,9 +5,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.CalendarContract
 import android.provider.CalendarContract.Events
-import android.support.v4.app.NavUtils
 import android.support.v7.app.AppCompatActivity
-import android.view.MenuItem
 import android.view.View
 import com.quizplanner.quizPlanner.QuizPlanner
 import com.quizplanner.quizPlanner.QuizPlanner.formatterTime
@@ -80,16 +78,6 @@ class QuizDetailActivity : AppCompatActivity() {
 
         detail_theme.requestFocus()
     }
-
-    override fun onOptionsItemSelected(item: MenuItem) =
-            when (item.itemId) {
-                android.R.id.home -> {
-                    NavUtils.navigateUpTo(this, Intent(this, MainActivity::class.java))
-                    true
-                }
-                else -> super.onOptionsItemSelected(item)
-            }
-
 
     private fun onLinkClick(quiz: Quiz) {
         var url = quiz.registrationLink!!

@@ -20,7 +20,6 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
 
-
 @InjectViewState
 class MainPresenter : MvpPresenter<MainView>() {
     //----------------------------------------------------------------------------------------------
@@ -48,6 +47,7 @@ class MainPresenter : MvpPresenter<MainView>() {
 
     private lateinit var escapeHandler: () -> Unit
     private var isInitialized: Boolean = false
+    private var needUpdate: Boolean = false
     private val allGames = ArrayList<Quiz>()
     private val gamesByDate = LinkedHashMap<Date, List<Quiz>>()
     private var selectedDate: Date = today()
@@ -79,6 +79,18 @@ class MainPresenter : MvpPresenter<MainView>() {
     fun start() {
         if (gamesByDate.isEmpty()) {
             getGamesFromDb()
+        } else if (needUpdate) {
+
+            subscription = Observable.create<List<Quiz>> { it.onNext(dao!!.getGames()) }
+                    .subscribeOn(Schedulers.io())
+                    .map { setGames(it) }
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({
+                        needUpdate = false
+                        showGames()
+                    }, {
+                        onBdError(it)
+                    })
         }
     }
 
@@ -119,24 +131,8 @@ class MainPresenter : MvpPresenter<MainView>() {
     }
 
     fun onCheckedGamesRequested() {
-        subscription = getCheckedGames()
-                .doOnNext { log("CheckedGames $it") }
-                .flatMap {
-                    if (!it.isEmpty()) {
-                        load({  }, { dataLoader!!.getQuizData(it) })
-                    } else {
-                        Observable.just(Collections.emptyList())
-                    }
-                }
-                .doOnNext { updateGames(it) }
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    viewState.showCheckedGames(it)
-
-                }, {
-                    onLoadError(it)
-
-                })
+        needUpdate = true
+        viewState.showCheckedGames()
     }
 
     private fun getGamesFromDb() {
@@ -173,10 +169,6 @@ class MainPresenter : MvpPresenter<MainView>() {
 
         viewState.hideStartLoad()
         onError()
-    }
-
-    private fun getCheckedGames() = Observable.create<ArrayList<String>> { subscriber ->
-       subscriber.onNext(ArrayList(allGames.filter { it.isChecked }.map { it.id!! }.toList()))
     }
 
     private fun startLoad(beforeStartLoad: () -> Unit, onComplete: () -> Unit) {
@@ -226,13 +218,6 @@ class MainPresenter : MvpPresenter<MainView>() {
 
     private fun setGames(games: List<Quiz>) {
         allGames.clear()
-        allGames.addAll(games)
-
-        setGames(getGamesByDate(allGames))
-    }
-
-    private fun updateGames(games: List<Quiz>) {
-        allGames.removeAll(games)
         allGames.addAll(games)
 
         setGames(getGamesByDate(allGames))
