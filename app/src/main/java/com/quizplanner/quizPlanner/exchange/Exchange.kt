@@ -2,9 +2,8 @@ package com.quizplanner.quizPlanner.exchange
 
 import android.content.Context
 import com.quizplanner.quizPlanner.R
-import retrofit2.http.Field
-import retrofit2.http.FormUrlEncoded
-import retrofit2.http.POST
+import okhttp3.RequestBody
+import retrofit2.http.*
 import rx.Observable
 
 
@@ -12,6 +11,9 @@ import rx.Observable
  * Created by Olga Cherepanova
  * on 28.01.2019.
  */
+
+//---------------------------------------------------------------------------------------------------
+class Favorites(private var gamesArray: ArrayList<String>)
 
 //---------------------------------------------------------------------------------------------------
 
@@ -26,7 +28,6 @@ object Urls {
         return context.getString(R.string.base_api_url)
     }
 }
-
 //---------------------------------------------------------------------------------------------------
 
 interface Api {
@@ -35,7 +36,6 @@ interface Api {
     @POST(Urls.REQUEST.GAMES)
     fun getGames(@Field("dateFrom") dateFrom: String, @Field("dateTo") dateTo: String): Observable<List<Input.QuizData>>
 
-    @FormUrlEncoded
     @POST(Urls.REQUEST.FAVORITES)
-    fun getGames(@Field("gamesArray") gamesArray: List<String>): Observable<List<Input.QuizData>>
+    fun getGames(@Body gamesArray: Favorites): Observable<List<Input.QuizData>>
 }

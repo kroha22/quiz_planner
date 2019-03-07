@@ -446,7 +446,7 @@ class DateFragment : Fragment() {
 class CheckedGamesListView(inflater: LayoutInflater, values: List<Quiz>, clickListener: SimpleItemRecyclerViewAdapter.ItemClickListener) {
     @SuppressLint("InflateParams")
     private val mainView = inflater.inflate(R.layout.quiz_list, null, false) as RelativeLayout
-    private val adapter = SimpleItemRecyclerViewAdapter(false)
+    private val adapter = SimpleItemRecyclerViewAdapter(true)
     private val recyclerView: RecyclerView = mainView.findViewById(R.id.quiz_list)
     private val emptyView: TextView = mainView.findViewById(R.id.quiz_list_empty_view)
 
@@ -531,11 +531,11 @@ class SimpleItemRecyclerViewAdapter(private val showDate: Boolean) :
         holder.theme.text = item.gameTheme
         holder.location.text = item.location
 
-        holder.price.visibility = View.GONE
+        holder.priceLine.visibility = View.GONE
         // holder.price.text = item.price.toString()
 
         if (showDate) {
-            holder.date.text = QuizPlanner.formatterDate.format(item.date)
+            holder.date.text = QuizPlanner.formatterDateMonth.format(item.date)
             holder.dateLine.visibility = View.VISIBLE
         } else {
             holder.dateLine.visibility = View.GONE
@@ -590,6 +590,7 @@ class SimpleItemRecyclerViewAdapter(private val showDate: Boolean) :
         val img: ImageView = view.item_img
         val check: ImageView = view.item_check
         val date: TextView = view.item_date
+        val priceLine: LinearLayout = view.item_price_line
         val dateLine: LinearLayout = view.item_date_line
         val countLine: LinearLayout = view.item_count_line
 

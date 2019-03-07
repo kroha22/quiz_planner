@@ -78,7 +78,7 @@ class QuizDetailActivity : AppCompatActivity() {
             }
         }
 
-        detail_title.requestFocus()
+        detail_theme.requestFocus()
     }
 
     override fun onOptionsItemSelected(item: MenuItem) =

@@ -123,7 +123,7 @@ class MainPresenter : MvpPresenter<MainView>() {
                 .doOnNext { log("CheckedGames $it") }
                 .flatMap {
                     if (!it.isEmpty()) {
-                        load({ viewState.showLoadProgress() }, { dataLoader!!.getQuizData(it) })
+                        load({  }, { dataLoader!!.getQuizData(it) })
                     } else {
                         Observable.just(Collections.emptyList())
                     }
@@ -132,10 +132,10 @@ class MainPresenter : MvpPresenter<MainView>() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
                     viewState.showCheckedGames(it)
-                    viewState.hideLoadProgress()
+
                 }, {
                     onLoadError(it)
-                    viewState.hideLoadProgress()
+
                 })
     }
 
@@ -175,8 +175,8 @@ class MainPresenter : MvpPresenter<MainView>() {
         onError()
     }
 
-    private fun getCheckedGames() = Observable.create<List<String>> { subscriber ->
-       subscriber.onNext(allGames.filter { it.isChecked }.map { it.id!! }.toList())
+    private fun getCheckedGames() = Observable.create<ArrayList<String>> { subscriber ->
+       subscriber.onNext(ArrayList(allGames.filter { it.isChecked }.map { it.id!! }.toList()))
     }
 
     private fun startLoad(beforeStartLoad: () -> Unit, onComplete: () -> Unit) {

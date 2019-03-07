@@ -1,12 +1,15 @@
 <resources>
     <string name="app_name">Quiz Planner</string>
+    <string name="tagline">Выбери квиз по душе</string>
 
     <!--API-->
     <string name="base_api_url">http://3.17.121.252:5000/</string>
     <string name="base_api_img_url">http://3.17.121.252:5000</string>
-    <string name="email">quizplanner54@gmail.com</string>
 
     <string name="contacts">Контакты</string>
+    <string name="email">quizplanner54@gmail.com</string>
+    <string name="favorites">Избранное</string>
+    <string name="favorites_empty">Вы не выбрали ни одной игры</string>
 
     <string name="dummy">___</string>
     <string name="game_organization">organization</string>
@@ -21,8 +24,5 @@
     <string name="game_link">Зарегистрироваться:</string>
     <string name="game_price">Стоимость:</string>
     <string name="game_price_dimen"> руб.</string>
-    <string name="favorites">Избранное</string>
-    <string name="tagline">Выбери квиз по душе</string>
-    <string name="favorites_empty">Вы не выбрали ни одной игры</string>
 
 </resources>

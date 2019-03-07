@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_marginRight="@dimen/item_margin"
     app:cardUseCompatPadding="true"
-    android:layout_marginLeft="@dimen/item_margin"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -17,7 +15,7 @@
             android:id="@+id/item_check"
             android:layout_width="@dimen/item_icon_size"
             android:layout_height="@dimen/item_icon_size"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="4dp"
             android:src="@drawable/ic_check"
             android:tint="@color/medium_grey" />
 
@@ -32,6 +30,7 @@
                 android:layout_height="@dimen/item_img_size"
                 android:layout_gravity="top"
                 android:scaleType="fitStart"
+                android:layout_margin="2dp"
                 android:src="@drawable/ic_image_placeholder" />
 
         </LinearLayout>
@@ -96,7 +95,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/item_price_root"
+                android:id="@+id/item_price_line"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
@@ -154,14 +153,13 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="bottom"
+                android:gravity="center_vertical"
                 android:orientation="horizontal">
 
                 <ImageView
-                    android:layout_width="@dimen/item_time_icon_size"
-                    android:layout_height="@dimen/item_time_icon_size"
+                    android:layout_width="@dimen/item_icon_size"
+                    android:layout_height="@dimen/item_icon_size"
                     android:layout_gravity="top"
-                    android:layout_marginRight="@dimen/item_text_margin"
                     android:src="@drawable/ic_time" />
 
                 <TextView
@@ -169,8 +167,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="right"
-                    android:text="@string/game_time"
-                    android:textStyle="bold" />
+                    android:text="@string/game_time"/>
 
             </LinearLayout>
 

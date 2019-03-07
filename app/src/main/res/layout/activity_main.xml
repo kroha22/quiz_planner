@@ -34,7 +34,7 @@
 
                 <TextView
                     android:id="@+id/toolbar_month"
-                    android:layout_marginLeft="@dimen/toolbar_icon_size"
+                    android:layout_toRightOf="@id/toolbar_icon"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
