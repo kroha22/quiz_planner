@@ -41,9 +41,6 @@ interface FavoritesView : MvpView {
     @StateStrategyType(SkipStrategy::class)
     fun showMessage(msg: String)
 
-    @StateStrategyType(SkipStrategy::class)
-    fun showDialog(dialogBuilder: DialogBuilder)
-
     @StateStrategyType(AddToEndSingleStrategy::class)
     fun setContent(items: List<Quiz>)
 
@@ -61,16 +58,13 @@ interface FavoritesView : MvpView {
 class FavoritesActivity : MvpAppCompatActivity(), FavoritesView, SimpleItemRecyclerViewAdapter.ItemClickListener {
 
     companion object {
-        const val FAVORITES_GAMES_CODE = "favorite_games_item"
-        private const val FAVORITES: String = "FavoritesActivity"
+        private const val FAVORITES: String = "favorites"
     }
 
     private val adapter = SimpleItemRecyclerViewAdapter(true)
 
     @InjectPresenter(tag = FAVORITES)
     lateinit var presenter: FavoritesPresenter
-
-    private lateinit var items: List<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -93,10 +87,6 @@ class FavoritesActivity : MvpAppCompatActivity(), FavoritesView, SimpleItemRecyc
 
     override fun showMessage(msg: String) {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
-    }
-
-    override fun showDialog(dialogBuilder: DialogBuilder) {
-        dialogBuilder.show(this)
     }
 
     override fun setContent(items: List<Quiz>) {
@@ -154,6 +144,7 @@ class FavoritesActivity : MvpAppCompatActivity(), FavoritesView, SimpleItemRecyc
 //--------------------------------------------------------------------------------------------
 
 
+@Suppress("DEPRECATION")
 @InjectViewState
 class FavoritesPresenter : MvpPresenter<FavoritesView>() {
     //----------------------------------------------------------------------------------------------
@@ -164,11 +155,7 @@ class FavoritesPresenter : MvpPresenter<FavoritesView>() {
             QuizPlanner.log(TAG, msg)
         }
 
-        //-------------------------------------------------------------------------------------------
         private const val BD_ERROR_MESSAGE = "Внутренняя ошибка"
-        private const val LOAD_ERROR_MESSAGE = "Во время загрузки произошла ошибка. Проверьте наличие сети"
-        private const val NO_DATA_MESSAGE = "Отсутствуют данные для отображения"
-        //-------------------------------------------------------------------------------------------
 
     }
     //----------------------------------------------------------------------------------------------

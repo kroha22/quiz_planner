@@ -12,8 +12,11 @@ import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
+import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.*
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
@@ -92,9 +95,10 @@ interface MainView : MvpView {
 private const val MAIN: String = "MainActivity"
 //-------------------------------------------------------------------------------------------
 
-class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAdapter.ItemClickListener {
+class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAdapter.ItemClickListener, RecyclerViewScrollListener {
 
     private lateinit var sectionsPagerAdapter: SectionsPagerAdapter
+    private lateinit var slideDownAnimation: Animation
 
     @InjectPresenter(tag = MAIN)
     lateinit var presenter: MainPresenter
@@ -115,7 +119,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
         tabs.addOnTabSelectedListener(TabLayout.ViewPagerOnTabSelectedListener(container))
         tabs.setupWithViewPager(container)
 
-        fab.setOnClickListener { presenter.onRefreshClick() }
+        slideDownAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_down_animation);
     }
 
     override fun onResume() {
@@ -158,21 +162,24 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
 
     override fun showLoadProgress() {
         wait_view.visibility = View.VISIBLE
+        wait_view.startAnimation(slideDownAnimation)
     }
 
     override fun hideLoadProgress() {
         wait_view.visibility = View.GONE
     }
 
+    override fun onLoadMore() {
+        presenter.onRefreshClick()
+    }
+
     override fun showStartLoad() {
         start_load_view.visibility = View.VISIBLE
-        fab.hide()
         appbar.visibility = View.GONE
     }
 
     override fun hideStartLoad() {
         start_load_view.visibility = View.GONE
-        fab.show()
         appbar.visibility = View.VISIBLE
     }
 
@@ -304,6 +311,11 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
             return tabItems[position]
         }
 
+        override fun instantiateItem(container: ViewGroup, position: Int): Any {
+            toolbar_month.text = formatterMonth.format(tabItems[position])
+            return super.instantiateItem(container, position)
+        }
+
         override fun getItem(position: Int): Fragment {
             val fragment = DateFragment()
 
@@ -330,8 +342,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
             title.text = formatterDate.format(item)
             subtitle.text = formatterDay.format(item)
 
-            toolbar_month.text = formatterMonth.format(item)
-
             title.setTextColor(textColors)
             subtitle.setTextColor(textColors)
 
@@ -346,13 +356,20 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
     }
 
 }
+
+//------------------------------------------------------------------------------------------------
+interface RecyclerViewScrollListener {
+    fun onLoadMore()
+}
 //------------------------------------------------------------------------------------------------
 
 class DateFragment : Fragment() {
     private var isCreated = false
     private val adapter = SimpleItemRecyclerViewAdapter(false)
     private var clickListener: SimpleItemRecyclerViewAdapter.ItemClickListener? = null
+    private var endlessRecyclerViewScrollListener: RecyclerViewScrollListener? = null
     private lateinit var recyclerView: RecyclerView
+    private lateinit var linearLayoutManager: LinearLayoutManager
     private lateinit var emptyView: TextView
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -363,9 +380,13 @@ class DateFragment : Fragment() {
         adapter.setOnClickListener(clickListener)
         recyclerView.adapter = adapter
         isCreated = true
+
+        linearLayoutManager = recyclerView.layoutManager as LinearLayoutManager
+
         return mainView
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     fun setValues(values: List<Quiz>) {
         adapter.setValues(values)
 
@@ -384,6 +405,7 @@ class DateFragment : Fragment() {
 
         try {
             clickListener = context as SimpleItemRecyclerViewAdapter.ItemClickListener
+            endlessRecyclerViewScrollListener = context as RecyclerViewScrollListener
         } catch (e: ClassCastException) {
             throw ClassCastException(context.toString() + " must implement OnListItemSelectedListener")
         }
@@ -392,10 +414,43 @@ class DateFragment : Fragment() {
     private fun refreshView() {
         if (adapter.isEmpty()) {
             emptyView.visibility = View.VISIBLE
-            recyclerView.visibility = View.INVISIBLE
         } else {
             emptyView.visibility = View.INVISIBLE
-            recyclerView.visibility = View.VISIBLE
+        }
+
+        var lastTouchY = recyclerView.height
+
+        recyclerView.setOnTouchListener { _, event ->
+            if (adapter.isEmpty() || linearLayoutManager.findFirstCompletelyVisibleItemPosition() == 0) {
+                when (event.action) {
+
+                    MotionEvent.ACTION_MOVE -> {
+                        if (lastTouchY < (event.y).toInt()) {
+
+                            lastTouchY = recyclerView.height
+
+                            if (adapter.isEmpty()) {
+                                emptyView.visibility = View.INVISIBLE
+                            } else if (linearLayoutManager.findFirstCompletelyVisibleItemPosition() != 0) {
+                                return@setOnTouchListener recyclerView.onTouchEvent(event)
+                            }
+
+                            endlessRecyclerViewScrollListener?.onLoadMore()
+                            recyclerView.setOnTouchListener { _, e -> recyclerView.onTouchEvent(e) }
+                            return@setOnTouchListener true
+                        } else {
+                            lastTouchY = (event.y).toInt()
+                        }
+                    }
+
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                        lastTouchY = recyclerView.height
+                    }
+                }
+            }
+
+            return@setOnTouchListener recyclerView.onTouchEvent(event)
+
         }
     }
 }

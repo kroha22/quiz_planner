@@ -51,7 +51,6 @@ class MainPresenter : MvpPresenter<MainView>() {
     private val allGames = ArrayList<Quiz>()
     private val gamesByDate = LinkedHashMap<Date, List<Quiz>>()
     private var selectedDate: Date = today()
-    private var selectedQuiz: Quiz? = null
 
     private var subscription: Subscription? = null
 
@@ -107,8 +106,7 @@ class MainPresenter : MvpPresenter<MainView>() {
     }
 
     fun onGameSelected(quiz: Quiz) {
-        selectedQuiz = quiz
-
+        needUpdate = true
         viewState.showQuizView(quiz)
     }
 
@@ -192,8 +190,6 @@ class MainPresenter : MvpPresenter<MainView>() {
         beforeStartLoad.invoke()
 
         return from.invoke()
-                .timeout(1, TimeUnit.SECONDS)
-                .retry(2)
                 .subscribeOn(Schedulers.io())
                 .doOnNext { log("Consume games count ${it.size}") }
                 .map { dao!!.saveGames(it) }

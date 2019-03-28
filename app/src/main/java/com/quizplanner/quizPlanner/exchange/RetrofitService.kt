@@ -1,12 +1,12 @@
 package com.quizplanner.quizPlanner.exchange
 
 import android.content.Context
-import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import rx.Observable
+
 
 /**
  * Created by Olga Cherepanova
@@ -34,13 +34,8 @@ class RetrofitService private constructor(context: Context) {
 
             return sInstance!!
         }
-        //-------------------------------------------------------------------------------------------
-
-        private fun getOkHttpClientBuilder(logInterceptor: HttpLoggingInterceptor): OkHttpClient.Builder {
-            return OkHttpClient.Builder()
-                    .addInterceptor(logInterceptor)
-        }
     }
+
 //---------------------------------------------------------------------------------------------------
 
     private val mRetrofit: Retrofit
@@ -48,7 +43,7 @@ class RetrofitService private constructor(context: Context) {
     init {
         val logInterceptor = HttpLoggingInterceptor()
         logInterceptor.level = HttpLoggingInterceptor.Level.BODY
-        val client = getOkHttpClientBuilder(logInterceptor).build()
+        val client = CustomTrust(context, logInterceptor).client
 
         mRetrofit = Retrofit.Builder()
                 .baseUrl(Urls.getApiBaseUrl(context))
