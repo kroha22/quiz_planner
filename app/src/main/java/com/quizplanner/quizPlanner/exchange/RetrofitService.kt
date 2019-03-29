@@ -1,11 +1,14 @@
 package com.quizplanner.quizPlanner.exchange
 
 import android.content.Context
+import com.quizplanner.quizPlanner.R
+import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import rx.Observable
+import javax.net.ssl.HttpsURLConnection
 
 
 /**
@@ -38,12 +41,27 @@ class RetrofitService private constructor(context: Context) {
 
 //---------------------------------------------------------------------------------------------------
 
+
+    fun getHttpsClient(context: Context, logInterceptor: HttpLoggingInterceptor?): OkHttpClient {
+        val builder = OkHttpClient.Builder()
+        builder.hostnameVerifier { hostname, session ->
+            val hv = HttpsURLConnection.getDefaultHostnameVerifier()
+            hv.verify(context.getString(R.string.api_url), session)
+        }
+        if (logInterceptor != null) {
+            builder.addInterceptor(logInterceptor)
+        }
+
+        return builder.build()
+    }
+//---------------------------------------------------------------------------------------------------
+
     private val mRetrofit: Retrofit
 
     init {
         val logInterceptor = HttpLoggingInterceptor()
         logInterceptor.level = HttpLoggingInterceptor.Level.BODY
-        val client = CustomTrust(context, logInterceptor).client
+        val client = getHttpsClient(context, logInterceptor)
 
         mRetrofit = Retrofit.Builder()
                 .baseUrl(Urls.getApiBaseUrl(context))
