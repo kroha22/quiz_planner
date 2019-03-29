@@ -119,7 +119,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
         tabs.addOnTabSelectedListener(TabLayout.ViewPagerOnTabSelectedListener(container))
         tabs.setupWithViewPager(container)
 
-        slideDownAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_down_animation);
+        slideDownAnimation = AnimationUtils.loadAnimation(this, R.anim.slide_down_animation)
     }
 
     override fun onResume() {
@@ -233,7 +233,10 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
 
             override fun onTabSelected(p0: TabLayout.Tab) {
                 val pos = p0.position
-                presenter.onDateSelect(dates[pos])
+                val date = dates[pos]
+                presenter.onDateSelect(date)
+                toolbar_month.text = formatterMonth.format(date)
+
             }
         })
 
@@ -309,11 +312,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
 
         fun getItemDate(position: Int): Date {
             return tabItems[position]
-        }
-
-        override fun instantiateItem(container: ViewGroup, position: Int): Any {
-            toolbar_month.text = formatterMonth.format(tabItems[position])
-            return super.instantiateItem(container, position)
         }
 
         override fun getItem(position: Int): Fragment {
@@ -411,6 +409,7 @@ class DateFragment : Fragment() {
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun refreshView() {
         if (adapter.isEmpty()) {
             emptyView.visibility = View.VISIBLE
@@ -418,39 +417,81 @@ class DateFragment : Fragment() {
             emptyView.visibility = View.INVISIBLE
         }
 
-        var lastTouchY = recyclerView.height
-
-        recyclerView.setOnTouchListener { _, event ->
-            if (adapter.isEmpty() || linearLayoutManager.findFirstCompletelyVisibleItemPosition() == 0) {
-                when (event.action) {
-
-                    MotionEvent.ACTION_MOVE -> {
-                        if (lastTouchY < (event.y).toInt()) {
-
-                            lastTouchY = recyclerView.height
-
-                            if (adapter.isEmpty()) {
-                                emptyView.visibility = View.INVISIBLE
-                            } else if (linearLayoutManager.findFirstCompletelyVisibleItemPosition() != 0) {
-                                return@setOnTouchListener recyclerView.onTouchEvent(event)
-                            }
-
+        recyclerView.setOnTouchListener(
+                ListScrollListener(
+                        recyclerView,
+                        linearLayoutManager,
+                        {
                             endlessRecyclerViewScrollListener?.onLoadMore()
                             recyclerView.setOnTouchListener { _, e -> recyclerView.onTouchEvent(e) }
-                            return@setOnTouchListener true
-                        } else {
-                            lastTouchY = (event.y).toInt()
-                        }
-                    }
+                        },
+                        { emptyView.visibility = View.INVISIBLE }))
 
-                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                        lastTouchY = recyclerView.height
+    }
+
+    class ListScrollListener(private val recyclerView: RecyclerView,
+                             private val linearLayoutManager: LinearLayoutManager,
+                             private val onLoadMore: () -> Unit,
+                             private val hideEmptyView: () -> Unit) : View.OnTouchListener {
+
+        private val maxY = recyclerView.height
+        private val deltaToRequestLoad = maxY / 3
+        private var lastTouchY = maxY
+        private var startScrollY = maxY
+
+        @SuppressLint("ClickableViewAccessibility")
+        override fun onTouch(v: View, event: MotionEvent): Boolean {
+
+            val isEmpty = recyclerView.adapter!!.itemCount == 0
+            val isFirstItemPositionVisible = linearLayoutManager.findFirstCompletelyVisibleItemPosition() == 0
+
+            if (!isEmpty && !isFirstItemPositionVisible) {
+                resetStartScrollY()
+                resetLastTouchY()
+                return recyclerView.onTouchEvent(event)
+            }
+
+            when (event.action) {
+                MotionEvent.ACTION_MOVE -> {
+                    if (isScrollDown((event.y).toInt())) {
+
+                        if (startScrollY == maxY) {
+                            startScrollY = (event.y).toInt()
+                        } else if (needLoadMore((event.y).toInt())) {
+
+                            if (isEmpty) {
+                                hideEmptyView.invoke()
+                            }
+
+                            onLoadMore.invoke()
+                            return true
+                        }
+                    } else {
+                        lastTouchY = (event.y).toInt()
+                        resetStartScrollY()
                     }
+                }
+
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    resetLastTouchY()
+                    resetStartScrollY()
                 }
             }
 
-            return@setOnTouchListener recyclerView.onTouchEvent(event)
-
+            return recyclerView.onTouchEvent(event)
         }
+
+        private fun resetStartScrollY() {
+            startScrollY = maxY
+        }
+
+        private fun resetLastTouchY() {
+            lastTouchY = maxY
+        }
+
+        private fun needLoadMore(y: Int) = ((y - startScrollY) > deltaToRequestLoad)
+
+        private fun isScrollDown(y: Int) = (y > lastTouchY)
+
     }
 }
