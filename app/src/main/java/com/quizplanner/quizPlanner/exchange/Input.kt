@@ -34,6 +34,12 @@ object Input {
         var gameImgPath: String? = null
         @SerializedName("author")
         var author: Author? = null
+        @SerializedName("organisationName")
+        var organisationName: String? = null
+        @SerializedName("organisationLogoFilename")
+        var organisationLogoFilename: String? = null
+        @SerializedName("organisationLogoPath")
+        var organisationLogoPath: String? = null
 
         constructor()
 

@@ -28,9 +28,16 @@ class Quiz : Serializable {
             game.registrationLink = quizData.registrationLink
             game.gameImgFilename = quizData.gameImgFilename
             game.gameImgPath = quizData.gameImgPath
-            game.organisationName = quizData.author!!.organisationName
-            game.organisationLogoFilename = quizData.author!!.organisationLogoFilename
-            game.organisationLogoPath = quizData.author!!.organisationLogoPath
+
+            if(quizData.organisationName != null && quizData.organisationLogoFilename != null && quizData.organisationLogoPath != null) {
+                game.organisationName = quizData.organisationName
+                game.organisationLogoFilename = quizData.organisationLogoFilename
+                game.organisationLogoPath = quizData.organisationLogoPath
+            } else {
+                game.organisationName = quizData.author!!.organisationName
+                game.organisationLogoFilename = quizData.author!!.organisationLogoFilename
+                game.organisationLogoPath = quizData.author!!.organisationLogoPath
+            }
 
             return game
         }
