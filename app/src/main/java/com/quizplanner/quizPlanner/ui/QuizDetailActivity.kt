@@ -105,7 +105,7 @@ class QuizDetailActivity : MvpAppCompatActivity(), QuizDetailView {
             }
         }
 
-        detail_theme.requestFocus(View.FOCUS_UP)
+        quiz_detail_container.scrollTo(0,0)
     }
 
     override fun updateFavoritesView() {
