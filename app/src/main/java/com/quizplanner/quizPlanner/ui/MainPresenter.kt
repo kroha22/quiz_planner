@@ -17,7 +17,6 @@ import rx.Subscription
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import java.util.*
-import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
 
 @InjectViewState
@@ -193,6 +192,15 @@ class MainPresenter : MvpPresenter<MainView>() {
                 .subscribeOn(Schedulers.io())
                 .doOnNext { log("Consume games count ${it.size}") }
                 .map { dao!!.saveGames(it) }
+                .doOnNext {
+                    val toDel = ArrayList<Quiz>()
+                    for (game in allGames) {
+                        if (!it.contains(game)) {
+                            toDel.add(game)
+                        }
+                    }
+                    dao!!.delete(toDel)
+                }
     }
 
 

@@ -126,10 +126,20 @@ object Db {
             log("setUncheckedGame, game =${game.id}")
         }
 
+        fun delete(gamesToDel: ArrayList<Quiz>): Int {
+            val dao = mDbHelper.getGamesDateDao()
+
+            return delete(dao, gamesToDel)
+        }
+
         fun clearGames(date: Date): Int {
             val dao = mDbHelper.getGamesDateDao()
             val gamesToDel = dao.queryBuilder().where().lt(Quiz.Column.DATE, date.time).query()
 
+            return delete(dao, gamesToDel)
+        }
+
+        private fun delete(dao: Dao<Quiz, String>, gamesToDel: MutableList<Quiz>): Int {
             val checkedGamesDao = mDbHelper.getCheckedGamesDao()
             for (g in gamesToDel) {
                 dao.deleteById(g.id)
