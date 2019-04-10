@@ -92,6 +92,8 @@ class QuizDetailActivity : MvpAppCompatActivity(), QuizDetailView {
                 Picasso.get()
                         .load(apiUrl + item.getImgUrl())
                         .placeholder(R.drawable.ic_image_placeholder)
+                        .fit()
+                        .centerInside()
                         .error(R.drawable.ic_broken_image)
                         .into(detail_img)
             }
@@ -104,8 +106,6 @@ class QuizDetailActivity : MvpAppCompatActivity(), QuizDetailView {
                 presenter.onGameCheckChanged()
             }
         }
-
-        quiz_detail_container.scrollTo(0,0)
     }
 
     override fun updateFavoritesView() {

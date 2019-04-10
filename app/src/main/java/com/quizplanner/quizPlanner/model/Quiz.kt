@@ -24,7 +24,6 @@ class Quiz : Serializable {
             game.location = quizData.location
             game.price = quizData.price
             game.countOfPlayers = quizData.countOfPlayers
-            game.difficulty = quizData.difficulty
             game.registrationLink = quizData.registrationLink
             game.gameImgFilename = quizData.gameImgFilename
             game.gameImgPath = quizData.gameImgPath
@@ -51,7 +50,6 @@ class Quiz : Serializable {
         const val LOCATION = "location"
         const val PRICE = "price"
         const val COUNT_OF_PLAYERS = "count_of_players"
-        const val DIFFICULTY = "difficulty"
         const val REGISTRATION_LINK = "registration_link"
         const val GAME_IMG_FILENAME = "gameImgFilename"
         const val GAME_IMG_PATH = "gameImgPath"
@@ -81,9 +79,6 @@ class Quiz : Serializable {
     @DatabaseField(canBeNull = false, dataType = DataType.INTEGER_OBJ, columnName = Column.COUNT_OF_PLAYERS)
     var countOfPlayers: Int? = null
 
-    @DatabaseField(canBeNull = false, dataType = DataType.STRING, columnName = Column.DIFFICULTY)
-    var difficulty: String? = null
-
     @DatabaseField(canBeNull = false, dataType = DataType.STRING, columnName = Column.REGISTRATION_LINK)
     var registrationLink: String? = null
 
@@ -107,7 +102,7 @@ class Quiz : Serializable {
     constructor()
 
     override fun toString(): String {
-        return "Quiz(id=$id, gameTheme=$gameTheme, description=$description, date=$date, location=$location, price=$price, countOfPlayers=$countOfPlayers, difficulty=$difficulty, registrationLink=$registrationLink, gameImgFilename=$gameImgFilename, gameImgPath=$gameImgPath, organisationName=$organisationName, organisationLogoFilename=$organisationLogoFilename, organisationLogoPath=$organisationLogoPath)"
+        return "Quiz(id=$id, gameTheme=$gameTheme, description=$description, date=$date, location=$location, price=$price, countOfPlayers=$countOfPlayers, registrationLink=$registrationLink, gameImgFilename=$gameImgFilename, gameImgPath=$gameImgPath, organisationName=$organisationName, organisationLogoFilename=$organisationLogoFilename, organisationLogoPath=$organisationLogoPath)"
     }
 
     override fun equals(other: Any?): Boolean {

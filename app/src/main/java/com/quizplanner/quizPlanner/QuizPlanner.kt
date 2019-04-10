@@ -29,7 +29,7 @@ object QuizPlanner {
         return Date(System.currentTimeMillis())
     }
 
-    fun formatterISO(): SimpleDateFormat {//todo check timeZone
+    fun formatterISO(): SimpleDateFormat {
         val formatterISO = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", myLocale)
         formatterISO.timeZone = TimeZone.getTimeZone("UTC")
         return formatterISO
@@ -37,13 +37,15 @@ object QuizPlanner {
 
     fun getDates(daysBefore: Int, daysAfter: Int): List<Date> {
         val list = ArrayList<Date>()
+        val today = Calendar.getInstance(TimeZone.getTimeZone("UTC")).time
         for (i in -daysBefore..daysAfter) {
-            list.add(Date(System.currentTimeMillis() + MS_ON_DAY * i))
+            list.add(Date(today.time + MS_ON_DAY * i))
         }
         return list
     }
 
     fun isOneDay(day1: Date, day2: Date): Boolean {
+
         val time = Time()
         time.set(day1.time)
 

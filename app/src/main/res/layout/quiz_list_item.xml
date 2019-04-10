@@ -43,19 +43,19 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/item_title"
+                android:id="@+id/item_theme"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/game_organization"
+                android:text="@string/game_theme"
                 android:textAppearance="?attr/textAppearanceListItem"
                 android:textSize="@dimen/item_title_text_size"
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/item_theme"
+                android:id="@+id/item_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/game_theme"
+                android:text="@string/game_organization"
                 android:textAppearance="?attr/textAppearanceListItem"
                 android:textSize="@dimen/item_title_text_size"
                 android:textStyle="bold" />

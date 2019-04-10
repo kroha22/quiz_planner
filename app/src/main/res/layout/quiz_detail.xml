@@ -1,14 +1,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
+    android:id="@+id/quiz_detail_view"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="@dimen/small_padding">
 
     <TextView
         android:id="@+id/detail_theme"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/default_margin"
+        android:layout_marginBottom="@dimen/small_margin"
         android:text="@string/game_theme"
         android:textAppearance="?attr/textAppearanceListItem"
         android:textSize="@dimen/item_title_text_size"
@@ -16,7 +17,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_marginBottom="@dimen/default_margin"
+        android:layout_marginBottom="@dimen/small_margin"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
@@ -25,14 +26,13 @@
             android:layout_width="@dimen/item_img_size_big"
             android:layout_height="@dimen/item_img_size_big"
             android:layout_gravity="top"
-            android:scaleType="fitCenter"
             android:src="@drawable/ic_image_placeholder" />
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginLeft="@dimen/item_text_margin"
+            android:layout_marginLeft="@dimen/small_margin"
             android:layout_weight="1"
             android:orientation="vertical">
 
@@ -108,19 +108,16 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/item_text_margin"
         android:layout_weight="1"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/detail_description"
-            style="?android:attr/textAppearanceLarge"
             android:layout_width="match_parent"
-            android:layout_marginBottom="@dimen/default_margin"
+            android:layout_marginBottom="@dimen/small_margin"
             android:layout_height="wrap_content"
             android:text="@string/game_description_dummy"
             android:textColor="@color/dark_grey"
-            android:textIsSelectable="true"
             android:textSize="@dimen/default_text_size" />
 
         <LinearLayout

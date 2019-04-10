@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/tab_main"
-    android:layout_width="50dp"
-    android:layout_height="wrap_content"
+    android:layout_width="@dimen/tab_size"
+    android:layout_height="@dimen/tab_size"
     android:gravity="center_horizontal"
-    android:paddingBottom="4dp"
+    android:paddingBottom="@dimen/tab_bottom_padding"
     android:orientation="vertical">
 
     <TextView
@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:maxLines="1"
-        android:text="01"
+        android:text="@string/tab_title"
         android:textColor="@color/white"
         android:textSize="@dimen/tab_text_size_big"
         android:textStyle="bold" />
@@ -22,7 +22,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:maxLines="1"
-        android:text="Пн"
+        android:text="@string/tab_sub_title"
         android:textAllCaps="true"
         android:textColor="@color/white"
         android:textSize="@dimen/tab_text_size" />

@@ -4,6 +4,7 @@ import android.content.Context
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
 import com.quizplanner.quizPlanner.QuizPlanner
+import com.quizplanner.quizPlanner.QuizPlanner.formatterDateMonth
 import com.quizplanner.quizPlanner.QuizPlanner.formatterISO
 import com.quizplanner.quizPlanner.QuizPlanner.getDates
 import com.quizplanner.quizPlanner.QuizPlanner.isOneDay
@@ -35,7 +36,7 @@ class MainPresenter : MvpPresenter<MainView>() {
         private const val NO_DATA_MESSAGE = "Отсутствуют данные для отображения"
         //-------------------------------------------------------------------------------------------
         private const val DAYS_FROM: Int = 3
-        private const val DAYS_TO: Int = 7
+        private const val DAYS_TO: Int = 13
         //-------------------------------------------------------------------------------------------
 
     }
@@ -207,8 +208,9 @@ class MainPresenter : MvpPresenter<MainView>() {
     private fun getGamesByDate(games: List<Quiz>): LinkedHashMap<Date, List<Quiz>> {
         val gamesByDate = LinkedHashMap<Date, List<Quiz>>()
         for (date in dates) {
-            gamesByDate[date] = ArrayList(games.filter { game -> isOneDay(game.getDate(), date) })
+            gamesByDate[date] = ArrayList(games.filter { game -> isOneDay(game.getDate(), date) }.sortedWith(kotlin.Comparator { o1, o2 -> o1.date!!.compareTo(o2.date!!) }))
         }
+
         return gamesByDate
     }
 

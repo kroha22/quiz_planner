@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.res.ColorStateList
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
 import android.support.design.widget.TabLayout
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
@@ -31,6 +32,7 @@ import com.quizplanner.quizPlanner.QuizPlanner.formatterDate
 import com.quizplanner.quizPlanner.QuizPlanner.formatterDay
 import com.quizplanner.quizPlanner.QuizPlanner.formatterMonth
 import com.quizplanner.quizPlanner.QuizPlanner.isOneDay
+import com.quizplanner.quizPlanner.QuizPlanner.log
 import com.quizplanner.quizPlanner.R
 import com.quizplanner.quizPlanner.model.Quiz
 import com.quizplanner.quizPlanner.ui.QuizDetailActivity.Companion.QUIZ_ITEM_CODE
@@ -207,17 +209,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
 
     override fun setContent(gamesByDate: LinkedHashMap<Date, List<Quiz>>, selectedDate: Date) {
         sectionsPagerAdapter.setItems(gamesByDate)
-
-        for (i in 0..tabs.tabCount) {
-            val tab = tabs.getTabAt(i)
-            if (tab != null) {
-                tab.customView = sectionsPagerAdapter.getTabView(i)
-
-                if (isOneDay(sectionsPagerAdapter.getItemDate(i), selectedDate)) {
-                    tab.select()
-                }
-            }
-        }
+        tabs.isSmoothScrollingEnabled = true
 
         val dates = ArrayList(gamesByDate.keys)
 
@@ -240,6 +232,17 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
             }
         })
 
+        for (i in 0..tabs.tabCount) {
+            val tab = tabs.getTabAt(i)
+            if (tab != null) {
+                tab.customView = sectionsPagerAdapter.getTabView(i)
+
+                if (isOneDay(sectionsPagerAdapter.getItemDate(i), selectedDate)) {
+                    //tab.select()
+                    Handler().postDelayed({ tab.select() }, 100)
+                }
+            }
+        }
     }
 
     override fun onItemClick(quiz: Quiz) {
@@ -434,10 +437,12 @@ class DateFragment : Fragment() {
                              private val onLoadMore: () -> Unit,
                              private val hideEmptyView: () -> Unit) : View.OnTouchListener {
 
-        private val maxY = recyclerView.height
-        private val deltaToRequestLoad = maxY / 3
-        private var lastTouchY = maxY
-        private var startScrollY = maxY
+        private val maxY
+            get() = recyclerView.height
+        private val deltaToRequestLoad
+            get() = maxY / 3
+        private var lastTouchY = -1
+        private var startScrollY = -1
 
         @SuppressLint("ClickableViewAccessibility")
         override fun onTouch(v: View, event: MotionEvent): Boolean {
@@ -455,10 +460,9 @@ class DateFragment : Fragment() {
                 MotionEvent.ACTION_MOVE -> {
                     if (isScrollDown((event.y).toInt())) {
 
-                        if (startScrollY == maxY) {
+                        if (startScrollY == -1) {
                             startScrollY = (event.y).toInt()
                         } else if (needLoadMore((event.y).toInt())) {
-
                             if (isEmpty) {
                                 hideEmptyView.invoke()
                             }
@@ -482,11 +486,11 @@ class DateFragment : Fragment() {
         }
 
         private fun resetStartScrollY() {
-            startScrollY = maxY
+            startScrollY = -1
         }
 
         private fun resetLastTouchY() {
-            lastTouchY = maxY
+            lastTouchY = -1
         }
 
         private fun needLoadMore(y: Int) = ((y - startScrollY) > deltaToRequestLoad)

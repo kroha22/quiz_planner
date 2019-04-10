@@ -44,7 +44,7 @@ class RetrofitService private constructor(context: Context) {
 
     fun getHttpsClient(context: Context, logInterceptor: HttpLoggingInterceptor?): OkHttpClient {
         val builder = OkHttpClient.Builder()
-        builder.hostnameVerifier { hostname, session ->
+        builder.hostnameVerifier { _, session ->
             val hv = HttpsURLConnection.getDefaultHostnameVerifier()
             hv.verify(context.getString(R.string.api_url), session)
         }

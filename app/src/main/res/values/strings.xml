@@ -1,9 +1,8 @@
 <resources>
     <string name="app_name">Quiz Planner</string>
-    <string name="tagline">Выбери квиз по душе</string>
+    <string name="tagline">выбери квиз по душе</string>
 
     <!--API-->
-    <string name="mystore_password">bigyfhxt</string>
     <string name="api_url">quizplanner.ru</string>
     <string name="base_api_url">https://3.17.121.252:443/</string>
     <string name="base_api_img_url">http://3.17.121.252</string>
@@ -23,10 +22,11 @@
     <string name="game_description_dummy">"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed convallis volutpat metus id tristique. Sed nec enim vitae lacus finibus ultricies. Nullam rhoncus, odio et mattis cursus, leo ante imperdiet tellus, at aliquam odio purus quis nunc. "</string>
 
     <string name="game_count_of_players">Участников в команде:"</string>
-    <string name="game_difficulty">Сложность:</string>
     <string name="game_date">Дата:</string>
     <string name="game_link">Зарегистрироваться:</string>
     <string name="game_price">Стоимость:</string>
     <string name="game_price_dimen"> руб.</string>
+    <string name="tab_title">01</string>
+    <string name="tab_sub_title">Пн</string>
 
 </resources>
