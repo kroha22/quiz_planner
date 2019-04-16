@@ -4,7 +4,6 @@ import android.content.Context
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
 import com.quizplanner.quizPlanner.QuizPlanner
-import com.quizplanner.quizPlanner.QuizPlanner.formatterDateMonth
 import com.quizplanner.quizPlanner.QuizPlanner.formatterISO
 import com.quizplanner.quizPlanner.QuizPlanner.getDates
 import com.quizplanner.quizPlanner.QuizPlanner.isOneDay
@@ -47,7 +46,9 @@ class MainPresenter : MvpPresenter<MainView>() {
 
     private lateinit var escapeHandler: () -> Unit
     private var isInitialized: Boolean = false
-    private var needUpdate: Boolean = false
+    private var needCheckFavourites: Boolean = false
+    private var loadInProgress: Boolean = false
+    private var lastLoadTime: Long = 0
     private val allGames = ArrayList<Quiz>()
     private val gamesByDate = LinkedHashMap<Date, List<Quiz>>()
     private var selectedDate: Date = today()
@@ -78,15 +79,17 @@ class MainPresenter : MvpPresenter<MainView>() {
     fun start() {
         if (gamesByDate.isEmpty()) {
             getGamesFromDb()
-        } else if (needUpdate) {
+        } else if (needCheckFavourites) {
 
             subscription = Observable.create<List<Quiz>> { it.onNext(dao!!.getGames()) }
                     .subscribeOn(Schedulers.io())
                     .map { setGames(it) }
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe({
-                        needUpdate = false
-                        showGames()
+                    .subscribe({ needUpdateView ->
+                        needCheckFavourites = false
+                        if (needUpdateView) {
+                            showGames()
+                        }
                     }, {
                         onBdError(it)
                     })
@@ -102,11 +105,32 @@ class MainPresenter : MvpPresenter<MainView>() {
     }
 
     fun onRefreshClick() {
-        startLoad({ viewState.showLoadProgress() }, { viewState.hideLoadProgress() })
+        if (loadInProgress) {
+            return
+        }
+
+        val now = Date().time
+
+        /*if (now - lastLoadTime < 15000) {
+            onStartRefresh()
+
+            subscription = Observable.interval(1000, TimeUnit.MILLISECONDS)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe { onStopRefresh() }
+            return
+        }*/
+
+        lastLoadTime = now
+        startLoad({ onStartRefresh() }, { hasChanges ->
+            if (hasChanges) {
+                showGames()
+            }
+            onStopRefresh()
+        })
     }
 
     fun onGameSelected(quiz: Quiz) {
-        needUpdate = true
+        needCheckFavourites = true
         viewState.showQuizView(quiz)
     }
 
@@ -129,8 +153,18 @@ class MainPresenter : MvpPresenter<MainView>() {
     }
 
     fun onCheckedGamesRequested() {
-        needUpdate = true
+        needCheckFavourites = true
         viewState.showCheckedGames()
+    }
+
+    private fun onStartRefresh() {
+        loadInProgress = true
+        viewState.showLoadProgress()
+    }
+
+    private fun onStopRefresh() {
+        loadInProgress = false
+        viewState.hideLoadProgress()
     }
 
     private fun getGamesFromDb() {
@@ -145,11 +179,10 @@ class MainPresenter : MvpPresenter<MainView>() {
     private fun clearDbOldGames() = Observable.create<Int> { it.onNext(dao!!.clearGames(dates.first())) }
 
     private fun onLoadedFromDb() {
-        if (hasGames(gamesByDate)) {
+        startLoad({ }, {
             showGames()
-        }
-
-        startLoad({ }, { viewState.hideStartLoad() })
+            viewState.hideStartLoad()
+        })
     }
 
     private fun hasGames(gamesByDate: Map<Date, List<Quiz>>): Boolean {
@@ -169,41 +202,86 @@ class MainPresenter : MvpPresenter<MainView>() {
         onError()
     }
 
-    private fun startLoad(beforeStartLoad: () -> Unit, onComplete: () -> Unit) {
+    // onComplete invoke true if games is updated
+    private fun startLoad(beforeStartLoad: () -> Unit, onComplete: (Boolean) -> Unit) {
         startLoad({ dataLoader!!.getQuizData(formatterISO().format(dates.first()), formatterISO().format(dates.last())) }, beforeStartLoad, onComplete)
     }
 
-    private fun startLoad(from: () -> Observable<List<Input.QuizData>>, beforeStartLoad: () -> Unit, onComplete: () -> Unit) {
-        subscription = load(beforeStartLoad, from)
-                .doOnNext { setGames(it) }
+    private fun startLoad(from: () -> Observable<List<Input.QuizData>>, beforeStartLoad: () -> Unit, onComplete: (Boolean) -> Unit) {
+        beforeStartLoad.invoke()
+
+        subscription = load(from)
+                .map { setGames(it) }
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    showGames()
-                    onComplete.invoke()
+                .subscribe({ needUpdateView ->
+                    onComplete.invoke(needUpdateView)
                 }, {
                     onLoadError(it)
-                    onComplete.invoke()
+                    onComplete.invoke(true)
                 })
     }
 
-    private fun load(beforeStartLoad: () -> Unit, from: () -> Observable<List<Input.QuizData>>): Observable<List<Quiz>> {
-        beforeStartLoad.invoke()
-
+    private fun load(from: () -> Observable<List<Input.QuizData>>): Observable<List<Quiz>> {
         return from.invoke()
                 .subscribeOn(Schedulers.io())
                 .doOnNext { log("Consume games count ${it.size}") }
-                .map { dao!!.saveGames(it) }
-                .doOnNext {
-                    val toDel = ArrayList<Quiz>()
-                    for (game in allGames) {
-                        if (!it.contains(game)) {
-                            toDel.add(game)
+                .map {
+                    if (hasChanges(it)) {
+                        val games = dao!!.saveGames(it)
+
+                        val toDel = ArrayList<Quiz>()
+                        for (game in allGames) {
+                            if (!games.contains(game)) {
+                                toDel.add(game)
+                            }
                         }
+                        dao!!.delete(toDel)
+
+                        games
+                    } else {
+                        allGames
                     }
-                    dao!!.delete(toDel)
                 }
     }
 
+    private fun hasChanges(newData: List<Input.QuizData>): Boolean {
+        if (newData.size != allGames.size) {
+            return true
+        }
+
+        val gamesMap = HashMap<String, Quiz>()
+        for (g in allGames) {
+            gamesMap[g.id!!] = g
+        }
+        for (g in newData) {
+            val game = gamesMap[g.id!!]
+            if (game == null || !game.equalQuizData(g)) {
+                return true
+            }
+        }
+
+        return false
+
+    }
+
+    private fun isIdentical(games1: List<Quiz>, games2: List<Quiz>): Boolean {
+        if (games1.size != games2.size) {
+            return false
+        }
+
+        val gamesMap = HashMap<String, Quiz>()
+        for (g in games1) {
+            gamesMap[g.id!!] = g
+        }
+        for (g in games2) {
+            val game = gamesMap[g.id!!]
+            if (game == null || !game.identical(g)) {
+                return false
+            }
+        }
+
+        return true
+    }
 
     private fun getGamesByDate(games: List<Quiz>): LinkedHashMap<Date, List<Quiz>> {
         val gamesByDate = LinkedHashMap<Date, List<Quiz>>()
@@ -222,11 +300,17 @@ class MainPresenter : MvpPresenter<MainView>() {
         }
     }
 
-    private fun setGames(games: List<Quiz>) {
+    //return true if has changes
+    private fun setGames(games: List<Quiz>): Boolean {
+        if (isIdentical(allGames, games)) {
+            return false
+        }
+
         allGames.clear()
         allGames.addAll(games)
 
         setGames(getGamesByDate(allGames))
+        return true
     }
 
     private fun setGames(gamesByDate: LinkedHashMap<Date, List<Quiz>>) {

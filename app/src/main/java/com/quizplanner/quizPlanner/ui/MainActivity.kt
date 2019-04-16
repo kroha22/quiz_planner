@@ -32,7 +32,6 @@ import com.quizplanner.quizPlanner.QuizPlanner.formatterDate
 import com.quizplanner.quizPlanner.QuizPlanner.formatterDay
 import com.quizplanner.quizPlanner.QuizPlanner.formatterMonth
 import com.quizplanner.quizPlanner.QuizPlanner.isOneDay
-import com.quizplanner.quizPlanner.QuizPlanner.log
 import com.quizplanner.quizPlanner.R
 import com.quizplanner.quizPlanner.model.Quiz
 import com.quizplanner.quizPlanner.ui.QuizDetailActivity.Companion.QUIZ_ITEM_CODE
@@ -97,7 +96,7 @@ interface MainView : MvpView {
 private const val MAIN: String = "MainActivity"
 //-------------------------------------------------------------------------------------------
 
-class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAdapter.ItemClickListener, RecyclerViewScrollListener {
+class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAdapter.ItemClickListener, RecyclerViewScrollListener, TabLayout.BaseOnTabSelectedListener<TabLayout.Tab> {
 
     private lateinit var sectionsPagerAdapter: SectionsPagerAdapter
     private lateinit var slideDownAnimation: Animation
@@ -120,6 +119,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
 
         tabs.addOnTabSelectedListener(TabLayout.ViewPagerOnTabSelectedListener(container))
         tabs.setupWithViewPager(container)
+        tabs.isSmoothScrollingEnabled = false
 
         slideDownAnimation = AnimationUtils.loadAnimation(this, R.anim.slide_down_animation)
     }
@@ -132,6 +132,12 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
             presenter.setEscapeHandler { finish() }
         }
         presenter.start()
+        tabs.addOnTabSelectedListener(this)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        tabs.removeOnTabSelectedListener(this)
     }
 
     override fun requestLink(link: String) {
@@ -208,28 +214,9 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
     }
 
     override fun setContent(gamesByDate: LinkedHashMap<Date, List<Quiz>>, selectedDate: Date) {
+
+        val isEmpty = sectionsPagerAdapter.count == 0
         sectionsPagerAdapter.setItems(gamesByDate)
-
-        val dates = ArrayList(gamesByDate.keys)
-
-        tabs.addOnTabSelectedListener(object : TabLayout.BaseOnTabSelectedListener<TabLayout.Tab> {
-
-            override fun onTabReselected(p0: TabLayout.Tab) {
-
-            }
-
-            override fun onTabUnselected(p0: TabLayout.Tab) {
-
-            }
-
-            override fun onTabSelected(p0: TabLayout.Tab) {
-                val pos = p0.position
-                val date = dates[pos]
-                presenter.onDateSelect(date)
-                toolbar_month.text = formatterMonth.format(date)
-
-            }
-        })
 
         for (i in 0..tabs.tabCount) {
             val tab = tabs.getTabAt(i)
@@ -237,7 +224,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
                 tab.customView = sectionsPagerAdapter.getTabView(i)
 
                 if (isOneDay(sectionsPagerAdapter.getItemDate(i), selectedDate)) {
-                    Handler().postDelayed({ tab.select() }, 100)
+                    Handler().postDelayed({ container.setCurrentItem(i, isEmpty) }, 200)
                 }
             }
         }
@@ -269,6 +256,21 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
         }
 
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onTabReselected(p0: TabLayout.Tab) {
+
+    }
+
+    override fun onTabUnselected(p0: TabLayout.Tab) {
+
+    }
+
+    override fun onTabSelected(p0: TabLayout.Tab) {
+        val pos = p0.position
+        val date = sectionsPagerAdapter.getItemDate(pos)
+        presenter.onDateSelect(date)
+        toolbar_month.text = formatterMonth.format(date)
     }
     //------------------------------------------------------------------------------------------------
 
@@ -422,12 +424,8 @@ class DateFragment : Fragment() {
                 ListScrollListener(
                         recyclerView,
                         linearLayoutManager,
-                        {
-                            endlessRecyclerViewScrollListener?.onLoadMore()
-                            recyclerView.setOnTouchListener { _, e -> recyclerView.onTouchEvent(e) }
-                        },
+                        { endlessRecyclerViewScrollListener?.onLoadMore() },
                         { emptyView.visibility = View.INVISIBLE }))
-
     }
 
     class ListScrollListener(private val recyclerView: RecyclerView,

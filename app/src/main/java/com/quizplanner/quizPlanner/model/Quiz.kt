@@ -28,7 +28,7 @@ class Quiz : Serializable {
             game.gameImgFilename = quizData.gameImgFilename
             game.gameImgPath = quizData.gameImgPath
 
-            if(quizData.organisationName != null && quizData.organisationLogoFilename != null && quizData.organisationLogoPath != null) {
+            if (quizData.organisationName != null && quizData.organisationLogoFilename != null && quizData.organisationLogoPath != null) {
                 game.organisationName = quizData.organisationName
                 game.organisationLogoFilename = quizData.organisationLogoFilename
                 game.organisationLogoPath = quizData.organisationLogoPath
@@ -131,6 +131,50 @@ class Quiz : Serializable {
     }
 
     fun getDate() = Date(date!!)
+
+    fun identical(quiz: Quiz): Boolean {
+        return id == quiz.id &&
+                gameTheme == quiz.gameTheme &&
+                description == quiz.description &&
+                date == quiz.date &&
+                location == quiz.location &&
+                price == quiz.price &&
+                countOfPlayers == quiz.countOfPlayers &&
+                registrationLink == quiz.registrationLink &&
+                gameImgFilename == quiz.gameImgFilename &&
+                gameImgPath == quiz.gameImgPath &&
+                organisationName == quiz.organisationName &&
+                organisationLogoFilename == quiz.organisationLogoFilename &&
+                organisationLogoPath == quiz.organisationLogoPath &&
+                isChecked == quiz.isChecked
+    }
+
+    fun equalQuizData(quizData: Input.QuizData): Boolean {
+        return id == quizData.id &&
+                gameTheme == quizData.gameTheme &&
+                description == quizData.description &&
+                date == QuizPlanner.formatterISO().parse(quizData.date!!).time &&
+                location == quizData.location &&
+                price == quizData.price &&
+                countOfPlayers == quizData.countOfPlayers &&
+                registrationLink == quizData.registrationLink &&
+                gameImgFilename == quizData.gameImgFilename &&
+                gameImgPath == quizData.gameImgPath &&
+                equalOrganisationData(quizData)
+    }
+
+    private fun equalOrganisationData(quizData: Input.QuizData): Boolean {
+
+        return if (quizData.organisationName != null && quizData.organisationLogoFilename != null && quizData.organisationLogoPath != null) {
+            organisationName == quizData.organisationName &&
+                    organisationLogoFilename == quizData.organisationLogoFilename &&
+                    organisationLogoPath == quizData.organisationLogoPath
+        } else {
+            organisationName == quizData.author!!.organisationName &&
+                    organisationLogoFilename == quizData.author!!.organisationLogoFilename &&
+                    organisationLogoPath == quizData.author!!.organisationLogoPath
+        }
+    }
 
 }
 
