@@ -209,7 +209,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
 
     override fun setContent(gamesByDate: LinkedHashMap<Date, List<Quiz>>, selectedDate: Date) {
         sectionsPagerAdapter.setItems(gamesByDate)
-        tabs.isSmoothScrollingEnabled = true
 
         val dates = ArrayList(gamesByDate.keys)
 
@@ -238,7 +237,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
                 tab.customView = sectionsPagerAdapter.getTabView(i)
 
                 if (isOneDay(sectionsPagerAdapter.getItemDate(i), selectedDate)) {
-                    //tab.select()
                     Handler().postDelayed({ tab.select() }, 100)
                 }
             }
