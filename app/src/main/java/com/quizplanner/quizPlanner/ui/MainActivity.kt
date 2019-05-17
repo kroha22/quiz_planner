@@ -34,7 +34,6 @@ import com.quizplanner.quizPlanner.QuizPlanner.formatterMonth
 import com.quizplanner.quizPlanner.QuizPlanner.isOneDay
 import com.quizplanner.quizPlanner.R
 import com.quizplanner.quizPlanner.model.Quiz
-import com.quizplanner.quizPlanner.ui.QuizDetailActivity.Companion.QUIZ_ITEM_CODE
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 import kotlin.collections.ArrayList
@@ -155,7 +154,8 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
 
     override fun showQuizView(quiz: Quiz) {
         val intent = Intent(this, QuizDetailActivity::class.java).apply {
-            putExtra(QUIZ_ITEM_CODE, quiz)
+            putExtra(QuizDetailActivity.QUIZ_ITEM_CODE, quiz)
+            putExtra(QuizDetailActivity.SOURCE_CODE, QuizDetailActivity.MAIN)
         }
         startActivity(intent)
     }
@@ -423,15 +423,13 @@ class DateFragment : Fragment() {
         recyclerView.setOnTouchListener(
                 ListScrollListener(
                         recyclerView,
-                        linearLayoutManager,
-                        { endlessRecyclerViewScrollListener?.onLoadMore() },
-                        { emptyView.visibility = View.INVISIBLE }))
+                        linearLayoutManager
+                ) { endlessRecyclerViewScrollListener?.onLoadMore() })
     }
 
     class ListScrollListener(private val recyclerView: RecyclerView,
                              private val linearLayoutManager: LinearLayoutManager,
-                             private val onLoadMore: () -> Unit,
-                             private val hideEmptyView: () -> Unit) : View.OnTouchListener {
+                             private val onLoadMore: () -> Unit) : View.OnTouchListener {
 
         private val maxY
             get() = recyclerView.height
@@ -459,10 +457,6 @@ class DateFragment : Fragment() {
                         if (startScrollY == -1) {
                             startScrollY = (event.y).toInt()
                         } else if (needLoadMore((event.y).toInt())) {
-                            if (isEmpty) {
-                                hideEmptyView.invoke()
-                            }
-
                             onLoadMore.invoke()
                             return true
                         }

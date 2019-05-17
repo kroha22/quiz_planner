@@ -44,6 +44,11 @@ object QuizPlanner {
         return list
     }
 
+    fun isLast(date: Date): Boolean {
+        val today = Date()
+        return today.time - 5 * 60 * 1000 > date.time
+    }
+
     fun isOneDay(day1: Date, day2: Date): Boolean {
 
         val time = Time()

@@ -97,6 +97,12 @@ object Db {
             return games
         }
 
+        fun getGames(author: String): List<Quiz> {
+            val games = getQuizList(mDbHelper.getGamesDateDao().queryBuilder().where().eq(Quiz.Column.ORGANIZATION_NAME, author).query())
+            log("getGames ${games.map { it.id }.toList()}")
+            return games
+        }
+
         fun saveGames(games: List<Input.QuizData>): List<Quiz> {
             val dao = mDbHelper.getGamesDateDao()
 
@@ -119,6 +125,10 @@ object Db {
         fun setCheckedGame(game: Quiz) {
             mDbHelper.getCheckedGamesDao().create(CheckedGames(game.id))
             log("setCheckedGame, game =${game.id}")
+        }
+
+        fun isChecked(id: String): Boolean {
+            return mDbHelper.getCheckedGamesDao().contains(CheckedGames(id))
         }
 
         fun setUncheckedGame(game: Quiz) {

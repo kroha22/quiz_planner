@@ -16,8 +16,8 @@ import kotlinx.android.synthetic.main.quiz_list_item.view.*
 
 
 //------------------------------------------------------------------------------------------------
-class SimpleItemRecyclerViewAdapter(private val showDate: Boolean) :
-        RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder>() {
+open class SimpleItemRecyclerViewAdapter(private val showDate: Boolean) :
+        RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     //------------------------------------------------------------------------------------------------
     interface ItemClickListener {
         fun onItemClick(quiz: Quiz)
@@ -31,7 +31,7 @@ class SimpleItemRecyclerViewAdapter(private val showDate: Boolean) :
     private var values: MutableList<Quiz> = ArrayList()
     private val onItemCheckChanged: MutableMap<Quiz, () -> Unit> = HashMap()
 
-    fun setValues(values: List<Quiz>) {
+    open fun setValues(values: List<Quiz>) {
         this.values = ArrayList(values)
         notifyDataSetChanged()
     }
@@ -50,59 +50,74 @@ class SimpleItemRecyclerViewAdapter(private val showDate: Boolean) :
         this.onClickListener = onClickListener
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val view = LayoutInflater.from(parent.context)
                 .inflate(R.layout.quiz_list_item, parent, false)
         return ViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = values[position]
-        holder.title.text = item.organisationName
-        holder.theme.text = item.gameTheme
-        holder.location.text = item.location
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        if (holder is ViewHolder) {
+            val item = getItem(position)
+            holder.title.text = item.organisationName
+            holder.theme.text = item.gameTheme
+            holder.location.text = item.location
 
-        if (showDate) {
-            holder.date.text = QuizPlanner.formatterDateMonth.format(item.date)
-            holder.dateLine.visibility = View.VISIBLE
-        } else {
-            holder.dateLine.visibility = View.GONE
-        }
+            if (showDate) {
+                holder.date.text = QuizPlanner.formatterDateMonth.format(item.date)
+                holder.dateLine.visibility = View.VISIBLE
+            } else {
+                holder.dateLine.visibility = View.GONE
+            }
 
-        if (item.countOfPlayers != null) {
-            holder.count.text = item.countOfPlayers.toString()
-            holder.countLine.visibility = View.VISIBLE
-        } else {
-            holder.countLine.visibility = View.GONE
-        }
+            if (item.countOfPlayers != null) {
+                holder.count.text = item.countOfPlayers.toString()
+                holder.countLine.visibility = View.VISIBLE
+            } else {
+                holder.countLine.visibility = View.GONE
+            }
 
-        holder.time.text = QuizPlanner.formatterTime.format(item.date)
+            holder.time.text = QuizPlanner.formatterTime.format(item.date)
 
-        holder.setChecked(item.isChecked)
-
-        onItemCheckChanged[item] = { holder.setChecked(item.isChecked) }
-
-        if (!item.getLogoUrl().isEmpty()) {
-            val apiUrl = holder.title.context.getString(R.string.base_api_img_url)
-            Picasso.get()
-                    .load(apiUrl + item.getLogoUrl())
-                    .placeholder(R.drawable.ic_image_placeholder)
-                    .error(R.drawable.ic_broken_image)
-                    .into(holder.img)
-        }
-
-        holder.check.setOnClickListener {
-            val curr = item.isChecked
-            item.isChecked = !curr
             holder.setChecked(item.isChecked)
-            onClickListener?.onItemCheckChanged(item)
-        }
 
-        with(holder.itemView) {
-            tag = item
-            setOnClickListener { onClickListener?.onItemClick(item) }
+            onItemCheckChanged[item] = { holder.setChecked(item.isChecked) }
+
+            if (!item.getLogoUrl().isEmpty()) {
+                val apiUrl = holder.title.context.getString(R.string.base_api_img_url)
+                Picasso.get()
+                        .load(apiUrl + item.getLogoUrl())
+                        .placeholder(R.drawable.ic_image_placeholder)
+                        .error(R.drawable.ic_broken_image)
+                        .into(holder.img)
+            }
+
+            holder.check.setOnClickListener {
+                val curr = item.isChecked
+                item.isChecked = !curr
+                holder.setChecked(item.isChecked)
+                onClickListener?.onItemCheckChanged(item)
+            }
+
+            with(holder.itemView) {
+                tag = item
+                setOnClickListener { onClickListener?.onItemClick(item) }
+            }
+
+            if (QuizPlanner.isLast(item.getDate())) {
+                holder.timeImg.setColorFilter(ContextCompat.getColor(holder.timeImg.context, R.color.medium_grey))
+             //   holder.title.setTextColor(ContextCompat.getColor(holder.timeImg.context, R.color.dark_grey))
+           //    holder.theme.setTextColor(ContextCompat.getColor(holder.timeImg.context, R.color.dark_grey))
+
+            } else {
+                holder.timeImg.setColorFilter(ContextCompat.getColor(holder.timeImg.context, R.color.red))
+           //     holder.title.setTextColor(ContextCompat.getColor(holder.timeImg.context, R.color.black))
+           //     holder.theme.setTextColor(ContextCompat.getColor(holder.timeImg.context, R.color.black))
+            }
         }
     }
+
+    fun getItem(position: Int) = values[position]
 
     override fun getItemCount() = values.size
 
@@ -114,6 +129,7 @@ class SimpleItemRecyclerViewAdapter(private val showDate: Boolean) :
         val location: TextView = view.item_location
         val count: TextView = view.item_count
         val time: TextView = view.item_time
+        val timeImg: ImageView = view.time_img
         val img: ImageView = view.item_img
         val check: ImageView = view.item_check
         val date: TextView = view.item_date

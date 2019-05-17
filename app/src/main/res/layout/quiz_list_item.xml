@@ -126,6 +126,7 @@
                 android:orientation="horizontal">
 
                 <ImageView
+                    android:id="@+id/time_img"
                     android:layout_width="@dimen/item_icon_size"
                     android:layout_height="@dimen/item_icon_size"
                     android:layout_gravity="top"

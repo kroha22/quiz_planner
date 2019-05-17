@@ -23,6 +23,7 @@ import com.quizplanner.quizPlanner.model.Quiz
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_quiz_detail.*
 import kotlinx.android.synthetic.main.quiz_detail.*
+import rx.Subscription
 
 //---------------------------------------------------------------------------------------------
 
@@ -33,6 +34,10 @@ interface QuizDetailView : MvpView {
     fun createNotify(quiz: Quiz)
 
     fun updateFavoritesView()
+
+    fun inverseFavorites(quiz: Quiz)
+
+    fun showAuthorGames()
 }
 
 //---------------------------------------------------------------------------------------------
@@ -41,6 +46,9 @@ class QuizDetailActivity : MvpAppCompatActivity(), QuizDetailView {
 
     companion object {
         const val QUIZ_ITEM_CODE = "quiz_item"
+        const val SOURCE_CODE = "source_code"
+        const val MAIN = "main"
+        const val AUTHOR = "author"
         private const val QUIZ_DETAIL: String = "quiz_detail"
     }
 
@@ -60,6 +68,7 @@ class QuizDetailActivity : MvpAppCompatActivity(), QuizDetailView {
                     ?: throw AssertionError()
 
             this.item = item as Quiz
+
             detail_title.text = item.organisationName
             detail_theme.text = item.gameTheme
             detail_date.text = QuizPlanner.formatterDateMonth.format(item.date)
@@ -99,13 +108,29 @@ class QuizDetailActivity : MvpAppCompatActivity(), QuizDetailView {
             }
 
             toolbar_calendar.setOnClickListener { presenter.onCalendarClick() }
+            detail_author_games.setOnClickListener { presenter.onAuthorClick() }
 
             updateFavoritesView()
 
             detail_favorites.setOnClickListener {
                 presenter.onGameCheckChanged()
             }
+
+            if (QuizPlanner.isLast(item.getDate())) {
+                detail_time_img.setColorFilter(ContextCompat.getColor(this, R.color.medium_grey))
+            } else {
+                detail_time_img.setColorFilter(ContextCompat.getColor(this, R.color.red))
+            }
+
+            if (intent.getStringExtra(SOURCE_CODE) == AUTHOR) {
+                detail_author_games.visibility = View.GONE
+            }
         }
+    }
+
+    override fun inverseFavorites(quiz: Quiz) {
+        item.isChecked = quiz.isChecked
+        updateFavoritesView()
     }
 
     override fun updateFavoritesView() {
@@ -121,6 +146,10 @@ class QuizDetailActivity : MvpAppCompatActivity(), QuizDetailView {
     override fun onResume() {
         super.onResume()
 
+        if (presenter.isStarted()) {
+            presenter.onResume()
+            return
+        }
         presenter.init(this)
         presenter.start(item)
     }
@@ -140,6 +169,13 @@ class QuizDetailActivity : MvpAppCompatActivity(), QuizDetailView {
                 .putExtra(Intent.EXTRA_EMAIL, quiz.registrationLink)
         startActivity(intent)
     }
+
+    override fun showAuthorGames() {
+        val intent = Intent(this, AuthorActivity::class.java).apply {
+            putExtra(AuthorActivity.AUTHOR_CODE, item.organisationName)
+        }
+        startActivity(intent)
+    }
 }
 
 //---------------------------------------------------------------------------------------------
@@ -148,13 +184,30 @@ class QuizDetailPresenter : MvpPresenter<QuizDetailView>() {
 
     private lateinit var quiz: Quiz
     private lateinit var dao: Db.DAO
+    private var isStarted = false
+    private var subscription: Subscription? = null
 
     fun init(context: Context) {
         this.dao = Db.DAO(context)
     }
 
     fun start(quiz: Quiz) {
+        isStarted = true
         this.quiz = quiz
+    }
+
+    fun onResume() {
+        val isCheckedNew = dao.isChecked(quiz.id!!)
+        val isCheckedCurr = quiz.isChecked
+        if (isCheckedNew != isCheckedCurr) {
+            quiz.isChecked = isCheckedNew
+            viewState.inverseFavorites(quiz)
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        subscription?.unsubscribe()
     }
 
     fun onLinkClick() {
@@ -181,6 +234,12 @@ class QuizDetailPresenter : MvpPresenter<QuizDetailView>() {
 
         viewState.updateFavoritesView()
     }
+
+    fun onAuthorClick() {
+        viewState.showAuthorGames()
+    }
+
+    fun isStarted() = isStarted
 
 
 }

@@ -3,10 +3,7 @@ package com.quizplanner.quizPlanner.ui
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.widget.RecyclerView
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpAppCompatActivity
@@ -17,7 +14,6 @@ import com.arellomobile.mvp.viewstate.strategy.AddToEndSingleStrategy
 import com.arellomobile.mvp.viewstate.strategy.SkipStrategy
 import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
 import com.quizplanner.quizPlanner.QuizPlanner
-import com.quizplanner.quizPlanner.QuizPlanner.isLast
 import com.quizplanner.quizPlanner.R
 import com.quizplanner.quizPlanner.exchange.Input
 import com.quizplanner.quizPlanner.exchange.RetrofitService
@@ -33,10 +29,9 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
 
-
 //---------------------------------------------------------------------------------------------
 
-interface FavoritesView : MvpView {
+interface AuthorView : MvpView {
 
     companion object {
         const val PROGRESS_TAG = "PROGRESS_TAG"
@@ -59,16 +54,18 @@ interface FavoritesView : MvpView {
 }
 
 //---------------------------------------------------------------------------------------------
-class FavoritesActivity : MvpAppCompatActivity(), FavoritesView, SimpleItemRecyclerViewAdapter.ItemClickListener {
+class AuthorActivity : MvpAppCompatActivity(), AuthorView, SimpleItemRecyclerViewAdapter.ItemClickListener {
 
     companion object {
-        private const val FAVORITES: String = "favorites"
+        const val AUTHOR_CODE = "author_code"
+        private const val AUTHOR: String = "author"
     }
 
-    private val adapter = FavoritesAdapter()
+    private val adapter = SimpleItemRecyclerViewAdapter(true)
+    private lateinit var author: String
 
-    @InjectPresenter(tag = FAVORITES)
-    lateinit var presenter: FavoritesPresenter
+    @InjectPresenter(tag = AUTHOR)
+    lateinit var presenter: AuthorPresenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,12 +78,22 @@ class FavoritesActivity : MvpAppCompatActivity(), FavoritesView, SimpleItemRecyc
         quiz_list.adapter = adapter
         quiz_list_empty_view.text = getText(R.string.favorites_empty)
         refreshView()
+
+        if(savedInstanceState == null){
+            author = intent.getStringExtra(AUTHOR_CODE)
+                    ?: throw AssertionError()
+            detail_toolbar.title = getString(R.string.all_games)
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        presenter.init(this)
-        presenter.start()
+
+        if (!presenter.isStarted()) {
+            presenter.init(this)
+
+            presenter.start(author)
+        }
     }
 
     override fun showMessage(msg: String) {
@@ -115,24 +122,15 @@ class FavoritesActivity : MvpAppCompatActivity(), FavoritesView, SimpleItemRecyc
     }
 
     override fun onItemCheckChanged(quiz: Quiz) {
-        if (!quiz.isChecked) {
-            removeItem(quiz)
-        }
-
         presenter.onGameCheckChanged(quiz)
     }
 
     override fun showQuizView(quiz: Quiz) {
         val intent = Intent(this, QuizDetailActivity::class.java).apply {
             putExtra(QuizDetailActivity.QUIZ_ITEM_CODE, quiz)
-            putExtra(QuizDetailActivity.SOURCE_CODE, QuizDetailActivity.MAIN)
+            putExtra(QuizDetailActivity.SOURCE_CODE, QuizDetailActivity.AUTHOR)
         }
         startActivity(intent)
-    }
-
-    private fun removeItem(quiz: Quiz) {
-        adapter.removeItem(quiz)
-        refreshView()
     }
 
     private fun refreshView() {
@@ -145,69 +143,12 @@ class FavoritesActivity : MvpAppCompatActivity(), FavoritesView, SimpleItemRecyc
         }
     }
 }
-
 //--------------------------------------------------------------------------------------------
-class FavoritesAdapter : SimpleItemRecyclerViewAdapter(true) {
 
-    class DummyViewHolder(parent: ViewGroup) : RecyclerView.ViewHolder(LayoutInflater.from(parent.context)
-            .inflate(R.layout.favorites_dates_divider, parent, false))
 
-    private val game = 1
-    private val gameDateDivider = 2
-
-    private val dummy = Quiz()
-
-    override fun setValues(values: List<Quiz>) {
-        var dividerAdded = false
-        val games = ArrayList<Quiz>()
-        for (q in values) {
-            if (!dividerAdded && isLast(q.getDate())) {
-                games.add(dummy)
-                dividerAdded = true
-            }
-            games.add(q)
-        }
-        super.setValues(games)
-    }
-
-    override fun getItemViewType(position: Int): Int {
-        val q = getItem(position)
-        if (q == dummy) {
-            return gameDateDivider
-        }
-
-        return game
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return when (viewType) {
-            game -> super.onCreateViewHolder(parent, viewType)
-            else -> return DummyViewHolder(parent)
-        }
-    }/*
-
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        super.onBindViewHolder(holder, position)
-
-        if (holder is ViewHolder) {
-            val item = getItem(position)
-            if (isLast(item.getDate())) {
-                holder.title.setTextColor(getColor(holder.timeImg.context, R.color.dark_grey))
-                holder.theme.setTextColor(getColor(holder.timeImg.context, R.color.dark_grey))
-
-            } else {
-                holder.title.setTextColor(getColor(holder.timeImg.context, R.color.black))
-                holder.theme.setTextColor(getColor(holder.timeImg.context, R.color.black))
-            }
-        }
-    }*/
-
-}
-
-//--------------------------------------------------------------------------------------------
 @Suppress("DEPRECATION")
 @InjectViewState
-class FavoritesPresenter : MvpPresenter<FavoritesView>() {
+class AuthorPresenter : MvpPresenter<AuthorView>() {
     //----------------------------------------------------------------------------------------------
     companion object {
 
@@ -229,6 +170,8 @@ class FavoritesPresenter : MvpPresenter<FavoritesView>() {
 
     private var subscription: Subscription? = null
 
+    private var isStarted = false
+
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
         viewState.showLoadProgress()
@@ -244,10 +187,11 @@ class FavoritesPresenter : MvpPresenter<FavoritesView>() {
         subscription?.unsubscribe()
     }
 
-    fun start() {
-        subscription = Observable.create<List<Quiz>> { it.onNext(loadFromDb()) }
+    fun start(author: String) {
+        isStarted = true
+
+        subscription = Observable.create<List<Quiz>> { it.onNext(loadFromDb(author)) }
                 .subscribeOn(Schedulers.io())
-                .map { games -> games.filter { it.isChecked } }
                 .doOnError { onBdError(it) }
                 .doOnNext { setGames(it) }
                 .flatMap { games ->
@@ -266,6 +210,8 @@ class FavoritesPresenter : MvpPresenter<FavoritesView>() {
                 })
     }
 
+    fun isStarted() = isStarted
+
     fun onGameSelected(quiz: Quiz) {
         selectedQuiz = quiz
 
@@ -282,8 +228,8 @@ class FavoritesPresenter : MvpPresenter<FavoritesView>() {
         allGames[allGames.indexOf(quiz)].isChecked = quiz.isChecked
     }
 
-    private fun loadFromDb(): List<Quiz> {
-        return dao!!.getGames()
+    private fun loadFromDb(author: String): List<Quiz> {
+        return dao!!.getGames(author)
     }
 
     private fun load(beforeStartLoad: () -> Unit, from: () -> Observable<List<Input.QuizData>>): Observable<List<Quiz>> {
@@ -305,23 +251,7 @@ class FavoritesPresenter : MvpPresenter<FavoritesView>() {
     private fun setGames(games: List<Quiz>) {
         allGames.clear()
 
-        allGames.addAll(ArrayList(games.sortedWith(kotlin.Comparator { o1, o2 -> compareGames(o1, o2) })))
-    }
-
-    private fun compareGames(quiz1: Quiz, quiz2: Quiz): Int {
-        if (isLast(quiz1.getDate()) && isLast(quiz2.getDate())) {
-            return quiz2.getDate().compareTo(quiz1.getDate())
-        }
-
-        if (isLast(quiz1.getDate())) {
-            return 1
-        }
-
-        if (isLast(quiz2.getDate())) {
-            return -1
-        }
-
-        return quiz1.getDate().compareTo(quiz2.getDate())
+        allGames.addAll(ArrayList(games.sortedWith(kotlin.Comparator { quiz1, quiz2 -> quiz1.getDate().compareTo(quiz2.getDate()) })))
     }
 
     private fun onError(err: Throwable) {
