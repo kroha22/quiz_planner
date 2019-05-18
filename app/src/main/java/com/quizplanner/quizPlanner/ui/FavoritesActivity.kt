@@ -170,6 +170,16 @@ class FavoritesAdapter : SimpleItemRecyclerViewAdapter(true) {
         super.setValues(games)
     }
 
+    override fun removeItem(item: Quiz) {
+        val isLast = isLast(item)
+
+        super.removeItem(item)
+
+        if(isLast && !hasLast()){
+            removeItem(dummy)
+        }
+    }
+
     override fun getItemViewType(position: Int): Int {
         val q = getItem(position)
         if (q == dummy) {
@@ -184,7 +194,20 @@ class FavoritesAdapter : SimpleItemRecyclerViewAdapter(true) {
             game -> super.onCreateViewHolder(parent, viewType)
             else -> return DummyViewHolder(parent)
         }
-    }/*
+    }
+
+    private fun hasLast():Boolean {
+        for (q in getValues()) {
+            if (isLast(q)) {
+                return true
+            }
+        }
+
+        return false
+    }
+
+    private fun isLast(q: Quiz) = q != dummy && isLast(q.getDate())
+/*
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         super.onBindViewHolder(holder, position)

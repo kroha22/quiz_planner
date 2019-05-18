@@ -11,12 +11,12 @@
         android:layout_gravity="center"
         android:background="@drawable/bg_date_divider"
         android:orientation="vertical"
-        android:paddingTop="@dimen/_8sdp"
-        android:paddingBottom="@dimen/_8sdp"
+        android:layout_marginTop="@dimen/_3sdp"
+        android:layout_marginBottom="@dimen/_2sdp"
+        android:paddingTop="@dimen/_6sdp"
+        android:paddingBottom="@dimen/_6sdp"
         android:paddingLeft="@dimen/_15sdp"
         android:paddingRight="@dimen/_15sdp">
-
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

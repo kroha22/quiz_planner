@@ -36,7 +36,9 @@ open class SimpleItemRecyclerViewAdapter(private val showDate: Boolean) :
         notifyDataSetChanged()
     }
 
-    fun removeItem(item: Quiz) {
+    protected fun getValues() = values
+
+    open fun removeItem(item: Quiz) {
         val pos = values.indexOf(item)
         values.remove(item)
         notifyItemRemoved(pos)

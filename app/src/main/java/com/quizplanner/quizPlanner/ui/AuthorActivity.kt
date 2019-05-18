@@ -79,7 +79,7 @@ class AuthorActivity : MvpAppCompatActivity(), AuthorView, SimpleItemRecyclerVie
         quiz_list_empty_view.text = getText(R.string.favorites_empty)
         refreshView()
 
-        if(savedInstanceState == null){
+        if (savedInstanceState == null) {
             author = intent.getStringExtra(AUTHOR_CODE)
                     ?: throw AssertionError()
             detail_toolbar.title = getString(R.string.all_games)
@@ -93,6 +93,8 @@ class AuthorActivity : MvpAppCompatActivity(), AuthorView, SimpleItemRecyclerVie
             presenter.init(this)
 
             presenter.start(author)
+        } else {
+            presenter.onResume()
         }
     }
 
@@ -165,6 +167,8 @@ class AuthorPresenter : MvpPresenter<AuthorView>() {
     private var dataLoader: RetrofitService? = null
     private var dao: Db.DAO? = null
 
+    private lateinit var author: String
+
     private val allGames = ArrayList<Quiz>()
     private var selectedQuiz: Quiz? = null
 
@@ -182,12 +186,8 @@ class AuthorPresenter : MvpPresenter<AuthorView>() {
         this.dao = Db.DAO(context)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        subscription?.unsubscribe()
-    }
-
     fun start(author: String) {
+        this.author = author
         isStarted = true
 
         subscription = Observable.create<List<Quiz>> { it.onNext(loadFromDb(author)) }
@@ -208,6 +208,25 @@ class AuthorPresenter : MvpPresenter<AuthorView>() {
                 }, {
                     onError(it)
                 })
+    }
+
+    fun onResume() {
+        subscription = Observable.create<List<Quiz>> { it.onNext(loadFromDb(author)) }
+                .subscribeOn(Schedulers.io())
+                .map { setGames(it) }
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ needUpdateView ->
+                    if (needUpdateView) {
+                        showGames()
+                    }
+                }, {
+                    onBdError(it)
+                })
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        subscription?.unsubscribe()
     }
 
     fun isStarted() = isStarted
@@ -248,10 +267,33 @@ class AuthorPresenter : MvpPresenter<AuthorView>() {
         viewState.setContent(allGames)
     }
 
-    private fun setGames(games: List<Quiz>) {
-        allGames.clear()
+    private fun setGames(games: List<Quiz>): Boolean {
+        if (isIdentical(allGames, games)) {
+            return false
+        }
 
+        allGames.clear()
         allGames.addAll(ArrayList(games.sortedWith(kotlin.Comparator { quiz1, quiz2 -> quiz1.getDate().compareTo(quiz2.getDate()) })))
+        return true
+    }
+
+    private fun isIdentical(games1: List<Quiz>, games2: List<Quiz>): Boolean {
+        if (games1.size != games2.size) {
+            return false
+        }
+
+        val gamesMap = HashMap<String, Quiz>()
+        for (g in games1) {
+            gamesMap[g.id!!] = g
+        }
+        for (g in games2) {
+            val game = gamesMap[g.id!!]
+            if (game == null || !game.identical(g)) {
+                return false
+            }
+        }
+
+        return true
     }
 
     private fun onError(err: Throwable) {

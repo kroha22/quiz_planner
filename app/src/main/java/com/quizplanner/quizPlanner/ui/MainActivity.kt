@@ -118,7 +118,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
 
         tabs.addOnTabSelectedListener(TabLayout.ViewPagerOnTabSelectedListener(container))
         tabs.setupWithViewPager(container)
-        tabs.isSmoothScrollingEnabled = false
+        tabs.isSmoothScrollingEnabled = true
 
         slideDownAnimation = AnimationUtils.loadAnimation(this, R.anim.slide_down_animation)
     }
@@ -216,15 +216,18 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
     override fun setContent(gamesByDate: LinkedHashMap<Date, List<Quiz>>, selectedDate: Date) {
 
         val isEmpty = sectionsPagerAdapter.count == 0
-        sectionsPagerAdapter.setItems(gamesByDate)
+        if (sectionsPagerAdapter.setItems(gamesByDate)) {
 
-        for (i in 0..tabs.tabCount) {
-            val tab = tabs.getTabAt(i)
-            if (tab != null) {
-                tab.customView = sectionsPagerAdapter.getTabView(i)
+            for (i in 0..tabs.tabCount) {
+                val tab = tabs.getTabAt(i)
+                if (tab != null) {
+                    tab.customView = sectionsPagerAdapter.getTabView(i)
 
-                if (isOneDay(sectionsPagerAdapter.getItemDate(i), selectedDate)) {
-                    Handler().postDelayed({ container.setCurrentItem(i, isEmpty) }, 200)
+                    if (isOneDay(sectionsPagerAdapter.getItemDate(i), selectedDate)) {
+                        Handler().postDelayed({
+                            container.setCurrentItem(i, isEmpty)
+                        }, 200)
+                    }
                 }
             }
         }
@@ -294,7 +297,19 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
             textColors = ColorStateList(states, colors)
         }
 
-        fun setItems(items: LinkedHashMap<Date, List<Quiz>>) {
+        // return true if tabs need update
+        fun setItems(items: LinkedHashMap<Date, List<Quiz>>): Boolean {
+            if (tabItems.map { formatterDate.format(it) } == items.keys.map { formatterDate.format(it) }){
+
+                gamesByDate = items
+
+                for (page in pages.entries) {
+                    page.value.setValues(gamesByDate[page.key]!!)
+                }
+
+                return false
+            }
+
             tabItems.clear()
             tabItems.addAll(items.keys)
 
@@ -311,6 +326,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
             }
 
             notifyDataSetChanged()
+            return true
         }
 
         fun getItemDate(position: Int): Date {

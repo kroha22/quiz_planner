@@ -128,7 +128,11 @@ object Db {
         }
 
         fun isChecked(id: String): Boolean {
-            return mDbHelper.getCheckedGamesDao().contains(CheckedGames(id))
+            val isChecked= !mDbHelper.getCheckedGamesDao().queryForEq(CheckedGames.Column.ID, id).isEmpty()
+
+            log("game =$id isChecked = $isChecked")
+
+            return isChecked
         }
 
         fun setUncheckedGame(game: Quiz) {
