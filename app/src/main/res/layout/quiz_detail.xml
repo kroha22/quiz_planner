@@ -1,5 +1,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/quiz_detail_view"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -207,6 +208,28 @@
                 android:textStyle="italic" />
 
         </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/detail_video_layout"
+            android:layout_width="fill_parent"
+            android:layout_height="200dp"
+            android:background="@android:color/black">
+
+            <com.universalvideoview.UniversalVideoView
+                android:id="@+id/detail_video_view"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_gravity="center"
+                app:uvv_autoRotation="true"
+                app:uvv_fitXY="false" />
+
+            <com.universalvideoview.UniversalMediaController
+                android:id="@+id/detail_media_controller"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                app:uvv_scalable="true" />
+
+        </FrameLayout>
 
         <LinearLayout
             android:id="@+id/detail_favorites"

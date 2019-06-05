@@ -40,6 +40,7 @@ dependencies {
     implementation 'com.android.support:design:28.0.0'
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
     implementation 'com.intuit.sdp:sdp-android:1.0.5'
+    implementation 'com.linsea:universalvideoview:1.1.0@aar'
 
     //Moxy
     implementation 'com.arello-mobile:moxy:1.5.5'
@@ -64,7 +65,7 @@ dependencies {
     implementation 'io.reactivex:rxjava:1.3.8'
 
     //ORMLite
-    implementation 'com.' +
-            'j256.ormlite:ormlite-core:4.48'
+    implementation 'com.j256.ormlite:ormlite-core:4.48'
     implementation 'com.j256.ormlite:ormlite-android:4.48'
+
 }
