@@ -22,4 +22,6 @@
 
     <color name="blue">#0011cc</color>
 
+    <color name="transparent">#00ffffff</color>
+
 </resources>

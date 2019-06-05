@@ -1,5 +1,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/quiz_detail_view"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -207,6 +208,13 @@
                 android:textStyle="italic" />
 
         </LinearLayout>
+
+        <com.quizplanner.quizPlanner.customvideoview.CustomVideoView
+            android:id="@+id/detail_video_view"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            app:pause_drawable="@drawable/ic_pause_white_48dp"
+            app:play_drawable="@drawable/ic_play_arrow_white_48dp"/>
 
         <LinearLayout
             android:id="@+id/detail_favorites"
