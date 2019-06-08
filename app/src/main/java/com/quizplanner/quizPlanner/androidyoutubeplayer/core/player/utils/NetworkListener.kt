@@ -1,4 +1,4 @@
-package com.pierfrancescosoffritti.androidyoutubeplayer.core.player.utils
+package com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.utils
 
 import android.content.BroadcastReceiver
 import android.content.Context

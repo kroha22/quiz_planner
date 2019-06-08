@@ -1,22 +1,23 @@
-package com.pierfrancescosoffritti.androidyoutubeplayer.core.ui.views
+package com.quizplanner.quizPlanner.androidyoutubeplayer.core.ui.views
 
 import android.content.Context
+import android.os.Build
+import android.support.annotation.ColorInt
+import android.support.v4.content.ContextCompat
+import android.support.v4.graphics.drawable.DrawableCompat
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.Gravity
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.TextView
-import androidx.annotation.ColorInt
-import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.DrawableCompat
-import com.pierfrancescosoffritti.androidyoutubeplayer.R
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.ui.utils.TimeUtilities
+import com.quizplanner.quizPlanner.R
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.PlayerConstants
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.YouTubePlayer
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.ui.utils.TimeUtilities
 
-class YouTubePlayerSeekBar(context: Context, attrs: AttributeSet? = null): LinearLayout(context, attrs), SeekBar.OnSeekBarChangeListener, YouTubePlayerListener {
+class YouTubePlayerSeekBar(context: Context, attrs: AttributeSet? = null) : LinearLayout(context, attrs), SeekBar.OnSeekBarChangeListener, YouTubePlayerListener {
 
     private var seekBarTouchStarted = false
     // I need this variable because onCurrentSecond gets called every 100 mils, so without the proper checks on this variable in onCurrentSeconds the seek bar glitches when touched.
@@ -53,7 +54,7 @@ class YouTubePlayerSeekBar(context: Context, attrs: AttributeSet? = null): Linea
 
         setFontSize(fontSize.toFloat())
 
-        seekBar.setPadding(padding*2, padding, padding*2, padding)
+        seekBar.setPadding(padding * 2, padding, padding * 2, padding)
         setColor(color)
 
         addView(videoCurrentTimeTextView, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT))
@@ -74,7 +75,9 @@ class YouTubePlayerSeekBar(context: Context, attrs: AttributeSet? = null): Linea
     }
 
     fun setColor(@ColorInt color: Int) {
-        DrawableCompat.setTint(seekBar.thumb, color)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            DrawableCompat.setTint(seekBar.thumb, color)
+        }
         DrawableCompat.setTint(seekBar.progressDrawable, color)
     }
 
@@ -84,7 +87,8 @@ class YouTubePlayerSeekBar(context: Context, attrs: AttributeSet? = null): Linea
             PlayerConstants.PlayerState.PAUSED -> isPlaying = false
             PlayerConstants.PlayerState.PLAYING -> isPlaying = true
             PlayerConstants.PlayerState.UNSTARTED -> resetUi()
-            else -> { }
+            else -> {
+            }
         }
     }
 
@@ -144,12 +148,12 @@ class YouTubePlayerSeekBar(context: Context, attrs: AttributeSet? = null): Linea
             seekBar.secondaryProgress = 0
     }
 
-    override fun onReady(youTubePlayer: YouTubePlayer) { }
-    override fun onVideoId(youTubePlayer: YouTubePlayer, videoId: String) { }
-    override fun onApiChange(youTubePlayer: YouTubePlayer) { }
-    override fun onPlaybackQualityChange(youTubePlayer: YouTubePlayer, playbackQuality: PlayerConstants.PlaybackQuality) { }
-    override fun onPlaybackRateChange(youTubePlayer: YouTubePlayer, playbackRate: PlayerConstants.PlaybackRate) { }
-    override fun onError(youTubePlayer: YouTubePlayer, error: PlayerConstants.PlayerError) { }
+    override fun onReady(youTubePlayer: YouTubePlayer) {}
+    override fun onVideoId(youTubePlayer: YouTubePlayer, videoId: String) {}
+    override fun onApiChange(youTubePlayer: YouTubePlayer) {}
+    override fun onPlaybackQualityChange(youTubePlayer: YouTubePlayer, playbackQuality: PlayerConstants.PlaybackQuality) {}
+    override fun onPlaybackRateChange(youTubePlayer: YouTubePlayer, playbackRate: PlayerConstants.PlaybackRate) {}
+    override fun onError(youTubePlayer: YouTubePlayer, error: PlayerConstants.PlayerError) {}
 }
 
 interface YouTubePlayerSeekBarListener {

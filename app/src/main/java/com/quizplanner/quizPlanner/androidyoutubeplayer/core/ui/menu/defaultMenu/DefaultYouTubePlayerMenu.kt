@@ -1,20 +1,18 @@
-package com.pierfrancescosoffritti.androidyoutubeplayer.core.ui.menu.defaultMenu
+package com.quizplanner.quizPlanner.androidyoutubeplayer.core.ui.menu.defaultMenu
 
 import android.content.Context
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.PopupWindow
-
-import com.pierfrancescosoffritti.androidyoutubeplayer.R
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.ui.menu.MenuItem
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.ui.menu.YouTubePlayerMenu
-
-import java.util.ArrayList
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.ui.menu.MenuItem
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.ui.menu.YouTubePlayerMenu
+import com.quizplanner.quizPlanner.R
+import java.util.*
 
 internal class DefaultYouTubePlayerMenu(private val context: Context) : YouTubePlayerMenu {
     private val menuItems = ArrayList<MenuItem>()

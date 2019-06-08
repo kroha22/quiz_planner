@@ -1,6 +1,6 @@
-package com.pierfrancescosoffritti.androidyoutubeplayer.core.player
+package com.quizplanner.quizPlanner.androidyoutubeplayer.core.player
 
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener
 
 /**
  * Use this interface to control the playback of YouTube videos and to listen to their events.

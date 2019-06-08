@@ -1,4 +1,4 @@
-package com.pierfrancescosoffritti.androidyoutubeplayer.core.ui.utils
+package com.quizplanner.quizPlanner.androidyoutubeplayer.core.ui.utils
 
 import android.annotation.SuppressLint
 

@@ -1,8 +1,9 @@
-package com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views
+package com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.views
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
@@ -11,12 +12,12 @@ import android.webkit.WebChromeClient
 import android.webkit.WebSettings
 import android.webkit.WebView
 
-import com.pierfrancescosoffritti.androidyoutubeplayer.R
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayerBridge
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.options.IFramePlayerOptions
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.utils.Utils
+import com.quizplanner.quizPlanner.R
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.YouTubePlayer
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.YouTubePlayerBridge
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.options.IFramePlayerOptions
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.utils.Utils
 
 import java.util.Collections
 import java.util.HashSet
@@ -91,7 +92,9 @@ internal class WebViewYouTubePlayer constructor(context: Context, attrs: Attribu
     @SuppressLint("SetJavaScriptEnabled")
     private fun initWebView(playerOptions: IFramePlayerOptions) {
         settings.javaScriptEnabled = true
-        settings.mediaPlaybackRequiresUserGesture = false
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            settings.mediaPlaybackRequiresUserGesture = false
+        }
         settings.cacheMode = WebSettings.LOAD_NO_CACHE
 
         addJavascriptInterface(YouTubePlayerBridge(this), "YouTubePlayerBridge")

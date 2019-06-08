@@ -1,9 +1,9 @@
-package com.pierfrancescosoffritti.androidyoutubeplayer.core.ui
+package com.quizplanner.quizPlanner.androidyoutubeplayer.core.ui
 
 import android.graphics.drawable.Drawable
 import android.view.View
 
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.ui.menu.YouTubePlayerMenu
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.ui.menu.YouTubePlayerMenu
 
 
 interface PlayerUiController {

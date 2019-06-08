@@ -1,4 +1,4 @@
-package com.pierfrancescosoffritti.androidyoutubeplayer.core.player
+package com.quizplanner.quizPlanner.androidyoutubeplayer.core.player
 
 class PlayerConstants {
 

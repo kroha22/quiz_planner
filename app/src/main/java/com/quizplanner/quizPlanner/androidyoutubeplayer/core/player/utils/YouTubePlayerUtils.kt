@@ -1,8 +1,8 @@
 @file:JvmName("YouTubePlayerUtils")
-package com.pierfrancescosoffritti.androidyoutubeplayer.core.player.utils
+package com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.utils
 
-import androidx.lifecycle.Lifecycle
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
+import android.arch.lifecycle.Lifecycle
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.YouTubePlayer
 
 //object YouTubePlayerUtils {
 

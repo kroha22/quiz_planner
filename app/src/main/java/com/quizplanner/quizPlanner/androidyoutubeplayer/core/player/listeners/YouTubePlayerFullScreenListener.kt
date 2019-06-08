@@ -1,4 +1,4 @@
-package com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners
+package com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.listeners
 
 interface YouTubePlayerFullScreenListener {
     fun onYouTubePlayerEnterFullScreen()

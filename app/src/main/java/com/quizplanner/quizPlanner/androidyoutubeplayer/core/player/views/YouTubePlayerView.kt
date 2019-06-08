@@ -1,24 +1,24 @@
-package com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views
+package com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.views
 
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import androidx.annotation.LayoutRes
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
-import com.pierfrancescosoffritti.androidyoutubeplayer.R
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerCallback
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerFullScreenListener
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.options.IFramePlayerOptions
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.utils.FullScreenHelper
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.ui.PlayerUiController
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.utils.loadOrCueVideo
+import android.support.annotation.LayoutRes
+import android.arch.lifecycle.Lifecycle
+import android.arch.lifecycle.LifecycleObserver
+import android.arch.lifecycle.OnLifecycleEvent
+import com.quizplanner.quizPlanner.R
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.YouTubePlayer
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.listeners.YouTubePlayerCallback
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.listeners.YouTubePlayerFullScreenListener
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.options.IFramePlayerOptions
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.utils.FullScreenHelper
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.ui.PlayerUiController
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.utils.loadOrCueVideo
 
 
 class YouTubePlayerView(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0):

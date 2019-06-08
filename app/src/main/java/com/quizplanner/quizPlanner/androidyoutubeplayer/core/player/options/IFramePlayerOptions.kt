@@ -1,4 +1,4 @@
-package com.pierfrancescosoffritti.androidyoutubeplayer.core.player.options
+package com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.options
 
 import org.json.JSONException
 import org.json.JSONObject

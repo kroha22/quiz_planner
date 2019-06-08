@@ -1,19 +1,18 @@
-package com.pierfrancescosoffritti.androidyoutubeplayer.core.ui.menu.defaultMenu
+package com.quizplanner.quizPlanner.androidyoutubeplayer.core.ui.menu.defaultMenu
 
 import android.content.Context
-import androidx.core.content.ContextCompat
-import androidx.recyclerview.widget.RecyclerView
+import android.support.v4.content.ContextCompat
+import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-
-import com.pierfrancescosoffritti.androidyoutubeplayer.R
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.ui.menu.MenuItem
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.ui.menu.MenuItem
+import com.quizplanner.quizPlanner.R
 
 internal class MenuAdapter(private val context: Context, private val menuItems: List<MenuItem>) : RecyclerView.Adapter<MenuAdapter.ViewHolder>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MenuAdapter.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.ayp_menu_item, parent, false)
         return ViewHolder(view)
     }

@@ -19,4 +19,10 @@
     <dimen name="tab_text_size">14sp</dimen>
     <dimen name="item_margin">4dp</dimen>
     <dimen name="item_padding">4dp</dimen>
+
+    <dimen name="ayp_8dp">8dp</dimen>
+    <dimen name="ayp_12sp">12sp</dimen>
+    <dimen name="ayp_menu_dialog_container_margin">8dp</dimen>
+    <dimen name="ayp_menu_item_padding">12dp</dimen>
+    <dimen name="ayp_menu_item_text_size">16sp</dimen>
 </resources>

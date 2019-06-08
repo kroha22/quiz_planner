@@ -1,10 +1,10 @@
-package com.pierfrancescosoffritti.androidyoutubeplayer.core.ui.utils
+package com.quizplanner.quizPlanner.androidyoutubeplayer.core.ui.utils
 
 import android.animation.Animator
 import android.view.View
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.PlayerConstants
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.YouTubePlayer
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener
 
 class FadeViewHelper(val targetView: View): YouTubePlayerListener {
     companion object {

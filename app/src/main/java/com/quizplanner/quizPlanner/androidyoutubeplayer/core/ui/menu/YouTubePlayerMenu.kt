@@ -1,4 +1,4 @@
-package com.pierfrancescosoffritti.androidyoutubeplayer.core.ui.menu
+package com.quizplanner.quizPlanner.androidyoutubeplayer.core.ui.menu
 
 import android.view.View
 

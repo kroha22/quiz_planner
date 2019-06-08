@@ -1,4 +1,4 @@
-package com.pierfrancescosoffritti.androidyoutubeplayer.core.ui
+package com.quizplanner.quizPlanner.androidyoutubeplayer.core.ui
 
 import android.content.Intent
 import android.graphics.drawable.Drawable
@@ -9,18 +9,18 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 
-import com.pierfrancescosoffritti.androidyoutubeplayer.R
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerFullScreenListener
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.LegacyYouTubePlayerView
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.ui.menu.YouTubePlayerMenu
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.ui.menu.defaultMenu.DefaultYouTubePlayerMenu
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.ui.utils.FadeViewHelper
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.ui.views.YouTubePlayerSeekBar
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.ui.views.YouTubePlayerSeekBarListener
-import androidx.core.content.ContextCompat
+import com.quizplanner.quizPlanner.R
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.PlayerConstants
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.YouTubePlayer
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.listeners.YouTubePlayerFullScreenListener
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.views.LegacyYouTubePlayerView
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.ui.menu.YouTubePlayerMenu
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.ui.menu.defaultMenu.DefaultYouTubePlayerMenu
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.ui.utils.FadeViewHelper
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.ui.views.YouTubePlayerSeekBar
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.ui.views.YouTubePlayerSeekBarListener
+import android.support.v4.content.ContextCompat
 
 internal class DefaultPlayerUiController(private val youTubePlayerView: LegacyYouTubePlayerView, private val youTubePlayer: YouTubePlayer) : PlayerUiController, YouTubePlayerListener, YouTubePlayerFullScreenListener, YouTubePlayerSeekBarListener {
 

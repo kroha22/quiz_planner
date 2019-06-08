@@ -1,13 +1,13 @@
-package com.pierfrancescosoffritti.androidyoutubeplayer.core.player
+package com.quizplanner.quizPlanner.androidyoutubeplayer.core.player
 
 import android.os.Handler
 import android.os.Looper
-import androidx.annotation.RestrictTo
+import android.support.annotation.RestrictTo
 
 import android.text.TextUtils
 import android.webkit.JavascriptInterface
 
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener
 
 
 /**
@@ -56,7 +56,7 @@ class YouTubePlayerBridge(private val youTubePlayerOwner: YouTubePlayerBridgeCal
 
     @JavascriptInterface
     fun sendYouTubeIFrameAPIReady() =
-        mainThreadHandler.post { youTubePlayerOwner.onYouTubeIFrameAPIReady() }
+            mainThreadHandler.post { youTubePlayerOwner.onYouTubeIFrameAPIReady() }
 
     @JavascriptInterface
     fun sendReady() {

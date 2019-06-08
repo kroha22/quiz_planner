@@ -1,7 +1,7 @@
-package com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners
+package com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.listeners
 
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.PlayerConstants
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.YouTubePlayer
 
 /**
  * Extend this class if you want to implement only some of the methods of [YouTubePlayerListener]

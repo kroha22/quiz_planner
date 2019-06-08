@@ -1,8 +1,8 @@
-package com.pierfrancescosoffritti.androidyoutubeplayer.core.player.utils
+package com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.utils
 
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.PlayerConstants
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.YouTubePlayer
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 
 /**
  * Class responsible for resuming the playback state in case of network problems.

@@ -1,9 +1,9 @@
-package com.pierfrancescosoffritti.androidyoutubeplayer.core.player.utils
+package com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.utils
 
 import android.view.View
 import android.view.ViewGroup
 
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerFullScreenListener
+import com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.listeners.YouTubePlayerFullScreenListener
 
 import java.util.HashSet
 

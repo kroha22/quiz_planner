@@ -1,11 +1,11 @@
-package com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views
+package com.quizplanner.quizPlanner.androidyoutubeplayer.core.player.views
 
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import androidx.annotation.RestrictTo
+import android.support.annotation.RestrictTo
 
 /**
  * A FrameLayout with an aspect ration of 16:9, when the height is set to wrap_content.
