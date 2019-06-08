@@ -13,10 +13,8 @@
         android:id="@+id/text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-
         android:textSize="@dimen/ayp_menu_item_text_size"
         android:textColor="@color/ayp_menu_text"
-
         android:drawablePadding="12dp"
         android:gravity="center" />
 

@@ -13,7 +13,6 @@
     <string name="add_to_favorites">Добавить в избранное</string>
     <string name="in_favorites">В избранном</string>
     <string name="favorites_empty">Вы не выбрали ни одной игры</string>
-    <string name="author_empty">У автора нет ни одной игры</string>
 
     <string name="dummy">___</string>
     <string name="game_organization">organization</string>
@@ -30,14 +29,6 @@
     <string name="tab_title">01</string>
     <string name="tab_sub_title">Пн</string>
     <string name="all_games">Все игры организатора</string>
-
-    <string name="playback_speed_0_25">0.25x</string>
-    <string name="playback_speed_0_5">0.5x</string>
-    <string name="playback_speed_0_75">0.75x</string>
-    <string name="playback_speed_1">1x</string>
-    <string name="playback_speed_1_25">1.25x</string>
-    <string name="playback_speed_1_5">1.5x</string>
-    <string name="playback_speed_2">2x</string>
 
     <string name="ayp_play_button">Play button</string>
     <string name="ayp_null_time">0:00</string>

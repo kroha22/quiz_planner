@@ -1,34 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="colorPrimaryVeryLight">#eee8ff</color>
-    <color name="colorPrimaryLight">#b3a3df</color>
     <color name="colorPrimary">#483183</color>
     <color name="colorPrimaryDark">#3e2a70</color>
-    <color name="colorPrimaryVeryDark">#34235e</color>
 
-    <color name="colorAccentVeryLight">#f3ffeb</color>
-    <color name="colorAccentLight">#b5de9d</color>
     <color name="colorAccent">#64b534</color>
-    <color name="colorAccentDark">#4e8d29</color>
-    <color name="colorAccentVeryDark">#2d5218</color>
 
     <color name="white">#ffffff</color>
-    <color name="light_grey">#c7c7c7</color>
     <color name="medium_grey">#9b9b9b</color>
     <color name="dark_grey">#666666</color>
-    <color name="black">#000000</color>
     <color name="red">#FF1A29</color>
 
     <color name="blue">#0011cc</color>
-
-    <color name="transparent">#00ffffff</color>
 
     <color name="ayp_red">#F44336</color>
     <color name="ayp_item_selected">#90FFFFFF</color>
     <color name="ayp_drop_shadow">#66000000</color>
 
-    <color name="ayp_menu_icons">#757575</color>
     <color name="ayp_menu_text">#222222</color>
 
 </resources>

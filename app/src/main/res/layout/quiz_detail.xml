@@ -209,12 +209,12 @@
 
         </LinearLayout>
 
-        <com.quizplanner.quizPlanner.customvideoview.CustomVideoView
-            android:id="@+id/detail_video_view"
+        <com.quizplanner.quizPlanner.player.ui.views.YouTubePlayerView
+            android:id="@+id/youtube_player_view"
             android:layout_width="match_parent"
             android:layout_height="200dp"
-            app:pause_drawable="@drawable/ic_pause_white_48dp"
-            app:play_drawable="@drawable/ic_play_arrow_white_48dp"/>
+            app:showFullScreenButton="false"
+            app:autoPlay="false"/>
 
         <LinearLayout
             android:id="@+id/detail_favorites"

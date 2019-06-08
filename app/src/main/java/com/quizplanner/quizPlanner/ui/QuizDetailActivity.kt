@@ -3,7 +3,6 @@ package com.quizplanner.quizPlanner.ui
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.provider.CalendarContract
 import android.provider.CalendarContract.Events
@@ -19,15 +18,16 @@ import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
 import com.quizplanner.quizPlanner.QuizPlanner
 import com.quizplanner.quizPlanner.QuizPlanner.formatterTime
 import com.quizplanner.quizPlanner.R
-import com.quizplanner.quizPlanner.customvideoview.PlaybackSpeedOptions
-import com.quizplanner.quizPlanner.customvideoview.LandscapeOrientation
-import com.quizplanner.quizPlanner.customvideoview.PortraitOrientation
+import com.quizplanner.quizPlanner.player.YouTubePlayer
+import com.quizplanner.quizPlanner.player.listeners.AbstractYouTubePlayerListener
+import com.quizplanner.quizPlanner.player.ui.views.YouTubePlayerView
 import com.quizplanner.quizPlanner.model.Db
 import com.quizplanner.quizPlanner.model.Quiz
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_quiz_detail.*
 import kotlinx.android.synthetic.main.quiz_detail.*
 import rx.Subscription
+
 
 //---------------------------------------------------------------------------------------------
 
@@ -130,17 +130,15 @@ class QuizDetailActivity : MvpAppCompatActivity(), QuizDetailView {
                 detail_author_games.visibility = View.GONE
             }
 
-            val vid = detail_video_view.videoUrl(this, Uri.parse("https://vk.com/video-77462734_456239026"))//todo
-                    .progressBarColor(R.color.colorAccent)
-                    .landscapeOrientation(LandscapeOrientation.SENSOR)
-                    .portraitOrientation(PortraitOrientation.DEFAULT)
-                    .addSeekForwardButton()
-                    .addSeekBackwardButton()
-                    .playbackSpeedOptions( PlaybackSpeedOptions().addSpeeds(arrayListOf(0.25f, 0.5f, 0.75f, 1f)) )
+            val youTubePlayerView = findViewById<YouTubePlayerView>(R.id.youtube_player_view)
+            lifecycle.addObserver(youTubePlayerView)
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                vid.addPlaybackSpeedButton()
-            }
+            youTubePlayerView.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
+                override fun onReady(youTubePlayer: YouTubePlayer) {
+                    val videoId = "lQWnIA0pJss"
+                    youTubePlayer.loadVideo(videoId, 0f)
+                }
+            })
         }
     }
 
