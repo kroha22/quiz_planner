@@ -18,11 +18,12 @@ import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
 import com.quizplanner.quizPlanner.QuizPlanner
 import com.quizplanner.quizPlanner.QuizPlanner.formatterTime
 import com.quizplanner.quizPlanner.R
+import com.quizplanner.quizPlanner.model.Db
+import com.quizplanner.quizPlanner.model.Quiz
+import com.quizplanner.quizPlanner.player.YouTubeHelper
 import com.quizplanner.quizPlanner.player.YouTubePlayer
 import com.quizplanner.quizPlanner.player.listeners.AbstractYouTubePlayerListener
 import com.quizplanner.quizPlanner.player.ui.views.YouTubePlayerView
-import com.quizplanner.quizPlanner.model.Db
-import com.quizplanner.quizPlanner.model.Quiz
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_quiz_detail.*
 import kotlinx.android.synthetic.main.quiz_detail.*
@@ -130,16 +131,9 @@ class QuizDetailActivity : MvpAppCompatActivity(), QuizDetailView {
                 detail_author_games.visibility = View.GONE
             }
 
-            val youTubePlayerView = findViewById<YouTubePlayerView>(R.id.youtube_player_view)
-            lifecycle.addObserver(youTubePlayerView)
-
-            youTubePlayerView.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
-                override fun onReady(youTubePlayer: YouTubePlayer) {
-                    val videoId = "lQWnIA0pJss"
-                    youTubePlayer.loadVideo(videoId, 0f)
-                }
-            })
+            initVideoView(item)
         }
+
     }
 
     override fun inverseFavorites(quiz: Quiz) {
@@ -189,6 +183,34 @@ class QuizDetailActivity : MvpAppCompatActivity(), QuizDetailView {
             putExtra(AuthorActivity.AUTHOR_CODE, item.organisationName)
         }
         startActivity(intent)
+    }
+
+    private fun initVideoView(item: Quiz) {
+        val youTubePlayerView = findViewById<YouTubePlayerView>(R.id.youtube_player_view)
+        if (item.description != null) {
+
+            val youTubeHelper = YouTubeHelper()
+            val vid = youTubeHelper.findVideoUrl(item.description!!)
+
+            if (vid != null && vid.isNotEmpty()) {
+                val videoId = youTubeHelper.extractVideoIdFromUrl(vid)
+
+                if (videoId != null && videoId.isNotEmpty()) {
+                    youTubePlayerView.visibility = View.VISIBLE
+
+                    lifecycle.addObserver(youTubePlayerView)
+
+                    youTubePlayerView.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
+                        override fun onReady(youTubePlayer: YouTubePlayer) {
+                            youTubePlayer.loadVideo(videoId, 0f)
+                        }
+                    })
+                    return
+                }
+            }
+        }
+
+        youTubePlayerView.visibility = View.GONE
     }
 }
 
