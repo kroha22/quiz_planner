@@ -13,7 +13,8 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:name="android.support.multidex.MultiDexApplication">
 
         <activity
             android:name=".ui.MainActivity"
@@ -32,6 +33,10 @@
             android:name=".ui.FavoritesActivity"
             android:screenOrientation="portrait" />
         <activity android:name=".ui.AuthorActivity" />
+
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-6589176597082345~6937534248"/>
 
     </application>
 

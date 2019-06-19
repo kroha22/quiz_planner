@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.quizplanner.quizPlanner
 
 import android.text.format.Time

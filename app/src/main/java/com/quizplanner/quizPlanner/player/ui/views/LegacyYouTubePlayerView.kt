@@ -25,6 +25,7 @@ import com.quizplanner.quizPlanner.player.ui.DefaultPlayerUiController
 import com.quizplanner.quizPlanner.player.ui.PlayerUiController
 import com.quizplanner.quizPlanner.player.utils.NetworkListener
 
+@Suppress("DEPRECATION")
 internal class LegacyYouTubePlayerView(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0):
         SixteenByNineFrameLayout(context, attrs, defStyleAttr), LifecycleObserver {
 

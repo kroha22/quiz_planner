@@ -19,6 +19,7 @@ import rx.schedulers.Schedulers
 import java.util.*
 import kotlin.collections.ArrayList
 
+@Suppress("DEPRECATION")
 @InjectViewState
 class MainPresenter : MvpPresenter<MainView>() {
     //----------------------------------------------------------------------------------------------

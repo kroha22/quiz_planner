@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Quiz Planner</string>
     <string name="tagline">выбери квиз по душе</string>
+    <string name="banner_ad_unit_id">ca-app-pub-6589176597082345/1073219074</string>
+    <string name="admob_app_id">ca-app-pub-6589176597082345~6937534248</string>
 
     <!--API-->
     <string name="api_url">test.quizplanner.ru</string>

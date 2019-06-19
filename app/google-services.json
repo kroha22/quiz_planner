@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "143068880698",
+    "firebase_url": "https://quizplanner-d9c4f.firebaseio.com",
+    "project_id": "quizplanner-d9c4f",
+    "storage_bucket": "quizplanner-d9c4f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:143068880698:android:c643dfe69e83ce24",
+        "android_client_info": {
+          "package_name": "com.quizplanner.quiz_planner"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "143068880698-8tlmau69gaug02q7jnu0ore2617q8o3b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.quizplanner.quiz_planner",
+            "certificate_hash": "86f65a056c0f1260ddc0ef7e38fd50bf7902b992"
+          }
+        },
+        {
+          "client_id": "143068880698-j27j43iohg6jdgp4pf52uep55egc5lro.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD17iACaNmBdr4osSO3YJ_Uz9AtSSZzUQc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "143068880698-j27j43iohg6jdgp4pf52uep55egc5lro.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      },
+      "admob_app_id": "ca-app-pub-6589176597082345~6937534248"
+    }
+  ],
+  "configuration_version": "1"
+}

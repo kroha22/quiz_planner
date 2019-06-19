@@ -28,6 +28,7 @@ import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.viewstate.strategy.AddToEndSingleStrategy
 import com.arellomobile.mvp.viewstate.strategy.SkipStrategy
 import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
+import com.google.android.gms.ads.MobileAds
 import com.quizplanner.quizPlanner.QuizPlanner.formatterDate
 import com.quizplanner.quizPlanner.QuizPlanner.formatterDay
 import com.quizplanner.quizPlanner.QuizPlanner.formatterMonth
@@ -106,6 +107,8 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        MobileAds.initialize(this, getString(R.string.admob_app_id))
 
         for (f in supportFragmentManager.fragments) {
             supportFragmentManager.beginTransaction().remove(f).commit()
