@@ -3,9 +3,9 @@
     <string name="tagline">выбери квиз по душе</string>
 
     <!--API-->
-    <string name="api_url">quizplanner.ru</string>
-    <string name="base_api_url">https://46.254.19.176:443/</string>
-    <string name="base_api_img_url">https://quizplanner.ru</string>
+    <string name="api_url">test.quizplanner.ru</string>
+    <string name="base_api_url">https://test.quizplanner.ru/</string>
+    <string name="base_api_img_url">https://test.quizplanner.ru</string>
 
     <string name="contacts">Контакты</string>
     <string name="email">quizplanner54@gmail.com</string>
