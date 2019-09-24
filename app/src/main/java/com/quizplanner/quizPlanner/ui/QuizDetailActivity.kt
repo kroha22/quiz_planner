@@ -121,10 +121,16 @@ class QuizDetailActivity : MvpAppCompatActivity(), QuizDetailView {
                 presenter.onGameCheckChanged()
             }
 
-            if (QuizPlanner.isLast(item.getDate())) {
+            if (QuizPlanner.isLast(item.getDate()) || item.isGamePostponed()) {
                 detail_time_img.setColorFilter(ContextCompat.getColor(this, R.color.medium_grey))
             } else {
                 detail_time_img.setColorFilter(ContextCompat.getColor(this, R.color.red))
+            }
+
+            if(item.isGamePostponed()){
+                detail_postponed.visibility = View.VISIBLE
+            } else {
+                detail_postponed.visibility = View.GONE
             }
 
             if (intent.getStringExtra(SOURCE_CODE) == AUTHOR) {

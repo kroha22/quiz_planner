@@ -106,7 +106,7 @@ open class SimpleItemRecyclerViewAdapter(private val showDate: Boolean) :
                 setOnClickListener { onClickListener?.onItemClick(item) }
             }
 
-            if (QuizPlanner.isLast(item.getDate())) {
+            if (QuizPlanner.isLast(item.getDate()) || item.isGamePostponed()) {
                 holder.timeImg.setColorFilter(ContextCompat.getColor(holder.timeImg.context, R.color.medium_grey))
              //   holder.title.setTextColor(ContextCompat.getColor(holder.timeImg.context, R.color.dark_grey))
            //    holder.theme.setTextColor(ContextCompat.getColor(holder.timeImg.context, R.color.dark_grey))
