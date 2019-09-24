@@ -37,5 +37,6 @@
     <string name="ayp_live">LIVE</string>
     <string name="ayp_custom_action_left">YouTube player Custom action left</string>
     <string name="ayp_custom_action_right">YouTube player custom action right</string>
+    <string name="postponed">Перенесена</string>
 
 </resources>

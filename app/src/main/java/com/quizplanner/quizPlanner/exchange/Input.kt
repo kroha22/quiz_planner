@@ -60,11 +60,13 @@ object Input {
         var organisationLogoFilename: String? = null
         @SerializedName("organisationLogoPath")
         var organisationLogoPath: String? = null
+        @SerializedName("isGamePostponed")
+        var isGamePostponed: Boolean? = null
 
         constructor()
 
         override fun toString(): String {
-            return "QuizData(id=$id, gameTheme=$gameTheme, description=$description, date=$date, location=$location, price=$price, countOfPlayers=$countOfPlayers, registrationLink=$registrationLink, gameImgFilename=$gameImgFilename, gameImgPath=$gameImgPath, author=$author)"
+            return "QuizData(id=$id, gameTheme=$gameTheme, description=$description, date=$date, location=$location, price=$price, countOfPlayers=$countOfPlayers, registrationLink=$registrationLink, gameImgFilename=$gameImgFilename, gameImgPath=$gameImgPath, author=$author, isGamePostponed=$isGamePostponed)"
         }
 
     }

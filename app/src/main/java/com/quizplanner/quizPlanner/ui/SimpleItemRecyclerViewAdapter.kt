@@ -116,6 +116,12 @@ open class SimpleItemRecyclerViewAdapter(private val showDate: Boolean) :
            //     holder.title.setTextColor(ContextCompat.getColor(holder.timeImg.context, R.color.black))
            //     holder.theme.setTextColor(ContextCompat.getColor(holder.timeImg.context, R.color.black))
             }
+
+            if(item.isGamePostponed()){
+                holder.postponed.visibility = View.VISIBLE
+            } else {
+                holder.postponed.visibility = View.GONE
+            }
         }
     }
 
@@ -137,6 +143,7 @@ open class SimpleItemRecyclerViewAdapter(private val showDate: Boolean) :
         val date: TextView = view.item_date
         val dateLine: LinearLayout = view.item_date_line
         val countLine: LinearLayout = view.item_count_line
+        val postponed: LinearLayout = view.item_postponed
 
         fun setChecked(isChecked: Boolean) {
             if (isChecked) {

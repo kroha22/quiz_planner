@@ -38,6 +38,13 @@ class Quiz : Serializable {
                 game.organisationLogoPath = quizData.author!!.organisationLogoPath
             }
 
+            val isGamePostponed = quizData.isGamePostponed?:false
+            if (isGamePostponed) {
+                game.gamePostponed = 1
+            } else {
+                game.gamePostponed = 0
+            }
+
             return game
         }
     }
@@ -56,6 +63,7 @@ class Quiz : Serializable {
         const val ORGANIZATION_NAME = "organization_name"
         const val ORGANIZATION_LOGO_FILENAME = "organization_logo_filename"
         const val ORGANIZATION_LOGO_PATH = "organization_logo_path"
+        const val GAME_POSTPONED = "game_postponed"
     }
 
     @DatabaseField(canBeNull = false, dataType = DataType.STRING, columnName = Column.ID, id = true)
@@ -97,9 +105,14 @@ class Quiz : Serializable {
     @DatabaseField(canBeNull = true, dataType = DataType.STRING, columnName = Column.ORGANIZATION_LOGO_PATH)
     var organisationLogoPath: String? = null
 
+    @DatabaseField(canBeNull = true, dataType = DataType.INTEGER_OBJ, columnName = Column.GAME_POSTPONED)
+    var gamePostponed: Int? = null
+
     var isChecked = false
 
     constructor()
+
+    fun isGamePostponed() = gamePostponed == 1
 
     override fun toString(): String {
         return "Quiz(id=$id, gameTheme=$gameTheme, description=$description, date=$date, location=$location, price=$price, countOfPlayers=$countOfPlayers, registrationLink=$registrationLink, gameImgFilename=$gameImgFilename, gameImgPath=$gameImgPath, organisationName=$organisationName, organisationLogoFilename=$organisationLogoFilename, organisationLogoPath=$organisationLogoPath)"
