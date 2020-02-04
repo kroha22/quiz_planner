@@ -28,6 +28,7 @@ import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.viewstate.strategy.AddToEndSingleStrategy
 import com.arellomobile.mvp.viewstate.strategy.SkipStrategy
 import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
+import com.quizplanner.quizPlanner.QuizPlanner
 import com.quizplanner.quizPlanner.QuizPlanner.formatterDate
 import com.quizplanner.quizPlanner.QuizPlanner.formatterDay
 import com.quizplanner.quizPlanner.QuizPlanner.formatterMonth
@@ -125,6 +126,8 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
 
     override fun onResume() {
         super.onResume()
+
+        QuizPlanner.log("!!!", "onResume presenter.isInitialized ${presenter.isInitialized()}")
 
         if (!presenter.isInitialized()) {
             presenter.init(this)
@@ -414,6 +417,8 @@ class DateFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        QuizPlanner.log("!!!", "DateFragment onResume")
+
         refreshView()
     }
 
@@ -430,6 +435,7 @@ class DateFragment : Fragment() {
 
     @SuppressLint("ClickableViewAccessibility")
     private fun refreshView() {
+        QuizPlanner.log("!!!", "DateFragment refreshView adapter.isEmpty() ${adapter.isEmpty()}")
         if (adapter.isEmpty()) {
             emptyView.visibility = View.VISIBLE
         } else {

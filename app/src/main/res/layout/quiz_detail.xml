@@ -210,6 +210,9 @@
                 android:layout_marginRight="@dimen/item_text_margin"
                 android:maxLines="1"
                 android:text="@string/dummy"
+                android:gravity="left"
+                android:ellipsize="end"
+                android:longClickable="true"
                 android:textColor="@color/blue"
                 android:textSize="@dimen/default_text_size"
                 android:textStyle="italic" />

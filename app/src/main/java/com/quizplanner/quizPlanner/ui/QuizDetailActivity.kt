@@ -8,6 +8,7 @@ import android.provider.CalendarContract
 import android.provider.CalendarContract.Events
 import android.support.v4.content.ContextCompat
 import android.view.View
+import android.widget.Toast
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpAppCompatActivity
 import com.arellomobile.mvp.MvpPresenter
@@ -98,6 +99,11 @@ class QuizDetailActivity : MvpAppCompatActivity(), QuizDetailView {
                 detail_link.visibility = View.VISIBLE
                 detail_link.text = item.registrationLink
                 detail_link.setOnClickListener { presenter.onLinkClick() }
+                detail_link.setOnLongClickListener {
+                    setClipboard(detail_link.text.toString())
+                    Toast.makeText(this, getString(R.string.copy), Toast.LENGTH_SHORT).show()
+                    true
+                }
             }
 
             if (!item.getImgUrl().isEmpty()) {
@@ -217,6 +223,12 @@ class QuizDetailActivity : MvpAppCompatActivity(), QuizDetailView {
         }
 
         youTubePlayerView.visibility = View.GONE
+    }
+
+    private fun setClipboard(text: String) {
+        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+        val clip = android.content.ClipData.newPlainText(getString(R.string.app_name), text)
+        clipboard.primaryClip = clip
     }
 }
 

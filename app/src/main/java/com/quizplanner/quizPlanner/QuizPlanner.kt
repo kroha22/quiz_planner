@@ -14,7 +14,7 @@ object QuizPlanner {
     val formatterDateMonth = SimpleDateFormat("dd MMM", myLocale)
     val formatterMonth = SimpleDateFormat("LLLL", myLocale)
     val formatterTime = SimpleDateFormat("HH:mm", myLocale)
-    private const val MS_ON_DAY: Long = 86400000
+    internal const val MS_ON_DAY: Long = 86400000
 
     //------------------------------------------------------------------------------------------------
 

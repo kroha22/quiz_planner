@@ -77,22 +77,32 @@ class MainPresenter : MvpPresenter<MainView>() {
     }
 
     fun start() {
-        if (gamesByDate.isEmpty()) {
-            getGamesFromDb()
-        } else if (needCheckFavourites) {
-
-            subscription = Observable.create<List<Quiz>> { it.onNext(dao!!.getGames()) }
-                    .subscribeOn(Schedulers.io())
-                    .map { setGames(it) }
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe({ needUpdateView ->
-                        needCheckFavourites = false
-                        if (needUpdateView) {
-                            showGames()
-                        }
-                    }, {
-                        onBdError(it)
-                    })
+        log("!!!start")
+        when {
+            gamesByDate.isEmpty() -> {
+                log("!!!gamesByDate.isEmpty")
+                getGamesFromDb()
+            }
+            needUpdateDates() -> {
+                log("!!!needUpdateDates")
+                updateDates()
+                getGamesFromDb()
+            }
+            needCheckFavourites -> {
+                log("!!!needCheckFavourites")
+                subscription = Observable.create<List<Quiz>> { it.onNext(dao!!.getGames()) }
+                        .subscribeOn(Schedulers.io())
+                        .map { setGames(it) }
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe({ needUpdateView ->
+                            needCheckFavourites = false
+                            if (needUpdateView) {
+                                showGames()
+                            }
+                        }, {
+                            onBdError(it)
+                        })
+            }
         }
     }
 
@@ -105,6 +115,7 @@ class MainPresenter : MvpPresenter<MainView>() {
     }
 
     fun onRefreshClick() {
+        log("!!! onRefreshClick")
         if (loadInProgress) {
             return
         }
@@ -171,7 +182,10 @@ class MainPresenter : MvpPresenter<MainView>() {
         subscription = clearDbOldGames()
                 .subscribeOn(Schedulers.io())
                 .map { dao!!.getGames() }
-                .map { setGames(it) }
+                .map {
+                    log("!!!loaded from bd games ${it.size}")
+                    setGames(it)
+                }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ onLoadedFromDb() }, { onBdError(it) })
     }
@@ -211,7 +225,9 @@ class MainPresenter : MvpPresenter<MainView>() {
         beforeStartLoad.invoke()
 
         subscription = load(from)
-                .map { setGames(it) }
+                .map {
+                    log("!!!loaded from server games ${it.size}")
+                    setGames(it) }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ needUpdateView ->
                     onComplete.invoke(needUpdateView)
@@ -321,6 +337,10 @@ class MainPresenter : MvpPresenter<MainView>() {
     private fun updateDates() {
         dates.clear()
         dates.addAll(getDates(DAYS_FROM, DAYS_TO))
+    }
+
+    private fun needUpdateDates(): Boolean {
+        return !isOneDay(dates[0], Date(today().time - QuizPlanner.MS_ON_DAY * DAYS_FROM))
     }
 
     private fun onLoadError(err: Throwable) {
