@@ -83,11 +83,11 @@ class MainPresenter : MvpPresenter<MainView>() {
                 log("!!!gamesByDate.isEmpty")
                 getGamesFromDb()
             }
-            needUpdateDates() -> {
+            /*needUpdateDates() -> {
                 log("!!!needUpdateDates")
                 updateDates()
                 getGamesFromDb()
-            }
+            }*/
             needCheckFavourites -> {
                 log("!!!needCheckFavourites")
                 subscription = Observable.create<List<Quiz>> { it.onNext(dao!!.getGames()) }
