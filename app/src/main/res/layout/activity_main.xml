@@ -42,6 +42,13 @@
                     android:textColor="@color/white"
                     android:textSize="@dimen/title_text_size" />
 
+                <ImageView
+                    android:id="@+id/toolbar_filter"
+                    android:layout_width="@dimen/toolbar_icon_size"
+                    android:layout_height="@dimen/toolbar_icon_size"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/ic_filter" />
             </RelativeLayout>
 
         </android.support.v7.widget.Toolbar>
@@ -107,6 +114,21 @@
             android:layout_height="wrap_content"
             android:textSize="@dimen/title_text_size"
             android:text="@string/tagline"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/filters_view_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="right"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <com.quizplanner.quizPlanner.ui.FiltersView
+            android:id="@+id/filters_view"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_filter_view" />
 
     </LinearLayout>
 
