@@ -15,6 +15,7 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.*
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
@@ -34,6 +35,7 @@ import com.quizplanner.quizPlanner.QuizPlanner.formatterDay
 import com.quizplanner.quizPlanner.QuizPlanner.formatterMonth
 import com.quizplanner.quizPlanner.QuizPlanner.isOneDay
 import com.quizplanner.quizPlanner.R
+import com.quizplanner.quizPlanner.model.Filter
 import com.quizplanner.quizPlanner.model.Quiz
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
@@ -100,6 +102,8 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
 
     private lateinit var sectionsPagerAdapter: SectionsPagerAdapter
     private lateinit var slideDownAnimation: Animation
+    private lateinit var slideLeftAnimation: Animation
+    private lateinit var slideRightAnimation: Animation
 
     @InjectPresenter(tag = MAIN)
     lateinit var presenter: MainPresenter
@@ -122,6 +126,23 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
         tabs.isSmoothScrollingEnabled = true
 
         slideDownAnimation = AnimationUtils.loadAnimation(this, R.anim.slide_down_animation)
+        slideLeftAnimation = AnimationUtils.loadAnimation(this, R.anim.slide_left_animation)
+        slideRightAnimation = AnimationUtils.loadAnimation(this, R.anim.slide_right_animation)
+
+        filters_view.consumer = { applyFilters(it) }
+
+        filters_view.onClose = { hideFilters() }
+
+        filters_view_container.visibility = View.GONE
+
+        toolbar_filter.setOnClickListener {
+            if(filters_view_container.visibility == View.VISIBLE){
+                filters_view.close()
+            } else {
+                showFilters()
+            }
+
+        }
     }
 
     override fun onResume() {
@@ -278,10 +299,26 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
         presenter.onDateSelect(date)
         toolbar_month.text = formatterMonth.format(date)
     }
-    //------------------------------------------------------------------------------------------------
+
+    private fun applyFilters(it: List<Filter>) {
+        sectionsPagerAdapter.filter(it)
+    }
+
+    private fun showFilters() {
+        filters_view_container.visibility = View.VISIBLE
+        filters_view_container.startAnimation(slideLeftAnimation)
+    }
+
+    private fun hideFilters() {
+        filters_view_container.startAnimation(slideRightAnimation)
+
+        filters_view_container.visibility = View.GONE
+    }
+//------------------------------------------------------------------------------------------------
 
     inner class SectionsPagerAdapter(context: Context, fm: FragmentManager) : FragmentPagerAdapter(fm) {
 
+        private val filters = arrayListOf<Filter>()
         private val tabItems: MutableList<Date> = ArrayList()
         private var gamesByDate: MutableMap<Date, List<Quiz>> = LinkedHashMap()
         private val pages: MutableMap<Date, DateFragment> = LinkedHashMap()
@@ -302,12 +339,12 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
 
         // return true if tabs need update
         fun setItems(items: LinkedHashMap<Date, List<Quiz>>): Boolean {
-            if (tabItems.map { formatterDate.format(it) } == items.keys.map { formatterDate.format(it) }){
+            if (tabItems.map { formatterDate.format(it) } == items.keys.map { formatterDate.format(it) }) {
 
                 gamesByDate = items
 
                 for (page in pages.entries) {
-                    page.value.setValues(gamesByDate[page.key]!!)
+                    page.value.setValues(getGames(page.key)!!)
                 }
 
                 return false
@@ -325,7 +362,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
             }
 
             for (page in pages.entries) {
-                page.value.setValues(gamesByDate[page.key]!!)
+                page.value.setValues(getGames(page.key)!!)
             }
 
             notifyDataSetChanged()
@@ -340,7 +377,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
             val fragment = DateFragment()
 
             val date = tabItems[position]
-            fragment.setValues(gamesByDate[date]!!)
+            fragment.setValues(getGames(date)!!)
 
             pages[date] = fragment
 
@@ -359,6 +396,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
             val subtitle = view.findViewById<TextView>(R.id.tab_sub_title)
 
             val item = tabItems[position]
+
             title.text = formatterDate.format(item)
             subtitle.text = formatterDay.format(item)
 
@@ -366,13 +404,53 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
             subtitle.setTextColor(textColors)
 
             val date = tabItems[position]
-            val isEnabled = !gamesByDate[date]!!.isEmpty()
+            val isEnabled = getGames(date)?.isNotEmpty() == true
             title.isEnabled = isEnabled
             subtitle.isEnabled = isEnabled
             view.isClickable = !isEnabled
 
             return view
         }
+
+        private fun getGames(forDate: Date): List<Quiz>? {
+            if (filters.isEmpty()) {
+                return gamesByDate[forDate]
+            }
+
+            val games = arrayListOf<Quiz>()
+
+            for (game in gamesByDate[forDate] ?: emptyList()) {
+
+                if (filters.contains(Filter.ONLINE) && game.isOnlineGame()) {
+                    games.add(game)
+                } else if (filters.contains(Filter.OFFLINE) && !game.isOnlineGame()) {
+                    games.add(game)
+                }
+
+            }
+
+            return games
+        }
+
+        fun filter(filter: List<Filter>) {
+            Log.d("!!!!!", "set ${filter.joinToString( )} ")
+
+            if (filters.containsAll(filter) && filter.containsAll(filters)) {
+                Log.d("!!!!!", "not changed, current ${filters.joinToString( )} ")
+                return
+            }
+
+            filters.clear()
+            filters.addAll(filter)
+
+            Log.d("!!!!!", "apply, new ${filters.joinToString( )} ")
+
+            for (page in pages.entries) {
+                page.value.setValues(getGames(page.key)!!)
+            }
+
+        }
+
     }
 
 }

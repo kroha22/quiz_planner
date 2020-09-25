@@ -63,7 +63,18 @@ open class SimpleItemRecyclerViewAdapter(private val showDate: Boolean) :
             val item = getItem(position)
             holder.title.text = item.organisationName
             holder.theme.text = item.gameTheme
-            holder.location.text = item.location
+
+            holder.location.text = if(item.isOnlineGame()){
+                holder.location.context.getString(R.string.online)
+            } else {
+                item.location
+            }
+
+            holder.onlineImg.visibility = if(item.isOnlineGame()){
+               View.VISIBLE
+            } else {
+                View.INVISIBLE
+            }
 
             if (showDate) {
                 holder.date.text = QuizPlanner.formatterDateMonth.format(item.date)
@@ -135,6 +146,7 @@ open class SimpleItemRecyclerViewAdapter(private val showDate: Boolean) :
         val title: TextView = view.item_title
         val theme: TextView = view.item_theme
         val location: TextView = view.item_location
+        val onlineImg: ImageView = view.item_online
         val count: TextView = view.item_count
         val time: TextView = view.item_time
         val timeImg: ImageView = view.time_img

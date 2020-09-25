@@ -79,7 +79,18 @@ class QuizDetailActivity : MvpAppCompatActivity(), QuizDetailView {
             detail_theme.text = item.gameTheme
             detail_date.text = QuizPlanner.formatterDateMonth.format(item.date)
             detail_time.text = formatterTime.format(item.date)
-            detail_location.text = item.location
+
+            detail_location.text = if(item.isOnlineGame()){
+                detail_location.context.getString(R.string.online)
+            } else {
+                item.location
+            }
+
+            detail_online.visibility = if(item.isOnlineGame()){
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
 
             if (item.countOfPlayers != null) {
                 detail_count.text = item.countOfPlayers.toString()

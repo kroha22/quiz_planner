@@ -19,7 +19,7 @@ import java.util.*
  */
 object Db {
     //--------------------------------------------------------------------------------------------
-    private const val DB_VERSION = 2
+    private const val DB_VERSION = 3
 
     //--------------------------------------------------------------------------------------------
     class DbHelper(context: Context) : OrmLiteSqliteOpenHelper(context, DB_NAME, null, DB_VERSION) {
@@ -40,6 +40,8 @@ object Db {
         override fun onUpgrade(db: SQLiteDatabase, connectionSource: ConnectionSource, oldVersion: Int, newVersion: Int) {
             if (oldVersion == 1 && newVersion == 2) {
                 getGamesDateDao().executeRaw("ALTER TABLE ${Quiz.TABLE} ADD COLUMN ${Quiz.Column.GAME_POSTPONED} INTEGER;")
+            } else if (oldVersion < 3 && newVersion == 3) {
+                getGamesDateDao().executeRaw("ALTER TABLE ${Quiz.TABLE} ADD COLUMN ${Quiz.Column.ONLINE} INTEGER;")
             }
         }
 
