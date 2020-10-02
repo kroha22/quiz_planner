@@ -143,6 +143,8 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
             }
 
         }
+
+        toolbar_filter_check.visibility = View.GONE
     }
 
     override fun onResume() {
@@ -161,6 +163,14 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
     override fun onPause() {
         super.onPause()
         tabs.removeOnTabSelectedListener(this)
+    }
+
+    override fun onBackPressed() {
+        if(filters_view_container.visibility == View.VISIBLE){
+            filters_view.close()
+            return
+        }
+        super.onBackPressed()
     }
 
     override fun requestLink(link: String) {
@@ -302,6 +312,13 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
 
     private fun applyFilters(it: List<Filter>) {
         sectionsPagerAdapter.filter(it)
+
+        if(it.isEmpty() || it.containsAll(Filter.values().asList())){
+            toolbar_filter_check.visibility = View.GONE
+        } else {
+            toolbar_filter_check.visibility = View.VISIBLE
+        }
+
     }
 
     private fun showFilters() {
