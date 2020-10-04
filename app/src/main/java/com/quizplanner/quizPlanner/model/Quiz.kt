@@ -234,3 +234,26 @@ class CheckedGames {
 }
 
 //--------------------------------------------------------------------------------------------
+@DatabaseTable(tableName = FiltersList.TABLE)
+class FiltersList {
+
+    companion object {
+        const val TABLE = "filters_list"
+    }
+
+    object Column {
+        const val LIST = "list"
+    }
+
+    @DatabaseField(canBeNull = false, dataType = DataType.STRING, columnName = Column.LIST, id = true)
+    var list: String? = null
+
+    constructor()
+
+    constructor(list: String?) {
+        this.list = list
+    }
+
+}
+
+//--------------------------------------------------------------------------------------------

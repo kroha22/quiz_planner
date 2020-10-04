@@ -11,6 +11,7 @@ import com.quizplanner.quizPlanner.QuizPlanner.today
 import com.quizplanner.quizPlanner.exchange.Input
 import com.quizplanner.quizPlanner.exchange.RetrofitService
 import com.quizplanner.quizPlanner.model.Db
+import com.quizplanner.quizPlanner.model.Filter
 import com.quizplanner.quizPlanner.model.Quiz
 import rx.Observable
 import rx.Subscription
@@ -69,6 +70,10 @@ class MainPresenter : MvpPresenter<MainView>() {
         updateDates()
 
         isInitialized = true
+
+        dao?.getFiltersList()?.let {
+            viewState.setFilters(it)
+        }
     }
 
     override fun onDestroy() {
@@ -362,6 +367,11 @@ class MainPresenter : MvpPresenter<MainView>() {
 
     private fun showReloadMsg(errMsg: String) {
         viewState.showMessage(errMsg)
+    }
+
+    fun onSetFilters(filters: List<Filter>) {
+        viewState.applyFilters(filters)
+        dao?.setFiltersList(filters)
     }
 
 }

@@ -15,7 +15,6 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.*
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
@@ -29,7 +28,6 @@ import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.viewstate.strategy.AddToEndSingleStrategy
 import com.arellomobile.mvp.viewstate.strategy.SkipStrategy
 import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
-import com.quizplanner.quizPlanner.QuizPlanner
 import com.quizplanner.quizPlanner.QuizPlanner.formatterDate
 import com.quizplanner.quizPlanner.QuizPlanner.formatterDay
 import com.quizplanner.quizPlanner.QuizPlanner.formatterMonth
@@ -92,6 +90,12 @@ interface MainView : MvpView {
     @StateStrategyType(value = AddToEndSingleStrategy::class)
     fun showContacts()
 
+    @StateStrategyType(value = AddToEndSingleStrategy::class)
+    fun setFilters(filter: List<Filter>)
+
+    @StateStrategyType(value = AddToEndSingleStrategy::class)
+    fun applyFilters(filter: List<Filter>)
+
 }
 
 //---------------------------------------------------------------------------------------------
@@ -129,14 +133,16 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
         slideLeftAnimation = AnimationUtils.loadAnimation(this, R.anim.slide_left_animation)
         slideRightAnimation = AnimationUtils.loadAnimation(this, R.anim.slide_right_animation)
 
-        filters_view.consumer = { applyFilters(it) }
+        filters_view.consumer = {
+            presenter.onSetFilters(it)
+        }
 
         filters_view.onClose = { hideFilters() }
 
         filters_view_container.visibility = View.GONE
 
         toolbar_filter.setOnClickListener {
-            if(filters_view_container.visibility == View.VISIBLE){
+            if (filters_view_container.visibility == View.VISIBLE) {
                 filters_view.close()
             } else {
                 showFilters()
@@ -149,9 +155,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
 
     override fun onResume() {
         super.onResume()
-
-        QuizPlanner.log("!!!", "onResume presenter.isInitialized ${presenter.isInitialized()}")
-
         if (!presenter.isInitialized()) {
             presenter.init(this)
             presenter.setEscapeHandler { finish() }
@@ -166,7 +169,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
     }
 
     override fun onBackPressed() {
-        if(filters_view_container.visibility == View.VISIBLE){
+        if (filters_view_container.visibility == View.VISIBLE) {
             filters_view.close()
             return
         }
@@ -310,10 +313,14 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
         toolbar_month.text = formatterMonth.format(date)
     }
 
-    private fun applyFilters(it: List<Filter>) {
-        sectionsPagerAdapter.filter(it)
+    override fun setFilters(filter: List<Filter>) {
+        filters_view.select(filter)
+    }
 
-        if(it.isEmpty() || it.containsAll(Filter.values().asList())){
+    override fun applyFilters(filter: List<Filter>) {
+        sectionsPagerAdapter.filter(filter)
+
+        if (filter.isEmpty() || filter.containsAll(Filter.values().asList())) {
             toolbar_filter_check.visibility = View.GONE
         } else {
             toolbar_filter_check.visibility = View.VISIBLE
@@ -331,7 +338,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
 
         filters_view_container.visibility = View.GONE
     }
-//------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------------------------
 
     inner class SectionsPagerAdapter(context: Context, fm: FragmentManager) : FragmentPagerAdapter(fm) {
 
@@ -450,17 +457,13 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
         }
 
         fun filter(filter: List<Filter>) {
-            Log.d("!!!!!", "set ${filter.joinToString( )} ")
 
             if (filters.containsAll(filter) && filter.containsAll(filters)) {
-                Log.d("!!!!!", "not changed, current ${filters.joinToString( )} ")
                 return
             }
 
             filters.clear()
             filters.addAll(filter)
-
-            Log.d("!!!!!", "apply, new ${filters.joinToString( )} ")
 
             for (page in pages.entries) {
                 page.value.setValues(getGames(page.key)!!)
@@ -512,7 +515,6 @@ class DateFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        QuizPlanner.log("!!!", "DateFragment onResume")
 
         refreshView()
     }
@@ -530,7 +532,6 @@ class DateFragment : Fragment() {
 
     @SuppressLint("ClickableViewAccessibility")
     private fun refreshView() {
-        QuizPlanner.log("!!!", "DateFragment refreshView adapter.isEmpty() ${adapter.isEmpty()}")
         if (adapter.isEmpty()) {
             emptyView.visibility = View.VISIBLE
         } else {

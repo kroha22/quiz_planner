@@ -34,7 +34,7 @@
                     android:layout_height="@dimen/item_icon_size"
                     android:layout_alignParentBottom="true"
                     android:layout_centerHorizontal="true"
-                    android:src="@drawable/ic_check"
+                    android:src="@drawable/ic_check_outline"
                     android:tint="@color/medium_grey" />
 
             </RelativeLayout>
