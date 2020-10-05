@@ -322,8 +322,10 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
 
         if (filter.isEmpty() || filter.containsAll(Filter.values().asList())) {
             toolbar_filter_check.visibility = View.GONE
+            toolbar_filter.setImageResource(R.drawable.ic_filter)
         } else {
             toolbar_filter_check.visibility = View.VISIBLE
+            toolbar_filter.setImageResource(R.drawable.ic_filter_checked)
         }
 
     }
@@ -428,7 +430,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
             subtitle.setTextColor(textColors)
 
             val date = tabItems[position]
-            val isEnabled = getGames(date)?.isNotEmpty() == true
+            val isEnabled = gamesByDate[date]?.isNotEmpty() == true
             title.isEnabled = isEnabled
             subtitle.isEnabled = isEnabled
             view.isClickable = !isEnabled
