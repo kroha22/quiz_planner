@@ -36,6 +36,10 @@ interface Api {
     @POST(Urls.REQUEST.GAMES)
     fun getGames(@Field("dateFrom") dateFrom: String, @Field("dateTo") dateTo: String): Observable<List<Input.QuizData>>
 
+    @FormUrlEncoded
+    @POST(Urls.REQUEST.GAMES)
+    fun getGames(@Field("dateFrom") dateFrom: String, @Field("dateTo") dateTo: String, @Field("isOnlineGame") isOnlineGame: Int): Observable<List<Input.QuizData>>
+
     @POST(Urls.REQUEST.FAVORITES)
     fun getGames(@Body gamesArray: Favorites): Observable<List<Input.QuizData>>
 }

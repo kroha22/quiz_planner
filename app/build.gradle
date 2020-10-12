@@ -12,7 +12,7 @@ android {
             keyPassword '#BigyfhxT22'
             storePassword '#BigyfhxT22'
             keyAlias = 'key0'
-            storeFile file('D:\\Android Projects\\keys\\quiz_planner\\keys\\release.jks')
+            storeFile file('C:\\android\\keys\\quiz_planner\\keys\\release.jks')
         }
     }
     compileSdkVersion 28
@@ -20,8 +20,8 @@ android {
         applicationId "com.quizplanner.quiz_planner"
         minSdkVersion 15
         targetSdkVersion 28
-        versionCode 4
-        versionName "1.2"
+        versionCode 7
+        versionName "1.5"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

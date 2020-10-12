@@ -1,25 +1,43 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/quiz_detail_view"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="@dimen/small_padding">
 
-    <TextView
-        android:id="@+id/detail_theme"
-        android:layout_width="wrap_content"
+
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/small_margin"
-        android:text="@string/game_theme"
-        android:textAppearance="?attr/textAppearanceListItem"
-        android:textSize="@dimen/item_title_text_size"
-        android:textStyle="bold" />
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/detail_theme"
+            android:layout_width="wrap_content"
+            android:layout_toLeftOf="@id/detail_online"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:text="@string/game_theme"
+            android:textAppearance="?attr/textAppearanceListItem"
+            android:textSize="@dimen/item_title_text_size"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/detail_online"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/_8sdp"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/ic_online"
+            android:tint="@color/dark_grey"/>
+    </RelativeLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_marginBottom="@dimen/small_margin"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/small_margin"
         android:orientation="horizontal">
 
         <ImageView
@@ -107,8 +125,8 @@
                 android:id="@+id/detail_postponed"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/red"
-                android:text="@string/postponed" />
+                android:text="@string/postponed"
+                android:textColor="@color/red" />
 
         </LinearLayout>
 
@@ -123,8 +141,8 @@
         <TextView
             android:id="@+id/detail_description"
             android:layout_width="match_parent"
-            android:layout_marginBottom="@dimen/small_margin"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/small_margin"
             android:text="@string/game_description_dummy"
             android:textColor="@color/dark_grey"
             android:textSize="@dimen/default_text_size" />
@@ -210,6 +228,9 @@
                 android:layout_marginRight="@dimen/item_text_margin"
                 android:maxLines="1"
                 android:text="@string/dummy"
+                android:gravity="left"
+                android:ellipsize="end"
+                android:longClickable="true"
                 android:textColor="@color/blue"
                 android:textSize="@dimen/default_text_size"
                 android:textStyle="italic" />
@@ -220,8 +241,8 @@
             android:id="@+id/youtube_player_view"
             android:layout_width="match_parent"
             android:layout_height="200dp"
-            app:showFullScreenButton="false"
-            app:autoPlay="false"/>
+            app:autoPlay="false"
+            app:showFullScreenButton="false" />
 
         <LinearLayout
             android:id="@+id/detail_favorites"
@@ -229,8 +250,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/default_margin"
             android:gravity="center"
-            android:padding="@dimen/_2sdp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:padding="@dimen/_2sdp">
 
             <ImageView
                 android:id="@+id/detail_favorites_img"
@@ -242,9 +263,9 @@
 
             <TextView
                 android:id="@+id/detail_favorites_text"
-                android:layout_marginLeft="@dimen/item_margin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/item_margin"
                 android:text="@string/add_to_favorites"
                 android:textColor="@color/dark_grey"
                 android:textSize="@dimen/default_text_size"
@@ -253,23 +274,23 @@
         </LinearLayout>
 
         <LinearLayout
-            android:padding="@dimen/_2sdp"
-            android:layout_marginTop="@dimen/default_margin"
             android:id="@+id/detail_author_games"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/_32sdp"
-            android:gravity="center"
+            android:layout_marginTop="@dimen/default_margin"
             android:background="@drawable/bg_author_btn"
-            android:orientation="horizontal">
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:padding="@dimen/_2sdp">
 
             <TextView
-                android:layout_marginLeft="@dimen/item_margin"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/item_margin"
                 android:paddingLeft="@dimen/_10sdp"
                 android:paddingRight="@dimen/_10sdp"
-                android:textColor="@drawable/author_btn_txt_color"
                 android:text="@string/all_games"
+                android:textColor="@drawable/author_btn_txt_color"
                 android:textSize="@dimen/default_text_size"
                 android:textStyle="italic" />
 

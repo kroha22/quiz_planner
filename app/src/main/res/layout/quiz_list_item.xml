@@ -34,7 +34,7 @@
                     android:layout_height="@dimen/item_icon_size"
                     android:layout_alignParentBottom="true"
                     android:layout_centerHorizontal="true"
-                    android:src="@drawable/ic_check"
+                    android:src="@drawable/ic_check_outline"
                     android:tint="@color/medium_grey" />
 
             </RelativeLayout>
@@ -46,14 +46,31 @@
                 android:layout_weight="1"
                 android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/item_theme"
-                    android:layout_width="wrap_content"
+                <RelativeLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/game_theme"
-                    android:textAppearance="?attr/textAppearanceListItem"
-                    android:textSize="@dimen/item_title_text_size"
-                    android:textStyle="bold" />
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/item_theme"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toLeftOf="@id/item_online"
+                        android:layout_alignParentLeft="true"
+                        android:text="@string/game_theme"
+                        android:textAppearance="?attr/textAppearanceListItem"
+                        android:textSize="@dimen/item_title_text_size"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:id="@+id/item_online"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginRight="@dimen/_8sdp"
+                        android:tint="@color/dark_grey"
+                        android:src="@drawable/ic_online"/>
+                </RelativeLayout>
 
                 <TextView
                     android:id="@+id/item_title"
@@ -68,7 +85,7 @@
                     android:id="@+id/item_location"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/game_location"
+                    android:text="@string/online"
                     android:textSize="@dimen/default_text_size"
                     android:textStyle="italic" />
 
@@ -152,26 +169,26 @@
             android:id="@+id/item_postponed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
             android:layout_centerInParent="true"
+            android:orientation="horizontal"
             android:rotation="-30">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:background="@drawable/bg_postponed">
-
-            <TextView
-                android:layout_width="match_parent"
+            <LinearLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="5dp"
-                android:text="@string/postponed"
-                android:textColor="@color/red"
-                android:textSize="@dimen/item_stamp_text_size"
-                android:textStyle="bold"/>
+                android:background="@drawable/bg_postponed"
+                android:orientation="horizontal">
 
-        </LinearLayout>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:text="@string/postponed"
+                    android:textColor="@color/red"
+                    android:textSize="@dimen/item_stamp_text_size"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
         </LinearLayout>
     </RelativeLayout>
 </android.support.design.card.MaterialCardView>

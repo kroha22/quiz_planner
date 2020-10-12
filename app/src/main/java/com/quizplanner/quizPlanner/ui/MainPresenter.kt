@@ -11,6 +11,7 @@ import com.quizplanner.quizPlanner.QuizPlanner.today
 import com.quizplanner.quizPlanner.exchange.Input
 import com.quizplanner.quizPlanner.exchange.RetrofitService
 import com.quizplanner.quizPlanner.model.Db
+import com.quizplanner.quizPlanner.model.Filter
 import com.quizplanner.quizPlanner.model.Quiz
 import rx.Observable
 import rx.Subscription
@@ -69,6 +70,10 @@ class MainPresenter : MvpPresenter<MainView>() {
         updateDates()
 
         isInitialized = true
+
+        dao?.getFiltersList()?.let {
+            viewState.setFilters(it)
+        }
     }
 
     override fun onDestroy() {
@@ -77,22 +82,32 @@ class MainPresenter : MvpPresenter<MainView>() {
     }
 
     fun start() {
-        if (gamesByDate.isEmpty()) {
-            getGamesFromDb()
-        } else if (needCheckFavourites) {
-
-            subscription = Observable.create<List<Quiz>> { it.onNext(dao!!.getGames()) }
-                    .subscribeOn(Schedulers.io())
-                    .map { setGames(it) }
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe({ needUpdateView ->
-                        needCheckFavourites = false
-                        if (needUpdateView) {
-                            showGames()
-                        }
-                    }, {
-                        onBdError(it)
-                    })
+        log("!!!start")
+        when {
+            gamesByDate.isEmpty() -> {
+                log("!!!gamesByDate.isEmpty")
+                getGamesFromDb()
+            }
+            /*needUpdateDates() -> {
+                log("!!!needUpdateDates")
+                updateDates()
+                getGamesFromDb()
+            }*/
+            needCheckFavourites -> {
+                log("!!!needCheckFavourites")
+                subscription = Observable.create<List<Quiz>> { it.onNext(dao!!.getGames()) }
+                        .subscribeOn(Schedulers.io())
+                        .map { setGames(it) }
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe({ needUpdateView ->
+                            needCheckFavourites = false
+                            if (needUpdateView) {
+                                showGames()
+                            }
+                        }, {
+                            onBdError(it)
+                        })
+            }
         }
     }
 
@@ -105,6 +120,7 @@ class MainPresenter : MvpPresenter<MainView>() {
     }
 
     fun onRefreshClick() {
+        log("!!! onRefreshClick")
         if (loadInProgress) {
             return
         }
@@ -171,7 +187,10 @@ class MainPresenter : MvpPresenter<MainView>() {
         subscription = clearDbOldGames()
                 .subscribeOn(Schedulers.io())
                 .map { dao!!.getGames() }
-                .map { setGames(it) }
+                .map {
+                    log("!!!loaded from bd games ${it.size}")
+                    setGames(it)
+                }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ onLoadedFromDb() }, { onBdError(it) })
     }
@@ -211,7 +230,9 @@ class MainPresenter : MvpPresenter<MainView>() {
         beforeStartLoad.invoke()
 
         subscription = load(from)
-                .map { setGames(it) }
+                .map {
+                    log("!!!loaded from server games ${it.size}")
+                    setGames(it) }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ needUpdateView ->
                     onComplete.invoke(needUpdateView)
@@ -323,6 +344,10 @@ class MainPresenter : MvpPresenter<MainView>() {
         dates.addAll(getDates(DAYS_FROM, DAYS_TO))
     }
 
+    private fun needUpdateDates(): Boolean {
+        return !isOneDay(dates[0], Date(today().time - QuizPlanner.MS_ON_DAY * DAYS_FROM))
+    }
+
     private fun onLoadError(err: Throwable) {
         log("Load games error: ${err.message}")
         showReloadMsg(LOAD_ERROR_MESSAGE)
@@ -342,6 +367,11 @@ class MainPresenter : MvpPresenter<MainView>() {
 
     private fun showReloadMsg(errMsg: String) {
         viewState.showMessage(errMsg)
+    }
+
+    fun onSetFilters(filters: List<Filter>) {
+        viewState.applyFilters(filters)
+        dao?.setFiltersList(filters)
     }
 
 }

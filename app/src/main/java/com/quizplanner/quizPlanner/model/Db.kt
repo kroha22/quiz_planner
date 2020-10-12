@@ -3,6 +3,7 @@ package com.quizplanner.quizPlanner.model
 import android.content.Context
 import android.database.SQLException
 import android.database.sqlite.SQLiteDatabase
+import android.util.Log
 import com.j256.ormlite.android.apptools.OpenHelperManager
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper
 import com.j256.ormlite.dao.Dao
@@ -19,18 +20,20 @@ import java.util.*
  */
 object Db {
     //--------------------------------------------------------------------------------------------
-    private const val DB_VERSION = 2
+    private const val DB_VERSION = 3
 
     //--------------------------------------------------------------------------------------------
     class DbHelper(context: Context) : OrmLiteSqliteOpenHelper(context, DB_NAME, null, DB_VERSION) {
 
         private var quizDao: Dao<Quiz, String>? = null
         private var checkedGamesDao: Dao<CheckedGames, String>? = null
+        private var filtersListDao: Dao<FiltersList, String>? = null
 
         override fun onCreate(db: SQLiteDatabase, connectionSource: ConnectionSource) {
             try {
                 TableUtils.createTable(connectionSource, Quiz::class.java)
                 TableUtils.createTable(connectionSource, CheckedGames::class.java)
+                TableUtils.createTable(connectionSource, FiltersList::class.java)
             } catch (e: java.sql.SQLException) {
                 e.printStackTrace()
             }
@@ -40,6 +43,9 @@ object Db {
         override fun onUpgrade(db: SQLiteDatabase, connectionSource: ConnectionSource, oldVersion: Int, newVersion: Int) {
             if (oldVersion == 1 && newVersion == 2) {
                 getGamesDateDao().executeRaw("ALTER TABLE ${Quiz.TABLE} ADD COLUMN ${Quiz.Column.GAME_POSTPONED} INTEGER;")
+            } else if (oldVersion < 3 && newVersion == 3) {
+                getGamesDateDao().executeRaw("ALTER TABLE ${Quiz.TABLE} ADD COLUMN ${Quiz.Column.ONLINE} INTEGER;")
+                TableUtils.createTable(connectionSource, FiltersList::class.java)
             }
         }
 
@@ -57,6 +63,14 @@ object Db {
                 checkedGamesDao = getDao(CheckedGames::class.java)
             }
             return checkedGamesDao!!
+        }
+
+        @Throws(SQLException::class, java.sql.SQLException::class)
+        internal fun getFiltersListDao(): Dao<FiltersList, String> {
+            if (filtersListDao == null) {
+                filtersListDao = getDao(FiltersList::class.java)
+            }
+            return filtersListDao!!
         }
 
         companion object {
@@ -127,6 +141,49 @@ object Db {
         fun setCheckedGame(game: Quiz) {
             mDbHelper.getCheckedGamesDao().create(CheckedGames(game.id))
             log("setCheckedGame, game =${game.id}")
+        }
+
+        fun setFiltersList(filtersList: List<Filter>) {
+            val old =  mDbHelper.getFiltersListDao().queryForAll()
+            if(old.isNotEmpty()) {
+                mDbHelper.getFiltersListDao().delete(old)
+                log("setFiltersList, clear old entry, count ${old.size}")
+            }
+
+            if (filtersList.isEmpty()){
+                log("setFiltersList, filtersList empty")
+                return
+            }
+
+            val str = filtersList.map { it.code }.joinToString(";")
+            mDbHelper.getFiltersListDao().create(FiltersList(str))
+            log("setFiltersList, filtersList =${str}")
+        }
+
+        fun getFiltersList(): List<Filter>{
+            val all = mDbHelper.getFiltersListDao().queryForAll()
+            if(all.isEmpty()){
+                log("getFiltersList, table is empty")
+                return emptyList()
+            }
+
+            var str = all.last().list
+            log("getFiltersList, filtersList =${str}")
+
+            if(str == null){
+                return emptyList()
+            }
+
+            return try {
+                if(str.takeLast(1) == ";"){
+                    str = str.substring(0, str.length - 1)
+                }
+
+                str.split(";").map { Filter.getByCode(it.toInt()) }
+            } catch (e: Exception) {
+                Log.e("QuizPlanner", "Restore filters error", e)
+                emptyList()
+            }
         }
 
         fun isChecked(id: String): Boolean {

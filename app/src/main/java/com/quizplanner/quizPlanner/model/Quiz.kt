@@ -45,6 +45,13 @@ class Quiz : Serializable {
                 game.gamePostponed = 0
             }
 
+            val isOnlineGame = quizData.isOnlineGame?:false
+            if (isOnlineGame) {
+                game.isOnlineGame = 1
+            } else {
+                game.isOnlineGame = 0
+            }
+
             return game
         }
     }
@@ -64,6 +71,7 @@ class Quiz : Serializable {
         const val ORGANIZATION_LOGO_FILENAME = "organization_logo_filename"
         const val ORGANIZATION_LOGO_PATH = "organization_logo_path"
         const val GAME_POSTPONED = "game_postponed"
+        const val ONLINE = "online"
     }
 
     @DatabaseField(canBeNull = false, dataType = DataType.STRING, columnName = Column.ID, id = true)
@@ -108,14 +116,25 @@ class Quiz : Serializable {
     @DatabaseField(canBeNull = true, dataType = DataType.INTEGER_OBJ, columnName = Column.GAME_POSTPONED)
     var gamePostponed: Int? = null
 
+    @DatabaseField(canBeNull = true, dataType = DataType.INTEGER_OBJ, columnName = Column.ONLINE)
+    var isOnlineGame: Int? = null
+
     var isChecked = false
 
     constructor()
 
     fun isGamePostponed() = gamePostponed == 1
 
+    fun isOnlineGame() = isOnlineGame == 1
+
     override fun toString(): String {
-        return "Quiz(id=$id, gameTheme=$gameTheme, description=$description, date=$date, location=$location, price=$price, countOfPlayers=$countOfPlayers, registrationLink=$registrationLink, gameImgFilename=$gameImgFilename, gameImgPath=$gameImgPath, organisationName=$organisationName, organisationLogoFilename=$organisationLogoFilename, organisationLogoPath=$organisationLogoPath)"
+        return "Quiz(id=$id, gameTheme=$gameTheme, description=$description, " +
+                "date=$date, location=$location, price=$price, " +
+                "countOfPlayers=$countOfPlayers, registrationLink=$registrationLink, " +
+                "gameImgFilename=$gameImgFilename, gameImgPath=$gameImgPath," +
+                " organisationName=$organisationName, organisationLogoFilename=$organisationLogoFilename, " +
+                " gamePostponed=${isGamePostponed()}, isOnlineGame=${isOnlineGame()}, " +
+                "organisationLogoPath=$organisationLogoPath)"
     }
 
     override fun equals(other: Any?): Boolean {
@@ -210,6 +229,29 @@ class CheckedGames {
 
     constructor(id: String?) {
         this.id = id
+    }
+
+}
+
+//--------------------------------------------------------------------------------------------
+@DatabaseTable(tableName = FiltersList.TABLE)
+class FiltersList {
+
+    companion object {
+        const val TABLE = "filters_list"
+    }
+
+    object Column {
+        const val LIST = "list"
+    }
+
+    @DatabaseField(canBeNull = false, dataType = DataType.STRING, columnName = Column.LIST, id = true)
+    var list: String? = null
+
+    constructor()
+
+    constructor(list: String?) {
+        this.list = list
     }
 
 }

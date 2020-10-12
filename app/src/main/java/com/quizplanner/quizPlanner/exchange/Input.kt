@@ -62,6 +62,8 @@ object Input {
         var organisationLogoPath: String? = null
         @SerializedName("isGamePostponed")
         var isGamePostponed: Boolean? = null
+        @SerializedName("isOnlineGame")
+        var isOnlineGame: Boolean? = null
 
         constructor()
 
