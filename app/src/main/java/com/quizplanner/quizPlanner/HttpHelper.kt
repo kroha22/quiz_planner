@@ -1,12 +1,29 @@
-package com.quizplanner.quizPlanner.player
+package com.quizplanner.quizPlanner
 
 import java.util.regex.Pattern
 
-class YouTubeHelper {
+object HttpHelper {
 
-    internal val youTubeUrl = "^(http(s)?)?(://)?(www.)?(m.)?((youtube.com)|(youtu.be))/?([A-Za-z0-9\\\\-]*)"
-    internal val youTubeUrlRegEx = "^(https?)?(://)?(www.)?(m.)?((youtube.com)|(youtu.be))/"
-    internal val videoIdRegex = arrayOf("\\?vi?=([^&]*)", "watch\\?.*v=([^&]*)", "(?:embed|vi?)/([^/?]*)", "^([A-Za-z0-9\\-]*)")
+    const val regex = "\\b(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]"
+
+    fun findUrl(text: String): List<String> {
+        val pattern = Pattern.compile(regex)
+
+        val allMatches = arrayListOf<String>()
+
+        for(word in text.split(" ", "\n\n", "\n")){
+            val matcher = pattern.matcher(word)
+            if (matcher.find()) {
+                allMatches.add(word)
+            }
+        }
+        return allMatches
+    }
+    const val youTubeUrl = "^(http(s)?)?(://)?(www.)?(m.)?((youtube.com)|(youtu.be))/?([A-Za-z0-9\\\\-]*)"
+    const val youTubeUrlRegEx = "^(https?)?(://)?(www.)?(m.)?((youtube.com)|(youtu.be))/"
+    val videoIdRegex = arrayOf("\\?vi?=([^&]*)", "watch\\?.*v=([^&]*)", "(?:embed|vi?)/([^/?]*)", "^([A-Za-z0-9\\-]*)")
+
+    fun isVideoUrl(text: String) = Pattern.compile(youTubeUrl).matcher(text).find()
 
     fun findVideoUrl(text: String): String? {
         val pattern = Pattern.compile(youTubeUrl)

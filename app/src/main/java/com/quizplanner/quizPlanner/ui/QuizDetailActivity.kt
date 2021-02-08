@@ -2,11 +2,17 @@ package com.quizplanner.quizPlanner.ui
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.provider.CalendarContract
 import android.provider.CalendarContract.Events
 import android.support.v4.content.ContextCompat
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.TextPaint
+import android.text.method.LinkMovementMethod
+import android.text.style.ClickableSpan
 import android.view.View
 import android.widget.Toast
 import com.arellomobile.mvp.InjectViewState
@@ -16,12 +22,12 @@ import com.arellomobile.mvp.MvpView
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.viewstate.strategy.SkipStrategy
 import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
+import com.quizplanner.quizPlanner.HttpHelper
 import com.quizplanner.quizPlanner.QuizPlanner
 import com.quizplanner.quizPlanner.QuizPlanner.formatterTime
 import com.quizplanner.quizPlanner.R
 import com.quizplanner.quizPlanner.model.Db
 import com.quizplanner.quizPlanner.model.Quiz
-import com.quizplanner.quizPlanner.player.YouTubeHelper
 import com.quizplanner.quizPlanner.player.YouTubePlayer
 import com.quizplanner.quizPlanner.player.listeners.AbstractYouTubePlayerListener
 import com.quizplanner.quizPlanner.player.ui.views.YouTubePlayerView
@@ -29,7 +35,6 @@ import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_quiz_detail.*
 import kotlinx.android.synthetic.main.quiz_detail.*
 import rx.Subscription
-
 
 //---------------------------------------------------------------------------------------------
 
@@ -154,7 +159,7 @@ class QuizDetailActivity : MvpAppCompatActivity(), QuizDetailView {
                 detail_author_games.visibility = View.GONE
             }
 
-            initVideoView(item)
+            initLinks(item)
         }
 
     }
@@ -208,28 +213,64 @@ class QuizDetailActivity : MvpAppCompatActivity(), QuizDetailView {
         startActivity(intent)
     }
 
-    private fun initVideoView(item: Quiz) {
-        val youTubePlayerView = findViewById<YouTubePlayerView>(R.id.youtube_player_view)
+    private fun initLinks(item: Quiz) {
+        var videoLink: String? = null
+
         if (item.description != null) {
 
-            val youTubeHelper = YouTubeHelper()
-            val vid = youTubeHelper.findVideoUrl(item.description!!)
+            val allLinks = HttpHelper.findUrl(item.description!!)
+            if(allLinks.isNotEmpty()) {
+                val ss = SpannableString(item.description)
 
-            if (vid != null && vid.isNotEmpty()) {
-                val videoId = youTubeHelper.extractVideoIdFromUrl(vid)
+                for (link in HttpHelper.findUrl(item.description!!)) {
+                    if (link.isNotEmpty()) {
+                        if (HttpHelper.isVideoUrl(link)) {
+                            videoLink = link
+                        } else {
+                            val clickableSpan: ClickableSpan = object : ClickableSpan() {
+                                override fun onClick(textView: View) {
+                                    requestLink(link)
+                                }
 
-                if (videoId != null && videoId.isNotEmpty()) {
-                    youTubePlayerView.visibility = View.VISIBLE
+                                override fun updateDrawState(ds: TextPaint) {
+                                    super.updateDrawState(ds)
+                                    ds.isUnderlineText = false
+                                }
+                            }
 
-                    lifecycle.addObserver(youTubePlayerView)
+                            val start = item.description!!.indexOf(link)
 
-                    youTubePlayerView.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
-                        override fun onReady(youTubePlayer: YouTubePlayer) {
-                            youTubePlayer.loadVideo(videoId, 0f)
+                            ss.setSpan(clickableSpan, start, start + link.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                         }
-                    })
-                    return
+                    }
                 }
+
+                detail_description.text = ss
+                detail_description.movementMethod = LinkMovementMethod.getInstance()
+                detail_description.highlightColor = Color.TRANSPARENT
+            }
+        }
+
+        initVideoView(videoLink)
+    }
+
+    private fun initVideoView(videoLink: String?) {
+        val youTubePlayerView = findViewById<YouTubePlayerView>(R.id.youtube_player_view)
+
+        if (videoLink != null && videoLink.isNotEmpty()) {
+            val videoId = HttpHelper.extractVideoIdFromUrl(videoLink)
+
+            if (videoId != null && videoId.isNotEmpty()) {
+                youTubePlayerView.visibility = View.VISIBLE
+
+                lifecycle.addObserver(youTubePlayerView)
+
+                youTubePlayerView.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
+                    override fun onReady(youTubePlayer: YouTubePlayer) {
+                        youTubePlayer.loadVideo(videoId, 0f)
+                    }
+                })
+                return
             }
         }
 

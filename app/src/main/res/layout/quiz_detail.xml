@@ -143,6 +143,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/small_margin"
+            android:textColorLink="@color/blue"
             android:text="@string/game_description_dummy"
             android:textColor="@color/dark_grey"
             android:textSize="@dimen/default_text_size" />
