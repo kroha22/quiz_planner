@@ -1,17 +1,17 @@
 package com.quizplanner.quizPlanner.player.ui.menu.defaultMenu
 
 import android.content.Context
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.PopupWindow
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.quizplanner.quizPlanner.R
 import com.quizplanner.quizPlanner.player.ui.menu.MenuItem
 import com.quizplanner.quizPlanner.player.ui.menu.YouTubePlayerMenu
-import com.quizplanner.quizPlanner.R
 import java.util.*
 
 internal class DefaultYouTubePlayerMenu(private val context: Context) : YouTubePlayerMenu {

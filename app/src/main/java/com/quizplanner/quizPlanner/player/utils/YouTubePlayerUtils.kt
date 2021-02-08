@@ -1,7 +1,8 @@
 @file:JvmName("YouTubePlayerUtils")
+
 package com.quizplanner.quizPlanner.player.utils
 
-import android.arch.lifecycle.Lifecycle
+import androidx.lifecycle.Lifecycle
 import com.quizplanner.quizPlanner.player.YouTubePlayer
 
 //object YouTubePlayerUtils {
@@ -21,7 +22,8 @@ fun YouTubePlayer.loadOrCueVideo(lifecycle: Lifecycle, videoId: String, startSec
 }
 
 
-@JvmSynthetic internal fun YouTubePlayer.loadOrCueVideo(canLoad: Boolean, videoId: String, startSeconds: Float) {
+@JvmSynthetic
+internal fun YouTubePlayer.loadOrCueVideo(canLoad: Boolean, videoId: String, startSeconds: Float) {
     if (canLoad)
         loadVideo(videoId, startSeconds)
     else

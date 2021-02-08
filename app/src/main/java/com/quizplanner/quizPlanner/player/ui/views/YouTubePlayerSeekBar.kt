@@ -2,15 +2,15 @@ package com.quizplanner.quizPlanner.player.ui.views
 
 import android.content.Context
 import android.os.Build
-import android.support.annotation.ColorInt
-import android.support.v4.content.ContextCompat
-import android.support.v4.graphics.drawable.DrawableCompat
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.Gravity
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.TextView
+import androidx.annotation.ColorInt
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import com.quizplanner.quizPlanner.R
 import com.quizplanner.quizPlanner.player.PlayerConstants
 import com.quizplanner.quizPlanner.player.YouTubePlayer
@@ -20,6 +20,7 @@ import com.quizplanner.quizPlanner.player.utils.TimeUtilities
 class YouTubePlayerSeekBar(context: Context, attrs: AttributeSet? = null) : LinearLayout(context, attrs), SeekBar.OnSeekBarChangeListener, YouTubePlayerListener {
 
     private var seekBarTouchStarted = false
+
     // I need this variable because onCurrentSecond gets called every 100 mils, so without the proper checks on this variable in onCurrentSeconds the seek bar glitches when touched.
     private var newSeekBarProgress = -1
 

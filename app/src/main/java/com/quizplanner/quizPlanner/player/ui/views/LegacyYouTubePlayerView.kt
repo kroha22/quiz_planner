@@ -7,29 +7,29 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import android.support.annotation.LayoutRes
-import android.arch.lifecycle.Lifecycle
-import android.arch.lifecycle.LifecycleObserver
-import android.arch.lifecycle.OnLifecycleEvent
+import androidx.annotation.LayoutRes
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
 import com.quizplanner.quizPlanner.R
 import com.quizplanner.quizPlanner.player.PlayerConstants
 import com.quizplanner.quizPlanner.player.YouTubePlayer
 import com.quizplanner.quizPlanner.player.listeners.AbstractYouTubePlayerListener
-import com.quizplanner.quizPlanner.player.listeners.YouTubePlayerFullScreenListener
 import com.quizplanner.quizPlanner.player.listeners.YouTubePlayerCallback
+import com.quizplanner.quizPlanner.player.listeners.YouTubePlayerFullScreenListener
 import com.quizplanner.quizPlanner.player.listeners.YouTubePlayerListener
 import com.quizplanner.quizPlanner.player.options.IFramePlayerOptions
-import com.quizplanner.quizPlanner.player.utils.FullScreenHelper
-import com.quizplanner.quizPlanner.player.utils.PlaybackResumer
 import com.quizplanner.quizPlanner.player.ui.DefaultPlayerUiController
 import com.quizplanner.quizPlanner.player.ui.PlayerUiController
+import com.quizplanner.quizPlanner.player.utils.FullScreenHelper
 import com.quizplanner.quizPlanner.player.utils.NetworkListener
+import com.quizplanner.quizPlanner.player.utils.PlaybackResumer
 
-internal class LegacyYouTubePlayerView(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0):
+internal class LegacyYouTubePlayerView(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
         SixteenByNineFrameLayout(context, attrs, defStyleAttr), LifecycleObserver {
 
-    constructor(context: Context): this(context, null, 0)
-    constructor(context: Context, attrs: AttributeSet? = null): this(context, attrs, 0)
+    constructor(context: Context) : this(context, null, 0)
+    constructor(context: Context, attrs: AttributeSet? = null) : this(context, attrs, 0)
 
     internal val youTubePlayer: WebViewYouTubePlayer = WebViewYouTubePlayer(context)
     private val defaultPlayerUiController: DefaultPlayerUiController
@@ -60,7 +60,7 @@ internal class LegacyYouTubePlayerView(context: Context, attrs: AttributeSet? = 
         // stop playing if the user loads a video but then leaves the app before the video starts playing.
         youTubePlayer.addListener(object : AbstractYouTubePlayerListener() {
             override fun onStateChange(youTubePlayer: YouTubePlayer, state: PlayerConstants.PlayerState) {
-                if(state == PlayerConstants.PlayerState.PLAYING && !canPlay)
+                if (state == PlayerConstants.PlayerState.PLAYING && !canPlay)
                     youTubePlayer.pause()
             }
         })
@@ -92,17 +92,17 @@ internal class LegacyYouTubePlayerView(context: Context, attrs: AttributeSet? = 
      * @param playerOptions customizable options for the embedded video player, can be null.
      */
     fun initialize(youTubePlayerListener: YouTubePlayerListener, handleNetworkEvents: Boolean, playerOptions: IFramePlayerOptions?) {
-        if(isYouTubePlayerReady)
+        if (isYouTubePlayerReady)
             throw IllegalStateException("This YouTubePlayerView has already been initialized.")
 
         if (handleNetworkEvents)
             context.registerReceiver(networkListener, IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION))
 
         initialize = {
-            youTubePlayer.initialize({it.addListener(youTubePlayerListener)}, playerOptions)
+            youTubePlayer.initialize({ it.addListener(youTubePlayerListener) }, playerOptions)
         }
 
-        if(!handleNetworkEvents)
+        if (!handleNetworkEvents)
             initialize()
     }
 
@@ -143,7 +143,7 @@ internal class LegacyYouTubePlayerView(context: Context, attrs: AttributeSet? = 
      * This function is called only once.
      */
     fun getYouTubePlayerWhenReady(youTubePlayerCallback: YouTubePlayerCallback) {
-        if(isYouTubePlayerReady)
+        if (isYouTubePlayerReady)
             youTubePlayerCallback.onYouTubePlayer(youTubePlayer)
         else
             youTubePlayerCallbacks.add(youTubePlayerCallback)

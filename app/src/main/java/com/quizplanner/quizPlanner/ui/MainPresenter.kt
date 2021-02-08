@@ -1,8 +1,6 @@
 package com.quizplanner.quizPlanner.ui
 
 import android.content.Context
-import com.arellomobile.mvp.InjectViewState
-import com.arellomobile.mvp.MvpPresenter
 import com.quizplanner.quizPlanner.QuizPlanner
 import com.quizplanner.quizPlanner.QuizPlanner.formatterISO
 import com.quizplanner.quizPlanner.QuizPlanner.getDates
@@ -13,10 +11,12 @@ import com.quizplanner.quizPlanner.exchange.RetrofitService
 import com.quizplanner.quizPlanner.model.Db
 import com.quizplanner.quizPlanner.model.Filter
 import com.quizplanner.quizPlanner.model.Quiz
-import rx.Observable
-import rx.Subscription
-import rx.android.schedulers.AndroidSchedulers
-import rx.schedulers.Schedulers
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
+import moxy.InjectViewState
+import moxy.MvpPresenter
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -54,7 +54,7 @@ class MainPresenter : MvpPresenter<MainView>() {
     private val gamesByDate = LinkedHashMap<Date, List<Quiz>>()
     private var selectedDate: Date = today()
 
-    private var subscription: Subscription? = null
+    private var disposable: Disposable? = null
 
     private var dates: MutableList<Date> = ArrayList()
 
@@ -78,7 +78,7 @@ class MainPresenter : MvpPresenter<MainView>() {
 
     override fun onDestroy() {
         super.onDestroy()
-        subscription?.unsubscribe()
+        disposable?.dispose()
     }
 
     fun start() {
@@ -95,7 +95,7 @@ class MainPresenter : MvpPresenter<MainView>() {
             }*/
             needCheckFavourites -> {
                 log("!!!needCheckFavourites")
-                subscription = Observable.create<List<Quiz>> { it.onNext(dao!!.getGames()) }
+                disposable = Observable.create<List<Quiz>> { it.onNext(dao!!.getGames()) }
                         .subscribeOn(Schedulers.io())
                         .map { setGames(it) }
                         .observeOn(AndroidSchedulers.mainThread())
@@ -184,7 +184,7 @@ class MainPresenter : MvpPresenter<MainView>() {
     }
 
     private fun getGamesFromDb() {
-        subscription = clearDbOldGames()
+        disposable = clearDbOldGames()
                 .subscribeOn(Schedulers.io())
                 .map { dao!!.getGames() }
                 .map {
@@ -229,7 +229,7 @@ class MainPresenter : MvpPresenter<MainView>() {
     private fun startLoad(from: () -> Observable<List<Input.QuizData>>, beforeStartLoad: () -> Unit, onComplete: (Boolean) -> Unit) {
         beforeStartLoad.invoke()
 
-        subscription = load(from)
+        disposable = load(from)
                 .map {
                     log("!!!loaded from server games ${it.size}")
                     setGames(it) }

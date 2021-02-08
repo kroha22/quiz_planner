@@ -20,7 +20,7 @@ import com.quizplanner.quizPlanner.player.ui.menu.defaultMenu.DefaultYouTubePlay
 import com.quizplanner.quizPlanner.player.utils.FadeViewHelper
 import com.quizplanner.quizPlanner.player.ui.views.YouTubePlayerSeekBar
 import com.quizplanner.quizPlanner.player.ui.views.YouTubePlayerSeekBarListener
-import android.support.v4.content.ContextCompat
+import androidx.core.content.ContextCompat
 
 internal class DefaultPlayerUiController(private val youTubePlayerView: LegacyYouTubePlayerView, private val youTubePlayer: YouTubePlayer) : PlayerUiController, YouTubePlayerListener, YouTubePlayerFullScreenListener, YouTubePlayerSeekBarListener {
 

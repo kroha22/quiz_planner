@@ -3,19 +3,19 @@ package com.quizplanner.quizPlanner.ui
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import com.arellomobile.mvp.InjectViewState
-import com.arellomobile.mvp.MvpAppCompatActivity
-import com.arellomobile.mvp.MvpPresenter
-import com.arellomobile.mvp.MvpView
-import com.arellomobile.mvp.presenter.InjectPresenter
-import com.arellomobile.mvp.viewstate.strategy.AddToEndSingleStrategy
-import com.arellomobile.mvp.viewstate.strategy.SkipStrategy
-import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
+import androidx.recyclerview.widget.RecyclerView
+import moxy.InjectViewState
+import moxy.MvpAppCompatActivity
+import moxy.MvpPresenter
+import moxy.MvpView
+import moxy.presenter.InjectPresenter
+import moxy.viewstate.strategy.AddToEndSingleStrategy
+import moxy.viewstate.strategy.SkipStrategy
+import moxy.viewstate.strategy.StateStrategyType
 import com.quizplanner.quizPlanner.QuizPlanner
 import com.quizplanner.quizPlanner.QuizPlanner.isLast
 import com.quizplanner.quizPlanner.R
@@ -25,10 +25,10 @@ import com.quizplanner.quizPlanner.model.Db
 import com.quizplanner.quizPlanner.model.Quiz
 import kotlinx.android.synthetic.main.activity_favorites.*
 import kotlinx.android.synthetic.main.quiz_list.*
-import rx.Observable
-import rx.Subscription
-import rx.android.schedulers.AndroidSchedulers
-import rx.schedulers.Schedulers
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
@@ -250,7 +250,7 @@ class FavoritesPresenter : MvpPresenter<FavoritesView>() {
     private val allGames = ArrayList<Quiz>()
     private var selectedQuiz: Quiz? = null
 
-    private var subscription: Subscription? = null
+    private var disposable: Disposable? = null
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
@@ -264,11 +264,11 @@ class FavoritesPresenter : MvpPresenter<FavoritesView>() {
 
     override fun onDestroy() {
         super.onDestroy()
-        subscription?.unsubscribe()
+        disposable?.dispose()
     }
 
     fun start() {
-        subscription = Observable.create<List<Quiz>> { it.onNext(loadFromDb()) }
+        disposable = Observable.create<List<Quiz>> { it.onNext(loadFromDb()) }
                 .subscribeOn(Schedulers.io())
                 .map { games -> games.filter { it.isChecked } }
                 .doOnError { onBdError(it) }
