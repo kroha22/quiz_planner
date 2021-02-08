@@ -195,7 +195,7 @@ class AuthorPresenter : MvpPresenter<AuthorView>() {
                 .doOnError { onBdError(it) }
                 .doOnNext { setGames(it) }
                 .flatMap { games ->
-                    if (!games.isEmpty()) {
+                    if (games.isNotEmpty()) {
                         load({ }, { dataLoader!!.getQuizData(ArrayList(games.map { it.id!! }.toList())) })
                     } else {
                         Observable.just(Collections.emptyList())

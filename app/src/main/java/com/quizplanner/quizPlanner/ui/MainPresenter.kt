@@ -206,7 +206,7 @@ class MainPresenter : MvpPresenter<MainView>() {
 
     private fun hasGames(gamesByDate: Map<Date, List<Quiz>>): Boolean {
         for (games in gamesByDate.entries) {
-            if (!games.value.isEmpty()) {
+            if (games.value.isNotEmpty()) {
                 return true
             }
         }
