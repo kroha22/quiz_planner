@@ -521,14 +521,14 @@ class DateFragment : Fragment() {
         refreshView()
     }
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
 
         try {
             clickListener = context as SimpleItemRecyclerViewAdapter.ItemClickListener
             endlessRecyclerViewScrollListener = context as RecyclerViewScrollListener
         } catch (e: ClassCastException) {
-            throw ClassCastException(context.toString() + " must implement OnListItemSelectedListener")
+            throw ClassCastException("$context must implement OnListItemSelectedListener")
         }
     }
 
