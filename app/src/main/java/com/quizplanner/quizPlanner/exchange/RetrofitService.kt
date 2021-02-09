@@ -1,6 +1,7 @@
 package com.quizplanner.quizPlanner.exchange
 
 import android.content.Context
+import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import com.quizplanner.quizPlanner.R
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -66,7 +67,7 @@ class RetrofitService private constructor(context: Context) {
         mRetrofit = Retrofit.Builder()
                 .baseUrl(Urls.getApiBaseUrl(context))
                 .addConverterFactory(GsonConverterFactory.create())
-                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .client(client)
                 .build()
     }
