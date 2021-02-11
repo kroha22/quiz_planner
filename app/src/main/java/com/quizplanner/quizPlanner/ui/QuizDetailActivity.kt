@@ -7,7 +7,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.CalendarContract
 import android.provider.CalendarContract.Events
-import android.support.v4.content.ContextCompat
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextPaint
@@ -15,13 +14,7 @@ import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
 import android.view.View
 import android.widget.Toast
-import com.arellomobile.mvp.InjectViewState
-import com.arellomobile.mvp.MvpAppCompatActivity
-import com.arellomobile.mvp.MvpPresenter
-import com.arellomobile.mvp.MvpView
-import com.arellomobile.mvp.presenter.InjectPresenter
-import com.arellomobile.mvp.viewstate.strategy.SkipStrategy
-import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
+import androidx.core.content.ContextCompat
 import com.quizplanner.quizPlanner.HttpHelper
 import com.quizplanner.quizPlanner.QuizPlanner
 import com.quizplanner.quizPlanner.QuizPlanner.formatterTime
@@ -34,6 +27,13 @@ import com.quizplanner.quizPlanner.player.ui.views.YouTubePlayerView
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_quiz_detail.*
 import kotlinx.android.synthetic.main.quiz_detail.*
+import moxy.InjectViewState
+import moxy.MvpAppCompatActivity
+import moxy.MvpPresenter
+import moxy.MvpView
+import moxy.presenter.InjectPresenter
+import moxy.viewstate.strategy.SkipStrategy
+import moxy.viewstate.strategy.StateStrategyType
 import rx.Subscription
 
 //---------------------------------------------------------------------------------------------
@@ -85,13 +85,13 @@ class QuizDetailActivity : MvpAppCompatActivity(), QuizDetailView {
             detail_date.text = QuizPlanner.formatterDateMonth.format(item.date)
             detail_time.text = formatterTime.format(item.date)
 
-            detail_location.text = if(item.isOnlineGame()){
+            detail_location.text = if (item.isOnlineGame()) {
                 detail_location.context.getString(R.string.online)
             } else {
                 item.location
             }
 
-            detail_online.visibility = if(item.isOnlineGame()){
+            detail_online.visibility = if (item.isOnlineGame()) {
                 View.VISIBLE
             } else {
                 View.GONE
@@ -149,7 +149,7 @@ class QuizDetailActivity : MvpAppCompatActivity(), QuizDetailView {
                 detail_time_img.setColorFilter(ContextCompat.getColor(this, R.color.red))
             }
 
-            if(item.isGamePostponed()){
+            if (item.isGamePostponed()) {
                 detail_postponed.visibility = View.VISIBLE
             } else {
                 detail_postponed.visibility = View.GONE
@@ -219,7 +219,7 @@ class QuizDetailActivity : MvpAppCompatActivity(), QuizDetailView {
         if (item.description != null) {
 
             val allLinks = HttpHelper.findUrl(item.description!!)
-            if(allLinks.isNotEmpty()) {
+            if (allLinks.isNotEmpty()) {
                 val ss = SpannableString(item.description)
 
                 for (link in HttpHelper.findUrl(item.description!!)) {
@@ -280,7 +280,7 @@ class QuizDetailActivity : MvpAppCompatActivity(), QuizDetailView {
     private fun setClipboard(text: String) {
         val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
         val clip = android.content.ClipData.newPlainText(getString(R.string.app_name), text)
-        clipboard.primaryClip = clip
+        clipboard.setPrimaryClip(clip)
     }
 }
 

@@ -5,7 +5,7 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import android.support.annotation.RestrictTo
+import androidx.annotation.RestrictTo
 
 /**
  * A FrameLayout with an aspect ration of 16:9, when the height is set to wrap_content.

@@ -5,26 +5,26 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
-import com.arellomobile.mvp.InjectViewState
-import com.arellomobile.mvp.MvpAppCompatActivity
-import com.arellomobile.mvp.MvpPresenter
-import com.arellomobile.mvp.MvpView
-import com.arellomobile.mvp.presenter.InjectPresenter
-import com.arellomobile.mvp.viewstate.strategy.AddToEndSingleStrategy
-import com.arellomobile.mvp.viewstate.strategy.SkipStrategy
-import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
 import com.quizplanner.quizPlanner.QuizPlanner
 import com.quizplanner.quizPlanner.R
 import com.quizplanner.quizPlanner.exchange.Input
 import com.quizplanner.quizPlanner.exchange.RetrofitService
 import com.quizplanner.quizPlanner.model.Db
 import com.quizplanner.quizPlanner.model.Quiz
+import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_favorites.*
 import kotlinx.android.synthetic.main.quiz_list.*
-import rx.Observable
-import rx.Subscription
-import rx.android.schedulers.AndroidSchedulers
-import rx.schedulers.Schedulers
+import moxy.InjectViewState
+import moxy.MvpAppCompatActivity
+import moxy.MvpPresenter
+import moxy.MvpView
+import moxy.presenter.InjectPresenter
+import moxy.viewstate.strategy.AddToEndSingleStrategy
+import moxy.viewstate.strategy.SkipStrategy
+import moxy.viewstate.strategy.StateStrategyType
+import io.reactivex.Observable
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
@@ -172,7 +172,7 @@ class AuthorPresenter : MvpPresenter<AuthorView>() {
     private val allGames = ArrayList<Quiz>()
     private var selectedQuiz: Quiz? = null
 
-    private var subscription: Subscription? = null
+    private var disposable: Disposable? = null
 
     private var isStarted = false
 
@@ -190,12 +190,12 @@ class AuthorPresenter : MvpPresenter<AuthorView>() {
         this.author = author
         isStarted = true
 
-        subscription = Observable.create<List<Quiz>> { it.onNext(loadFromDb(author)) }
+        disposable = Observable.create<List<Quiz>> { it.onNext(loadFromDb(author)) }
                 .subscribeOn(Schedulers.io())
                 .doOnError { onBdError(it) }
                 .doOnNext { setGames(it) }
                 .flatMap { games ->
-                    if (!games.isEmpty()) {
+                    if (games.isNotEmpty()) {
                         load({ }, { dataLoader!!.getQuizData(ArrayList(games.map { it.id!! }.toList())) })
                     } else {
                         Observable.just(Collections.emptyList())
@@ -211,7 +211,7 @@ class AuthorPresenter : MvpPresenter<AuthorView>() {
     }
 
     fun onResume() {
-        subscription = Observable.create<List<Quiz>> { it.onNext(loadFromDb(author)) }
+        disposable = Observable.create<List<Quiz>> { it.onNext(loadFromDb(author)) }
                 .subscribeOn(Schedulers.io())
                 .map { setGames(it) }
                 .observeOn(AndroidSchedulers.mainThread())
@@ -226,7 +226,7 @@ class AuthorPresenter : MvpPresenter<AuthorView>() {
 
     override fun onDestroy() {
         super.onDestroy()
-        subscription?.unsubscribe()
+        disposable?.dispose()
     }
 
     fun isStarted() = isStarted

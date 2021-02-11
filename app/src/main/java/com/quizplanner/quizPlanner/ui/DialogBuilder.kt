@@ -1,8 +1,9 @@
 package com.quizplanner.quizPlanner.ui
 
 import android.content.Context
-import android.support.v7.app.AlertDialog
 import android.view.View
+import androidx.appcompat.app.AlertDialog
+
 /**
  * Created by Olga Cherepanova
  * on 20.01.2019.
@@ -68,12 +69,12 @@ class DialogBuilder {
 
         if (positive != null) {
             builder.setNeutralButton(
-                    positive,
-                    { _, _ ->
-                        if (onPositive != null) {
-                            onPositive.invoke()
-                        }
-                    })
+                    positive
+            ) { _, _ ->
+                if (onPositive != null) {
+                    onPositive.invoke()
+                }
+            }
         }
 
         if (negative != null) {

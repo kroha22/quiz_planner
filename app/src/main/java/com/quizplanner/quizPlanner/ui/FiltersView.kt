@@ -10,7 +10,6 @@ import android.view.View
 import android.view.View.OnTouchListener
 import android.widget.CheckedTextView
 import android.widget.LinearLayout
-import android.widget.Toast
 import com.quizplanner.quizPlanner.R
 import com.quizplanner.quizPlanner.model.Filter
 import kotlinx.android.synthetic.main.filters_view.view.*
@@ -56,19 +55,19 @@ class FiltersView : LinearLayout {
         })
     }
 
-    fun select(filters: List<Filter>){
-        if(filters.containsAll(selected) && selected.containsAll(filters)){
+    fun select(filters: List<Filter>) {
+        if (filters.containsAll(selected) && selected.containsAll(filters)) {
             return
         }
 
-        if(filters.containsAll(Filter.values().asList())){
+        if (filters.containsAll(Filter.values().asList())) {
             filter_all.callOnClick()
             return
         }
 
         //todo???
 
-        for(f in filters){
+        for (f in filters) {
             getBtnForFilter(f).callOnClick()
         }
     }
@@ -108,8 +107,8 @@ class FiltersView : LinearLayout {
 
     private fun initOnlineOffline() {
 
-        initRadioGroup(listOf(filter_online, filter_offline, filter_all)){
-            when(it){
+        initRadioGroup(listOf(filter_online, filter_offline, filter_all)) {
+            when (it) {
                 filter_online -> {
                     if (!selected.contains(Filter.ONLINE)) {
                         selected.add(Filter.ONLINE)
@@ -120,14 +119,16 @@ class FiltersView : LinearLayout {
                     if (!selected.contains(Filter.OFFLINE)) {
                         selected.add(Filter.OFFLINE)
                     }
-                    selected.remove(Filter.ONLINE)}
+                    selected.remove(Filter.ONLINE)
+                }
                 filter_all -> {
                     if (!selected.contains(Filter.ONLINE)) {
                         selected.add(Filter.ONLINE)
                     }
                     if (!selected.contains(Filter.OFFLINE)) {
                         selected.add(Filter.OFFLINE)
-                    }}
+                    }
+                }
                 else -> {
 
                 }
@@ -139,11 +140,11 @@ class FiltersView : LinearLayout {
 
     }
 
-    private fun initRadioGroup(btns: List<CheckedTextView>, onSelect: (CheckedTextView)->Unit){
-        for (btn in btns){
+    private fun initRadioGroup(btns: List<CheckedTextView>, onSelect: (CheckedTextView) -> Unit) {
+        for (btn in btns) {
             initRadioBtn(btn) {
 
-                for(other in btns.filter { it != btn }){
+                for (other in btns.filter { it != btn }) {
                     other.isChecked = false
                 }
 

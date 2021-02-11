@@ -1,6 +1,6 @@
 package com.quizplanner.quizPlanner.model
 
-import android.support.annotation.StringRes
+import androidx.annotation.StringRes
 import com.quizplanner.quizPlanner.R
 
 

@@ -4,7 +4,7 @@ import android.content.Context
 import com.quizplanner.quizPlanner.R
 import okhttp3.RequestBody
 import retrofit2.http.*
-import rx.Observable
+import io.reactivex.Observable
 
 
 /**
