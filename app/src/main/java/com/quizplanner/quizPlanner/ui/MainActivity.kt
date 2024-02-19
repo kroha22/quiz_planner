@@ -27,9 +27,10 @@ import com.quizplanner.quizPlanner.QuizPlanner.formatterDay
 import com.quizplanner.quizPlanner.QuizPlanner.formatterMonth
 import com.quizplanner.quizPlanner.QuizPlanner.isOneDay
 import com.quizplanner.quizPlanner.R
+import com.quizplanner.quizPlanner.databinding.ActivityMainBinding
+import com.quizplanner.quizPlanner.databinding.ActivityQuizDetailBinding
 import com.quizplanner.quizPlanner.model.Filter
 import com.quizplanner.quizPlanner.model.Quiz
-import kotlinx.android.synthetic.main.activity_main.*
 import moxy.MvpAppCompatActivity
 import moxy.MvpView
 import moxy.presenter.InjectPresenter
@@ -112,45 +113,51 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
     @InjectPresenter(tag = MAIN)
     lateinit var presenter: MainPresenter
 
+    private lateinit var binding: ActivityMainBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
+
 
         for (f in supportFragmentManager.fragments) {
             supportFragmentManager.beginTransaction().remove(f).commit()
         }
 
-        setSupportActionBar(toolbar)
+        setSupportActionBar(binding.toolbar)
 
         sectionsPagerAdapter = SectionsPagerAdapter(this, supportFragmentManager)
-        container.adapter = sectionsPagerAdapter
+        binding.container.adapter = sectionsPagerAdapter
 
-        tabs.addOnTabSelectedListener(TabLayout.ViewPagerOnTabSelectedListener(container))
-        tabs.setupWithViewPager(container)
-        tabs.isSmoothScrollingEnabled = true
+        binding.tabs.addOnTabSelectedListener(TabLayout.ViewPagerOnTabSelectedListener(binding.container))
+        binding.tabs.setupWithViewPager(binding.container)
+        binding.tabs.isSmoothScrollingEnabled = true
 
         slideDownAnimation = AnimationUtils.loadAnimation(this, R.anim.slide_down_animation)
         slideLeftAnimation = AnimationUtils.loadAnimation(this, R.anim.slide_left_animation)
         slideRightAnimation = AnimationUtils.loadAnimation(this, R.anim.slide_right_animation)
 
-        filters_view.consumer = {
+        binding.filtersView.consumer = {
             presenter.onSetFilters(it)
         }
 
-        filters_view.onClose = { hideFilters() }
+        binding.filtersView.onClose = { hideFilters() }
 
-        filters_view_container.visibility = View.GONE
+        binding.filtersViewContainer.visibility = View.GONE
 
-        toolbar_filter.setOnClickListener {
-            if (filters_view_container.visibility == View.VISIBLE) {
-                filters_view.close()
+        binding.toolbarFilter.setOnClickListener {
+            if (binding.filtersViewContainer.visibility == View.VISIBLE) {
+                binding.filtersView.close()
             } else {
                 showFilters()
             }
 
         }
 
-        toolbar_filter_check.visibility = View.GONE
+        binding.toolbarFilterCheck.visibility = View.GONE
     }
 
     override fun onResume() {
@@ -160,17 +167,17 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
             presenter.setEscapeHandler { finish() }
         }
         presenter.start()
-        tabs.addOnTabSelectedListener(this)
+        binding.tabs.addOnTabSelectedListener(this)
     }
 
     override fun onPause() {
         super.onPause()
-        tabs.removeOnTabSelectedListener(this)
+        binding.tabs.removeOnTabSelectedListener(this)
     }
 
     override fun onBackPressed() {
-        if (filters_view_container.visibility == View.VISIBLE) {
-            filters_view.close()
+        if (binding.filtersViewContainer.visibility == View.VISIBLE) {
+            binding.filtersView.close()
             return
         }
         super.onBackPressed()
@@ -206,12 +213,12 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
     }
 
     override fun showLoadProgress() {
-        wait_view.visibility = View.VISIBLE
-        wait_view.startAnimation(slideDownAnimation)
+        binding.waitView.visibility = View.VISIBLE
+        binding.waitView.startAnimation(slideDownAnimation)
     }
 
     override fun hideLoadProgress() {
-        wait_view.visibility = View.GONE
+        binding.waitView.visibility = View.GONE
     }
 
     override fun onLoadMore() {
@@ -219,13 +226,13 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
     }
 
     override fun showStartLoad() {
-        start_load_view.visibility = View.VISIBLE
-        appbar.visibility = View.GONE
+        binding.startLoadView.visibility = View.VISIBLE
+        binding.appbar.visibility = View.GONE
     }
 
     override fun hideStartLoad() {
-        start_load_view.visibility = View.GONE
-        appbar.visibility = View.VISIBLE
+        binding.startLoadView.visibility = View.GONE
+        binding.appbar.visibility = View.VISIBLE
     }
 
     override fun showCheckedGames() {
@@ -255,14 +262,14 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
         val isEmpty = sectionsPagerAdapter.count == 0
         if (sectionsPagerAdapter.setItems(gamesByDate)) {
 
-            for (i in 0..tabs.tabCount) {
-                val tab = tabs.getTabAt(i)
+            for (i in 0..binding.tabs.tabCount) {
+                val tab = binding.tabs.getTabAt(i)
                 if (tab != null) {
                     tab.customView = sectionsPagerAdapter.getTabView(i)
 
                     if (isOneDay(sectionsPagerAdapter.getItemDate(i), selectedDate)) {
                         Handler().postDelayed({
-                            container.setCurrentItem(i, isEmpty)
+                            binding.container.setCurrentItem(i, isEmpty)
                         }, 200)
                     }
                 }
@@ -310,35 +317,35 @@ class MainActivity : MvpAppCompatActivity(), MainView, SimpleItemRecyclerViewAda
         val pos = p0.position
         val date = sectionsPagerAdapter.getItemDate(pos)
         presenter.onDateSelect(date)
-        toolbar_month.text = formatterMonth.format(date)
+        binding.toolbarMonth.text = formatterMonth.format(date)
     }
 
     override fun setFilters(filter: List<Filter>) {
-        filters_view.select(filter)
+        binding.filtersView.select(filter)
     }
 
     override fun applyFilters(filter: List<Filter>) {
         sectionsPagerAdapter.filter(filter)
 
         if (filter.isEmpty() || filter.containsAll(Filter.values().asList())) {
-            toolbar_filter_check.visibility = View.GONE
-            toolbar_filter.setImageResource(R.drawable.ic_filter)
+            binding.toolbarFilterCheck.visibility = View.GONE
+            binding.toolbarFilter.setImageResource(R.drawable.ic_filter)
         } else {
-            toolbar_filter_check.visibility = View.VISIBLE
-            toolbar_filter.setImageResource(R.drawable.ic_filter_checked)
+            binding.toolbarFilterCheck.visibility = View.VISIBLE
+            binding.toolbarFilter.setImageResource(R.drawable.ic_filter_checked)
         }
 
     }
 
     private fun showFilters() {
-        filters_view_container.visibility = View.VISIBLE
-        filters_view_container.startAnimation(slideLeftAnimation)
+        binding.filtersViewContainer.visibility = View.VISIBLE
+        binding.filtersViewContainer.startAnimation(slideLeftAnimation)
     }
 
     private fun hideFilters() {
-        filters_view_container.startAnimation(slideRightAnimation)
+        binding.filtersViewContainer.startAnimation(slideRightAnimation)
 
-        filters_view_container.visibility = View.GONE
+        binding.filtersViewContainer.visibility = View.GONE
     }
     //------------------------------------------------------------------------------------------------
 

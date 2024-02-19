@@ -19,12 +19,11 @@ import moxy.viewstate.strategy.StateStrategyType
 import com.quizplanner.quizPlanner.QuizPlanner
 import com.quizplanner.quizPlanner.QuizPlanner.isLast
 import com.quizplanner.quizPlanner.R
+import com.quizplanner.quizPlanner.databinding.ActivityFavoritesBinding
 import com.quizplanner.quizPlanner.exchange.Input
 import com.quizplanner.quizPlanner.exchange.RetrofitService
 import com.quizplanner.quizPlanner.model.Db
 import com.quizplanner.quizPlanner.model.Quiz
-import kotlinx.android.synthetic.main.activity_favorites.*
-import kotlinx.android.synthetic.main.quiz_list.*
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -69,17 +68,22 @@ class FavoritesActivity : MvpAppCompatActivity(), FavoritesView, SimpleItemRecyc
 
     @InjectPresenter(tag = FAVORITES)
     lateinit var presenter: FavoritesPresenter
+    private lateinit var binding: ActivityFavoritesBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_favorites)
-        setSupportActionBar(detail_toolbar)
-        detail_toolbar.setNavigationOnClickListener { this.onBackPressed() }
+
+        binding = ActivityFavoritesBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
+        
+        setSupportActionBar(binding.detailToolbar)
+        binding.detailToolbar.setNavigationOnClickListener { this.onBackPressed() }
 
         adapter.setOnClickListener(this)
 
-        quiz_list.adapter = adapter
-        quiz_list_empty_view.text = getText(R.string.favorites_empty)
+        binding.quizList.quizList.adapter = adapter
+        binding.quizList.quizListEmptyView.text = getText(R.string.favorites_empty)
         refreshView()
     }
 
@@ -99,15 +103,15 @@ class FavoritesActivity : MvpAppCompatActivity(), FavoritesView, SimpleItemRecyc
     }
 
     override fun showLoadProgress() {
-        quiz_list_empty_view.visibility = View.GONE
-        quiz_list.visibility = View.GONE
-        wait_view.visibility = View.VISIBLE
+        binding.quizList.quizListEmptyView.visibility = View.GONE
+        binding.quizList.quizList.visibility = View.GONE
+        binding.waitView.visibility = View.VISIBLE
     }
 
     override fun hideLoadProgress() {
-        quiz_list_empty_view.visibility = View.VISIBLE
-        quiz_list.visibility = View.VISIBLE
-        wait_view.visibility = View.GONE
+        binding.quizList.quizListEmptyView.visibility = View.VISIBLE
+        binding.quizList.quizList.visibility = View.VISIBLE
+        binding.waitView.visibility = View.GONE
     }
 
     override fun onItemClick(quiz: Quiz) {
@@ -137,11 +141,11 @@ class FavoritesActivity : MvpAppCompatActivity(), FavoritesView, SimpleItemRecyc
 
     private fun refreshView() {
         if (adapter.isEmpty()) {
-            quiz_list_empty_view.visibility = View.VISIBLE
-            quiz_list.visibility = View.INVISIBLE
+            binding.quizList.quizListEmptyView.visibility = View.VISIBLE
+            binding.quizList.quizList.visibility = View.INVISIBLE
         } else {
-            quiz_list_empty_view.visibility = View.INVISIBLE
-            quiz_list.visibility = View.VISIBLE
+            binding.quizList.quizListEmptyView.visibility = View.INVISIBLE
+            binding.quizList.quizList.visibility = View.VISIBLE
         }
     }
 }

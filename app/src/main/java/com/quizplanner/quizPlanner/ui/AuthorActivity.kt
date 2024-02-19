@@ -7,13 +7,12 @@ import android.view.View
 import android.widget.Toast
 import com.quizplanner.quizPlanner.QuizPlanner
 import com.quizplanner.quizPlanner.R
+import com.quizplanner.quizPlanner.databinding.ActivityFavoritesBinding
 import com.quizplanner.quizPlanner.exchange.Input
 import com.quizplanner.quizPlanner.exchange.RetrofitService
 import com.quizplanner.quizPlanner.model.Db
 import com.quizplanner.quizPlanner.model.Quiz
 import io.reactivex.android.schedulers.AndroidSchedulers
-import kotlinx.android.synthetic.main.activity_favorites.*
-import kotlinx.android.synthetic.main.quiz_list.*
 import moxy.InjectViewState
 import moxy.MvpAppCompatActivity
 import moxy.MvpPresenter
@@ -66,23 +65,29 @@ class AuthorActivity : MvpAppCompatActivity(), AuthorView, SimpleItemRecyclerVie
 
     @InjectPresenter(tag = AUTHOR)
     lateinit var presenter: AuthorPresenter
+    
+    private lateinit var binding: ActivityFavoritesBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_favorites)
-        setSupportActionBar(detail_toolbar)
-        detail_toolbar.setNavigationOnClickListener { this.onBackPressed() }
+
+        binding = ActivityFavoritesBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
+        
+        setSupportActionBar(binding.detailToolbar)
+        binding.detailToolbar.setNavigationOnClickListener { this.onBackPressed() }
 
         adapter.setOnClickListener(this)
 
-        quiz_list.adapter = adapter
-        quiz_list_empty_view.text = getText(R.string.favorites_empty)
+        binding.quizList.quizList.adapter = adapter
+        binding.quizList.quizListEmptyView.text = getText(R.string.favorites_empty)
         refreshView()
 
         if (savedInstanceState == null) {
             author = intent.getStringExtra(AUTHOR_CODE)
                     ?: throw AssertionError()
-            detail_toolbar.title = getString(R.string.all_games)
+            binding.detailToolbar.title = getString(R.string.all_games)
         }
     }
 
@@ -108,15 +113,15 @@ class AuthorActivity : MvpAppCompatActivity(), AuthorView, SimpleItemRecyclerVie
     }
 
     override fun showLoadProgress() {
-        quiz_list_empty_view.visibility = View.GONE
-        quiz_list.visibility = View.GONE
-        wait_view.visibility = View.VISIBLE
+        binding.quizList.quizListEmptyView.visibility = View.GONE
+        binding.quizList.quizList.visibility = View.GONE
+        binding.waitView.visibility = View.VISIBLE
     }
 
     override fun hideLoadProgress() {
-        quiz_list_empty_view.visibility = View.VISIBLE
-        quiz_list.visibility = View.VISIBLE
-        wait_view.visibility = View.GONE
+        binding.quizList.quizListEmptyView.visibility = View.VISIBLE
+        binding.quizList.quizList.visibility = View.VISIBLE
+        binding.waitView.visibility = View.GONE
     }
 
     override fun onItemClick(quiz: Quiz) {
@@ -137,11 +142,11 @@ class AuthorActivity : MvpAppCompatActivity(), AuthorView, SimpleItemRecyclerVie
 
     private fun refreshView() {
         if (adapter.isEmpty()) {
-            quiz_list_empty_view.visibility = View.VISIBLE
-            quiz_list.visibility = View.INVISIBLE
+            binding.quizList.quizListEmptyView.visibility = View.VISIBLE
+            binding.quizList.quizList.visibility = View.INVISIBLE
         } else {
-            quiz_list_empty_view.visibility = View.INVISIBLE
-            quiz_list.visibility = View.VISIBLE
+            binding.quizList.quizListEmptyView.visibility = View.INVISIBLE
+            binding.quizList.quizList.visibility = View.VISIBLE
         }
     }
 }

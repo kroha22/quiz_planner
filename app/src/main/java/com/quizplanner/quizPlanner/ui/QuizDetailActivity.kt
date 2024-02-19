@@ -19,14 +19,14 @@ import com.quizplanner.quizPlanner.HttpHelper
 import com.quizplanner.quizPlanner.QuizPlanner
 import com.quizplanner.quizPlanner.QuizPlanner.formatterTime
 import com.quizplanner.quizPlanner.R
+import com.quizplanner.quizPlanner.databinding.ActivityQuizDetailBinding
+import com.quizplanner.quizPlanner.databinding.QuizDetailBinding
 import com.quizplanner.quizPlanner.model.Db
 import com.quizplanner.quizPlanner.model.Quiz
 import com.quizplanner.quizPlanner.player.YouTubePlayer
 import com.quizplanner.quizPlanner.player.listeners.AbstractYouTubePlayerListener
 import com.quizplanner.quizPlanner.player.ui.views.YouTubePlayerView
 import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.activity_quiz_detail.*
-import kotlinx.android.synthetic.main.quiz_detail.*
 import moxy.InjectViewState
 import moxy.MvpAppCompatActivity
 import moxy.MvpPresenter
@@ -68,11 +68,17 @@ class QuizDetailActivity : MvpAppCompatActivity(), QuizDetailView {
     @InjectPresenter(tag = QUIZ_DETAIL)
     lateinit var presenter: QuizDetailPresenter
 
+    private lateinit var binding: ActivityQuizDetailBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_quiz_detail)
-        setSupportActionBar(detail_toolbar)
-        detail_toolbar.setNavigationOnClickListener { this.onBackPressed() }
+
+        binding = ActivityQuizDetailBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
+
+        setSupportActionBar(binding.detailToolbar)
+        binding.detailToolbar.setNavigationOnClickListener { this.onBackPressed() }
 
         if (savedInstanceState == null) {
             val item = intent.getSerializableExtra(QUIZ_ITEM_CODE)
@@ -80,43 +86,43 @@ class QuizDetailActivity : MvpAppCompatActivity(), QuizDetailView {
 
             this.item = item as Quiz
 
-            detail_title.text = item.organisationName
-            detail_theme.text = item.gameTheme
-            detail_date.text = QuizPlanner.formatterDateMonth.format(item.date)
-            detail_time.text = formatterTime.format(item.date)
+            binding.quizDetail.detailTitle.text = item.organisationName
+            binding.quizDetail.detailTheme.text = item.gameTheme
+            binding.quizDetail.detailDate.text = QuizPlanner.formatterDateMonth.format(item.date)
+            binding.quizDetail.detailTime.text = formatterTime.format(item.date)
 
-            detail_location.text = if (item.isOnlineGame()) {
-                detail_location.context.getString(R.string.online)
+            binding.quizDetail.detailLocation.text = if (item.isOnlineGame()) {
+                binding.quizDetail.detailLocation.context.getString(R.string.online)
             } else {
                 item.location
             }
 
-            detail_online.visibility = if (item.isOnlineGame()) {
+            binding.quizDetail.detailOnline.visibility = if (item.isOnlineGame()) {
                 View.VISIBLE
             } else {
                 View.GONE
             }
 
             if (item.countOfPlayers != null) {
-                detail_count.text = item.countOfPlayers.toString()
-                detail_count.visibility = View.VISIBLE
+                binding.quizDetail.detailCount.text = item.countOfPlayers.toString()
+                binding.quizDetail.detailCount.visibility = View.VISIBLE
             } else {
-                detail_count.visibility = View.GONE
+                binding.quizDetail.detailCount.visibility = View.GONE
             }
 
-            detail_price.text = item.price.toString()
-            detail_description.text = item.description
+            binding.quizDetail.detailPrice.text = item.price.toString()
+            binding.quizDetail.detailDescription.text = item.description
 
             if (item.registrationLink!!.isEmpty()) {
-                detail_link_label.visibility = View.INVISIBLE
-                detail_link.visibility = View.INVISIBLE
+                binding.quizDetail.detailLinkLabel.visibility = View.INVISIBLE
+                binding.quizDetail.detailLink.visibility = View.INVISIBLE
             } else {
-                detail_link_label.visibility = View.VISIBLE
-                detail_link.visibility = View.VISIBLE
-                detail_link.text = item.registrationLink
-                detail_link.setOnClickListener { presenter.onLinkClick() }
-                detail_link.setOnLongClickListener {
-                    setClipboard(detail_link.text.toString())
+                binding.quizDetail.detailLinkLabel.visibility = View.VISIBLE
+                binding.quizDetail.detailLink.visibility = View.VISIBLE
+                binding.quizDetail.detailLink.text = item.registrationLink
+                binding.quizDetail.detailLink.setOnClickListener { presenter.onLinkClick() }
+                binding.quizDetail.detailLink.setOnLongClickListener {
+                    setClipboard(binding.quizDetail.detailLink.text.toString())
                     Toast.makeText(this, getString(R.string.copy), Toast.LENGTH_SHORT).show()
                     true
                 }
@@ -131,32 +137,32 @@ class QuizDetailActivity : MvpAppCompatActivity(), QuizDetailView {
                         .fit()
                         .centerInside()
                         .error(R.drawable.ic_broken_image)
-                        .into(detail_img)
+                        .into(binding.quizDetail.detailImg)
             }
 
-            toolbar_calendar.setOnClickListener { presenter.onCalendarClick() }
-            detail_author_games.setOnClickListener { presenter.onAuthorClick() }
+            binding.toolbarCalendar.setOnClickListener { presenter.onCalendarClick() }
+            binding.quizDetail.detailAuthorGames.setOnClickListener { presenter.onAuthorClick() }
 
             updateFavoritesView()
 
-            detail_favorites.setOnClickListener {
+            binding.quizDetail.detailFavorites.setOnClickListener {
                 presenter.onGameCheckChanged()
             }
 
             if (QuizPlanner.isLast(item.getDate()) || item.isGamePostponed()) {
-                detail_time_img.setColorFilter(ContextCompat.getColor(this, R.color.medium_grey))
+                binding.quizDetail.detailTimeImg.setColorFilter(ContextCompat.getColor(this, R.color.medium_grey))
             } else {
-                detail_time_img.setColorFilter(ContextCompat.getColor(this, R.color.red))
+                binding.quizDetail.detailTimeImg.setColorFilter(ContextCompat.getColor(this, R.color.red))
             }
 
             if (item.isGamePostponed()) {
-                detail_postponed.visibility = View.VISIBLE
+                binding.quizDetail.detailPostponed.visibility = View.VISIBLE
             } else {
-                detail_postponed.visibility = View.GONE
+                binding.quizDetail.detailPostponed.visibility = View.GONE
             }
 
             if (intent.getStringExtra(SOURCE_CODE) == AUTHOR) {
-                detail_author_games.visibility = View.GONE
+                binding.quizDetail.detailAuthorGames.visibility = View.GONE
             }
 
             initLinks(item)
@@ -171,11 +177,11 @@ class QuizDetailActivity : MvpAppCompatActivity(), QuizDetailView {
 
     override fun updateFavoritesView() {
         if (item.isChecked) {
-            detail_favorites_text.text = getText(R.string.in_favorites)
-            detail_favorites_img.setColorFilter(ContextCompat.getColor(this, R.color.colorAccent))
+            binding.quizDetail.detailFavoritesText.text = getText(R.string.in_favorites)
+            binding.quizDetail.detailFavoritesImg.setColorFilter(ContextCompat.getColor(this, R.color.colorAccent))
         } else {
-            detail_favorites_text.text = getText(R.string.add_to_favorites)
-            detail_favorites_img.colorFilter = null
+            binding.quizDetail.detailFavoritesText.text = getText(R.string.add_to_favorites)
+            binding.quizDetail.detailFavoritesImg.colorFilter = null
         }
     }
 
@@ -245,9 +251,9 @@ class QuizDetailActivity : MvpAppCompatActivity(), QuizDetailView {
                     }
                 }
 
-                detail_description.text = ss
-                detail_description.movementMethod = LinkMovementMethod.getInstance()
-                detail_description.highlightColor = Color.TRANSPARENT
+                binding.quizDetail.detailDescription.text = ss
+                binding.quizDetail.detailDescription.movementMethod = LinkMovementMethod.getInstance()
+                binding.quizDetail.detailDescription.highlightColor = Color.TRANSPARENT
             }
         }
 

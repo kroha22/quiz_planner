@@ -12,7 +12,6 @@ import com.quizplanner.quizPlanner.QuizPlanner
 import com.quizplanner.quizPlanner.R
 import com.quizplanner.quizPlanner.model.Quiz
 import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.quiz_list_item.view.*
 
 
 //------------------------------------------------------------------------------------------------
@@ -143,19 +142,19 @@ open class SimpleItemRecyclerViewAdapter(private val showDate: Boolean) :
     //------------------------------------------------------------------------------------------------
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val title: TextView = view.item_title
-        val theme: TextView = view.item_theme
-        val location: TextView = view.item_location
-        val onlineImg: ImageView = view.item_online
-        val count: TextView = view.item_count
-        val time: TextView = view.item_time
-        val timeImg: ImageView = view.time_img
-        val img: ImageView = view.item_img
-        val check: ImageView = view.item_check
-        val date: TextView = view.item_date
-        val dateLine: LinearLayout = view.item_date_line
-        val countLine: LinearLayout = view.item_count_line
-        val postponed: LinearLayout = view.item_postponed
+        val title: TextView = view.findViewById(R.id.item_title)
+        val theme: TextView = view.findViewById(R.id.item_theme)
+        val location: TextView = view.findViewById(R.id.item_location)
+        val onlineImg: ImageView = view.findViewById(R.id.item_online)
+        val count: TextView = view.findViewById(R.id.item_count)
+        val time: TextView = view.findViewById(R.id.item_time)
+        val timeImg: ImageView = view.findViewById(R.id.time_img)
+        val img: ImageView = view.findViewById(R.id.item_img)
+        val check: ImageView = view.findViewById(R.id.item_check)
+        val date: TextView = view.findViewById(R.id.item_date)
+        val dateLine: LinearLayout = view.findViewById(R.id.item_date_line)
+        val countLine: LinearLayout = view.findViewById(R.id.item_count_line)
+        val postponed: LinearLayout = view.findViewById(R.id.item_postponed)
 
         fun setChecked(isChecked: Boolean) {
             if (isChecked) {

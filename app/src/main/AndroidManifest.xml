@@ -17,7 +17,8 @@
 
         <activity
             android:name=".ui.MainActivity"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -26,11 +27,13 @@
 
         <activity
             android:name=".ui.QuizDetailActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:exported="true" />
 
         <activity
             android:name=".ui.FavoritesActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:exported="true" />
         <activity android:name=".ui.AuthorActivity" />
 
     </application>

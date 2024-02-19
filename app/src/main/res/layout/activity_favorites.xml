@@ -35,7 +35,9 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true" />
 
-        <include layout="@layout/quiz_list" />
+        <include
+            android:id="@+id/quiz_list"
+            layout="@layout/quiz_list" />
 
     </RelativeLayout>
 

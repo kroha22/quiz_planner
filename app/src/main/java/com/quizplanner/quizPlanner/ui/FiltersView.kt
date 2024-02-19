@@ -9,10 +9,10 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
 import android.widget.CheckedTextView
+import android.widget.ImageView
 import android.widget.LinearLayout
 import com.quizplanner.quizPlanner.R
 import com.quizplanner.quizPlanner.model.Filter
-import kotlinx.android.synthetic.main.filters_view.view.*
 import kotlin.math.abs
 
 
@@ -42,11 +42,11 @@ class FiltersView : LinearLayout {
 
         initOnlineOffline()
 
-        filter_close.setOnClickListener {
+        findViewById<ImageView>(R.id.filter_close).setOnClickListener {
             close()
         }
 
-        container.setOnTouchListener(object : OnSwipeTouchListener(context) {
+        findViewById<LinearLayout>(R.id.container).setOnTouchListener(object : OnSwipeTouchListener(context) {
 
             override fun onSwipeRight() {
                 close()
@@ -61,7 +61,7 @@ class FiltersView : LinearLayout {
         }
 
         if (filters.containsAll(Filter.values().asList())) {
-            filter_all.callOnClick()
+            findViewById<CheckedTextView>(R.id.filter_all).callOnClick()
             return
         }
 
@@ -82,8 +82,8 @@ class FiltersView : LinearLayout {
     }
 
     private fun getBtnForFilter(filter: Filter) = when (filter) {
-        Filter.ONLINE -> filter_online
-        Filter.OFFLINE -> filter_offline
+        Filter.ONLINE -> findViewById<CheckedTextView>(R.id.filter_online)
+        Filter.OFFLINE -> findViewById<CheckedTextView>(R.id.filter_offline)
     }
 
     private fun initBtn(btn: CheckedTextView, filter: Filter) {
@@ -107,21 +107,21 @@ class FiltersView : LinearLayout {
 
     private fun initOnlineOffline() {
 
-        initRadioGroup(listOf(filter_online, filter_offline, filter_all)) {
+        initRadioGroup(listOf(findViewById<CheckedTextView>(R.id.filter_online), findViewById<CheckedTextView>(R.id.filter_offline), findViewById<CheckedTextView>(R.id.filter_all))) {
             when (it) {
-                filter_online -> {
+                findViewById<CheckedTextView>(R.id.filter_online) -> {
                     if (!selected.contains(Filter.ONLINE)) {
                         selected.add(Filter.ONLINE)
                     }
                     selected.remove(Filter.OFFLINE)
                 }
-                filter_offline -> {
+                findViewById<CheckedTextView>(R.id.filter_offline) -> {
                     if (!selected.contains(Filter.OFFLINE)) {
                         selected.add(Filter.OFFLINE)
                     }
                     selected.remove(Filter.ONLINE)
                 }
-                filter_all -> {
+                findViewById<CheckedTextView>(R.id.filter_all) -> {
                     if (!selected.contains(Filter.ONLINE)) {
                         selected.add(Filter.ONLINE)
                     }
@@ -173,7 +173,7 @@ open class OnSwipeTouchListener(ctx: Context?) : OnTouchListener {
 
     private val gestureDetector: GestureDetector
 
-    override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+    override fun onTouch(v: View?, event: MotionEvent): Boolean {
         return gestureDetector.onTouchEvent(event)
     }
 
@@ -183,11 +183,16 @@ open class OnSwipeTouchListener(ctx: Context?) : OnTouchListener {
             return true
         }
 
-        override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+        override fun onFling(
+            e1: MotionEvent?,
+            e2: MotionEvent,
+            velocityX: Float,
+            velocityY: Float
+        ): Boolean {
             var result = false
             try {
-                val diffY = e2.y - e1.y
-                val diffX = e2.x - e1.x
+                val diffY = e2.y - (e1?.y ?: 0.0f)
+                val diffX = e2.x - (e1?.x ?: 0.0f)
                 if (abs(diffX) > abs(diffY)) {
                     if (abs(diffX) > Companion.SWIPE_THRESHOLD && abs(velocityX) > Companion.SWIPE_VELOCITY_THRESHOLD) {
                         if (diffX > 0) {
